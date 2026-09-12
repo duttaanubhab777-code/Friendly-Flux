@@ -1,0 +1,38 @@
+[
+    {
+        "name": "Albert Einstein",
+        "field": "Theoretical Physics",
+        "description": "Formulated the theory of relativity, revolutionizing our understanding of space, time, and gravity.",
+        "formula": "E = mc²"
+    },
+    {
+        "name": "Srinivasa Ramanujan",
+        "field": "Mathematics",
+        "description": "Made substantial contributions to mathematical analysis, number theory, and infinite series.",
+        "formula": "1 + 2 + 3 + ... = -1/12"
+    },
+    {
+        "name": "Marie Curie",
+        "field": "Physical Chemistry",
+        "description": "Conducted pioneering research on radioactivity and discovered the elements polonium and radium.",
+        "formula": "λ = ln(2) / T½"
+    },
+    {
+        "name": "Sir Isaac Newton",
+        "field": "Classical Mechanics",
+        "description": "Formulated the laws of motion and universal gravitation that dominated scientists' view of the physical universe.",
+        "formula": "F = G(m₁m₂)/r²"
+    },
+    {
+        "name": "Nikola Tesla",
+        "field": "Electrical Engineering",
+        "description": "Designed the modern alternating current (AC) electricity supply system.",
+        "formula": "B = μ₀I / 2πr"
+    },
+    {
+        "name": "Max Planck",
+        "field": "Quantum Physics",
+        "description": "Originated quantum theory, which won him the Nobel Prize in Physics in 1918.",
+        "formula": "E = hν"
+    }
+]
