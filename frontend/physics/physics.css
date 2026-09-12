@@ -1,0 +1,76 @@
+/* কন্টেইনারের ডিজাইন */
+.calculator-container {
+    max-width: 400px;
+    margin: 40px auto;
+    padding: 25px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    font-family: sans-serif;
+}
+
+.calculator-container h2 {
+    text-align: center;
+    color: #2563eb;
+    margin-bottom: 20px;
+}
+
+/* ইনপুট বক্স এবং লেবেল */
+.input-group {
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.input-group label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 5px;
+}
+
+.input-group select,
+.input-group input {
+    padding: 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 5px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s;
+}
+
+/* ইনপুট বক্সে ক্লিক করলে কালার চেঞ্জ হবে */
+.input-group select:focus,
+.input-group input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* বাটন ডিজাইন */
+.calc-btn {
+    width: 100%;
+    background-color: #3b82f6;
+    color: white;
+    font-weight: bold;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: background-color 0.2s;
+}
+
+.calc-btn:hover {
+    background-color: #2563eb;
+}
+
+/* রেজাল্ট টেক্সট */
+.result-text {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #16a34a;
+}

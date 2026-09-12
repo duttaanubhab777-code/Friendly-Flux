@@ -1,81 +1,93 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Friendly Flux | Explore the Universe of Logic</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- FontAwesome for professional icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Friendly Flux | Explore the Universe of Logic</title>
+        <link rel="stylesheet" href="style.css" />
+        <!-- FontAwesome for professional icons -->
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        />
+    </head>
+    <body>
+        <!-- Navigation Bar -->
+        <nav class="navbar">
+            <div class="logo">
+                <i class="fa-solid fa-atom"></i> Friendly Flux
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#subjects">Subjects</a></li>
+                <li><a href="#hall-of-fame">Hall of Fame</a></li>
+            </ul>
+        </nav>
 
-    <!-- Navigation Bar -->
-    <nav class="navbar">
-        <div class="logo">
-            <i class="fa-solid fa-atom"></i> Friendly Flux
-        </div>
-        <ul class="nav-links">
-            <li><a href="#home">Home</a></li>
-            <li><a href="#subjects">Subjects</a></li>
-            <li><a href="#hall-of-fame">Hall of Fame</a></li>
-        </ul>
-    </nav>
+        <!-- Hero Section -->
+        <header id="home" class="hero">
+            <div class="hero-content">
+                <h1>Master the Universe of Equations</h1>
+                <p>
+                    Your ultimate platform for solving complex problems in
+                    Physics, Chemistry, and Mathematics through interactive
+                    formulas and image processing.
+                </p>
+                <a href="#subjects" class="cta-btn">Start Exploring</a>
+            </div>
+        </header>
 
-    <!-- Hero Section -->
-    <header id="home" class="hero">
-        <div class="hero-content">
-            <h1>Master the Universe of Equations</h1>
-            <p>Your ultimate platform for solving complex problems in Physics, Chemistry, and Mathematics through interactive formulas and image processing.</p>
-            <a href="#subjects" class="cta-btn">Start Exploring</a>
-        </div>
-    </header>
+        <!-- Core Subjects Section -->
+        <section id="subjects" class="section-container">
+            <h2 class="section-title">Choose Your Domain</h2>
+            <div class="card-grid">
+                <!-- Mathematics Card -->
+                <a href="math/math.html" class="subject-card math-card">
+                    <i class="fa-solid fa-square-root-variable icon"></i>
+                    <h3>Mathematics</h3>
+                    <p>Algebra, Calculus, Geometry & Beyond</p>
+                </a>
 
-    <!-- Core Subjects Section -->
-    <section id="subjects" class="section-container">
-        <h2 class="section-title">Choose Your Domain</h2>
-        <div class="card-grid">
-            
-            <!-- Mathematics Card -->
-            <a href="math.html" class="subject-card math-card">
-                <i class="fa-solid fa-square-root-variable icon"></i>
-                <h3>Mathematics</h3>
-                <p>Algebra, Calculus, Geometry & Beyond</p>
-            </a>
+                <!-- Physics Card -->
+                <a
+                    href="physics/physics.html"
+                    class="subject-card physics-card"
+                >
+                    <i class="fa-solid fa-rocket icon"></i>
+                    <h3>Physics</h3>
+                    <p>Mechanics, Thermodynamics & Electromagnetism</p>
+                </a>
 
-            <!-- Physics Card -->
-            <a href="physics.html" class="subject-card physics-card">
-                <i class="fa-solid fa-rocket icon"></i>
-                <h3>Physics</h3>
-                <p>Mechanics, Thermodynamics & Electromagnetism</p>
-            </a>
+                <!-- Chemistry Card -->
+                <a
+                    href="chemistry/chemistry.html"
+                    class="subject-card chemistry-card"
+                >
+                    <i class="fa-solid fa-flask icon"></i>
+                    <h3>Chemistry</h3>
+                    <p>Organic, Inorganic & Chemical Reactions</p>
+                </a>
+            </div>
+        </section>
 
-            <!-- Chemistry Card -->
-            <a href="chemistry.html" class="subject-card chemistry-card">
-                <i class="fa-solid fa-flask icon"></i>
-                <h3>Chemistry</h3>
-                <p>Organic, Inorganic & Chemical Reactions</p>
-            </a>
+        <!-- Scientists & Formulas (Hall of Fame) Section -->
+        <section id="hall-of-fame" class="section-container bg-light">
+            <h2 class="section-title">Legends of Science</h2>
+            <p class="section-subtitle">
+                Discover the greatest minds and the formulas that changed the
+                world.
+            </p>
 
-        </div>
-    </section>
+            <div class="card-grid" id="scientists-container">
+                <!-- Cards will be generated here by JavaScript -->
+            </div>
+        </section>
 
-    <!-- Scientists & Formulas (Hall of Fame) Section -->
-    <section id="hall-of-fame" class="section-container bg-light">
-        <h2 class="section-title">Legends of Science</h2>
-        <p class="section-subtitle">Discover the greatest minds and the formulas that changed the world.</p>
-        
-        <div class="card-grid" id="scientists-container">
-            <!-- Cards will be generated here by JavaScript -->
-        </div>
-    </section>
+        <!-- Footer -->
+        <footer>
+            <p>&copy; 2026 Friendly Flux. Built by Anubhab & Arnab.</p>
+        </footer>
 
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2026 Friendly Flux. Built by Anubhab & Arnab.</p>
-    </footer>
-
-    <script src="script.js"></script>
-</body>
+        <script src="script.js"></script>
+    </body>
 </html>
-

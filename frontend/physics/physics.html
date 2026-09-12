@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="physics.css">
+</head>
+<body>
+  <div class="calculator-container">
+    <h2>Physics Problem Solver</h2>
+    
+    <div class="input-group">
+        <label for="physics-select">Select a Formula:</label>
+        <select id="physics-select">
+            <option value="">-- Choose here --</option>
+            <option value="newtons_second_law">Newton's Second Law (F = ma)</option>
+            <option value="kinetic_energy">Kinetic Energy (KE = 1/2 mv²)</option>
+            <option value="ohms_law">Ohm's Law (V = IR)</option>
+            <option value="final_velocity">Final Velocity (v = u + at)</option>
+        </select>
+    </div>
+
+    <!-- ইনপুট বক্সগুলো এখানে নিজে থেকে আসবে -->
+    <div id="physics-inputs"></div>
+
+    <button id="physics-calc-btn" class="calc-btn">Calculate</button>
+    
+    <div id="physics-result" class="result-text"></div>
+</div>
+  <script src="physics.js"></script>
+</body>
+</html>
+  
