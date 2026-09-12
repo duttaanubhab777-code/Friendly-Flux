@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Formula Solver</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Physics & Math Solver 🚀</h1>
+            <p>ফর্মুলার মান বসাও অথবা প্রশ্নের ছবি দাও!</p>
+        </header>
+
+        <!-- ফর্মুলা সেকশন -->
+        <section class="card">
+            <h2>ফর্মুলা ক্যালকুলেটর</h2>
+            <div class="input-group">
+                <label for="formulaSelect">ফর্মুলা বেছে নাও:</label>
+                <select id="formulaSelect">
+                    <option value="force">বল (Force) [ F = m × a ]</option>
+                    <option value="kinetic_energy">গতিশক্তি (Kinetic Energy) [ E = ½mv² ]</option>
+                </select>
+            </div>
+            
+            <div id="dynamicInputs">
+                <!-- জাভাস্ক্রিপ্ট দিয়ে এখানে ইনপুট বক্স আসবে -->
+            </div>
+
+            <button onclick="calculateFormula()" class="btn">ক্যালকুলেট করো</button>
+        </section>
+
+        <!-- ছবি আপলোড সেকশন -->
+        <section class="card">
+            <h2>ছবি থেকে সমাধান (Image Solver)</h2>
+            <input type="file" id="imageInput" accept="image/*">
+            <button onclick="solveFromImage()" class="btn btn-secondary">ছবি আপলোড করো</button>
+        </section>
+
+        <!-- রেজাল্ট দেখানোর জায়গা -->
+        <div id="resultBox" class="result-box hidden">
+            <h3>ফলাফল:</h3>
+            <p id="resultText">এখানে উত্তর আসবে...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
