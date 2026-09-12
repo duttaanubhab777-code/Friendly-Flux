@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const requestBody = { formula: selectedFormulaId, variables: variablesData }; // Matches app.py JSON struct[span_3](start_span)[span_3](end_span)
-        const API_BASE = "https://<তোমার-pythonanywhere-username>.pythonanywhere.com"; 
+        const API_BASE = "https://friendlyflux.pythonanywhere.com";
 
         resultDisplay.innerText = currentLang === 'en' ? "Calculating..." : "হিসাব হচ্ছে...";
         
