@@ -1,33 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>chemistry solver</title>
-  <link rel="stylesheet" href="chemistry.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemistry Explorer</title>
+    <link rel="stylesheet" href="chemistry.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-  <div class="calculator-container">
-    <h2>Chemistry Problem Solver</h2>
-    
-    <div class="input-group">
-        <label for="chemistry-select">Select a Formula:</label>
-        <select id="chemistry-select">
-            <option value="">-- Choose here --</option>
-            <!-- app.py এর CHEMISTRY_FORMULAS এর নাম অনুযায়ী[span_1](start_span)[span_1](end_span) -->
-            <option value="moles">Moles (n = mass / Molar mass)</option>
-            <option value="molarity">Molarity (M = moles / Volume)</option>
-            <option value="ideal_gas_pressure">Ideal Gas Pressure (P = nRT / V)</option>
-        </select>
-    </div>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo"><i class="fa-solid fa-flask"></i> <span data-lang="title">ChemLab</span></div>
+        <div class="nav-controls">
+            <button id="lang-toggle" class="icon-btn">EN / বাংলা</button>
+            <button id="theme-toggle" class="icon-btn"><i class="fa-solid fa-moon"></i></button>
+        </div>
+    </nav>
 
-    <!-- ইনপুট বক্সগুলো এখানে নিজে থেকে আসবে -->
-    <div id="chemistry-inputs"></div>
+    <main class="container">
+        <!-- Header & Search Section -->
+        <header class="hero">
+            <h1 data-lang="heroTitle">Explore the Chemical World</h1>
+            <p data-lang="heroSub">Search and calculate complex chemistry formulas instantly.</p>
+            
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" data-placeholder="searchPlaceholder" placeholder="Search formulas (e.g., Moles, চাপ)...">
+            </div>
+        </header>
 
-    <button id="chemistry-calc-btn" class="calc-btn">Calculate</button>
-    
-    <div id="chemistry-result" class="result-text"></div>
-</div>
-<script src="chemistry.js"></script>
+        <!-- Formula Grid -->
+        <section class="formula-section">
+            <h2 data-lang="availableFormulas">Available Formulas</h2>
+            <div id="formula-grid" class="grid">
+                <!-- Cards will be injected by JS -->
+            </div>
+        </section>
+
+        <!-- Dynamic Calculator Area -->
+        <section id="calculator-section" class="calculator-panel hidden">
+            <div class="calc-header">
+                <h3 id="calc-title">Formula Name</h3>
+                <button id="close-calc" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="dynamic-inputs" class="input-grid"></div>
+            <button id="calculate-btn" class="primary-btn" data-lang="calcBtn">Calculate Result</button>
+            <div id="result-display" class="result-box"></div>
+        </section>
+
+        <!-- Extra Content: Scientists -->
+        <section class="info-section">
+            <h2 data-lang="scientistTitle">Legendary Chemists</h2>
+            <div class="grid info-grid">
+                <div class="info-card">
+                    <h3>Marie Curie</h3>
+                    <p data-lang="curieBio">Pioneered research on radioactivity and discovered the elements polonium and radium.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Dmitri Mendeleev</h3>
+                    <p data-lang="mendeleevBio">Created the Periodic Table of Elements, predicting the properties of elements yet to be discovered.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="chemistry.js"></script>
 </body>
 </html>

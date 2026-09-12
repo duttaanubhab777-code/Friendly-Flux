@@ -1,34 +1,69 @@
 <!DOCTYPE html>
-<lang="en">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>physics solver</title>
-  <link rel="stylesheet" href="physics.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Physics Explorer</title>
+    <link rel="stylesheet" href="physics.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-  <div class="calculator-container">
-    <h2>Physics Problem Solver</h2>
-    
-    <div class="input-group">
-        <label for="physics-select">Select a Formula:</label>
-        <select id="physics-select">
-            <option value="">-- Choose here --</option>
-            <option value="newtons_second_law">Newton's Second Law (F = ma)</option>
-            <option value="kinetic_energy">Kinetic Energy (KE = 1/2 mv²)</option>
-            <option value="ohms_law">Ohm's Law (V = IR)</option>
-            <option value="final_velocity">Final Velocity (v = u + at)</option>
-        </select>
-    </div>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo"><i class="fa-solid fa-atom"></i> <span data-lang="title">PhysicsLab</span></div>
+        <div class="nav-controls">
+            <button id="lang-toggle" class="icon-btn">EN / বাংলা</button>
+            <button id="theme-toggle" class="icon-btn"><i class="fa-solid fa-moon"></i></button>
+        </div>
+    </nav>
 
-    <!-- ইনপুট বক্সগুলো এখানে নিজে থেকে আসবে -->
-    <div id="physics-inputs"></div>
+    <main class="container">
+        <!-- Header & Search Section -->
+        <header class="hero">
+            <h1 data-lang="heroTitle">Explore the Laws of Universe</h1>
+            <p data-lang="heroSub">Search and calculate complex physics formulas instantly.</p>
+            
+            <div class="search-box">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="search-input" data-placeholder="searchPlaceholder" placeholder="Search formulas (e.g., Force, বেগ)...">
+            </div>
+        </header>
 
-    <button id="physics-calc-btn" class="calc-btn">Calculate</button>
-    
-    <div id="physics-result" class="result-text"></div>
-</div>
-  <script src="physics.js"></script>
+        <!-- Formula Grid (Tap to select) -->
+        <section class="formula-section">
+            <h2 data-lang="availableFormulas">Available Formulas</h2>
+            <div id="formula-grid" class="grid">
+                <!-- Cards will be injected by JS -->
+            </div>
+        </section>
+
+        <!-- Dynamic Calculator Area (Hidden until a formula is tapped) -->
+        <section id="calculator-section" class="calculator-panel hidden">
+            <div class="calc-header">
+                <h3 id="calc-title">Formula Name</h3>
+                <button id="close-calc" class="icon-btn"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="dynamic-inputs" class="input-grid"></div>
+            <button id="calculate-btn" class="primary-btn" data-lang="calcBtn">Calculate Result</button>
+            <div id="result-display" class="result-box"></div>
+        </section>
+
+        <!-- Extra Content: Scientists -->
+        <section class="info-section">
+            <h2 data-lang="scientistTitle">Legendary Physicists</h2>
+            <div class="grid info-grid">
+                <div class="info-card">
+                    <h3>Sir Isaac Newton</h3>
+                    <p data-lang="newtonBio">Formulated the laws of motion and universal gravitation, laying the foundation for classical mechanics.</p>
+                </div>
+                <div class="info-card">
+                    <h3>Georg Ohm</h3>
+                    <p data-lang="ohmBio">Discovered the mathematical relationship between current, voltage, and resistance, known as Ohm's Law.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="physics.js"></script>
 </body>
 </html>
-  
