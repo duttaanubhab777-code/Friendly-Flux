@@ -38,7 +38,7 @@ app = Flask(__name__)
 # নিজের GitHub Pages URL বসিয়ে দিও।
 # ---------------------------------------------------------------------------
 ALLOWED_ORIGINS = [
-    "https://duttaanubhab777-code.github.io/Friendly-Flux/frontend/",   # <-- এখানে নিজের GitHub Pages ডোমেইন বসাও
+    "https://duttaanubhab777-code.github.io",   # <-- এখানে নিজের GitHub Pages ডোমেইন বসাও
     "http://127.0.0.1:5500",                    # লোকাল টেস্ট (VS Code Live Server)
     "http://localhost:5500",
 ]
