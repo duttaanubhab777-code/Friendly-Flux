@@ -123,7 +123,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!isValid) return alert(currentLang === 'en' ? "Fill all fields!" : "সব ঘর পূরণ করুন!");
 
         const requestBody = { formula: selectedFormulaId, target: target, variables: variablesData };
-        const API_BASE = "https://friendlyflux.pythonanywhere.com/";
+
+      let API_BASE;
+
+if (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") {
+    // যখন নিজের ফোন বা পিসিতে টেস্ট করবে
+    API_BASE = "http://127.0.0.1:5000";
+} else {
+    // যখন প্রজেক্ট গিটহাব পেজে লাইভ চলবে
+    API_BASE = "https://friendlyflux.pythonanywhere.com/"; 
+}
 
         resultDisplay.innerText = currentLang === 'en' ? "Calculating..." : "হিসাব হচ্ছে...";
         
