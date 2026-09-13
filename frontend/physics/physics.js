@@ -1,6 +1,18 @@
 document.addEventListener('DOMContentLoaded', () => {
+  // --- API_BASE ডায়নামিক সেটআপ শুরু ---
+    let API_BASE = "";
+    if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        API_BASE = "http://127.0.0.1:5000"; // লোকালহোস্ট বা Acode-এর জন্য
+    } else {
+        // GitHub-এ চললে PythonAnywhere-এর লিংক ব্যবহার করবে
+        API_BASE = "https://friendlyflux.pythonanywhere.com/"; 
+    }
+    // --- API_BASE ডায়নামিক সেটআপ শেষ ---
+
     let currentLang = 'en';
     let selectedFormulaId = null;
+
+    
 
     const formulaGrid = document.getElementById('formula-grid');
     const searchInput = document.getElementById('search-input');
@@ -105,53 +117,71 @@ document.addEventListener('DOMContentLoaded', () => {
         selectedFormulaId = null;
     });
 
-    document.getElementById('calculate-btn').addEventListener('click', () => {
-        if (!selectedFormulaId) return;
-        const target = document.getElementById('target-variable').value;
-        if (!target) return alert(currentLang === 'en' ? "Please select a target!" : "অনুগ্রহ করে টার্গেট সিলেক্ট করুন!");
-
-        let variablesData = {};
-        const variablesToInput = physicsFormulas[selectedFormulaId].all_variables.filter(v => v !== target);
-        
-        let isValid = true;
-        variablesToInput.forEach(variable => {
-            const val = document.getElementById(`var-${variable}`).value;
-            if (val === "") isValid = false;
-            variablesData[variable] = parseFloat(val);
-        });
-
-        if (!isValid) return alert(currentLang === 'en' ? "Fill all fields!" : "সব ঘর পূরণ করুন!");
-
-        const requestBody = { formula: selectedFormulaId, target: target, variables: variablesData };
-
-      let API_BASE;
-
-if (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") {
-    // যখন নিজের ফোন বা পিসিতে টেস্ট করবে
-    API_BASE = "http://127.0.0.1:5000";
-} else {
-    // যখন প্রজেক্ট গিটহাব পেজে লাইভ চলবে
-    API_BASE = "https://friendlyflux.pythonanywhere.com/"; 
-}
-
-        resultDisplay.innerText = currentLang === 'en' ? "Calculating..." : "হিসাব হচ্ছে...";
-        
-        fetch(`${API_BASE}/api/physics/solve`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(requestBody)
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                resultDisplay.innerText = `${target} = ${data.result.toFixed(2)}`;
-            } else {
-                resultDisplay.innerText = `Error: ${data.error}`;
-            }
-        }).catch(() => {
-            resultDisplay.innerText = "Server Error!";
-        });
+    document.getElementById('calculate-btn').addEventListener('click', async () => {
+    if (!selectedFormulaId) return;
+    const target = document.getElementById('target-variable').value;
+    
+    if (!target) return alert(currentLang === 'en' ? "Please select a target!" : "অনুগ্রহ করে টার্গেট সিলেক্ট করুন!");
+    
+    let variablesData = {};
+    const variablesToInput = physicsFormulas[selectedFormulaId].all_variables.filter(v => v !== target);
+    
+    let isValid = true;
+    
+    variablesToInput.forEach(variable => {
+        const val = document.getElementById(`var-${variable}`).value;
+        if (val === "") isValid = false;
+        variablesData[variable] = parseFloat(val);
     });
+    
+    if (!isValid) return alert(currentLang === 'en' ? "Fill all fields!" : "সব ঘর পূরণ করুন!");
+    
+    // --- এখান থেকে নতুন সার্ভারে কল করার লজিক শুরু ---
+    const requestBody = {
+        target: target,
+        variables: variablesData
+    };
+
+    try {
+        // সার্ভারে রিকোয়েস্ট পাঠানো (await দিয়ে অপেক্ষা করা)
+        const response = await fetch(`${API_BASE}/api/physics/solve`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        const data = await response.json();
+
+        // রেজাল্ট দেখানোর লজিক
+        if (data.success) {
+            // মূল উত্তর তৈরি করা
+            const resultText = currentLang === 'en' 
+                ? `${data.target} = ${data.result}` 
+                : `${data.target} = ${data.result}`;
+
+            // তোমার HTML-এ যেখানে রেজাল্ট দেখাও, তার ID যদি 'result' হয়:
+            document.getElementById('result-display').innerText = resultText;
+
+            // ধাপে ধাপে অংকটা কীভাবে হলো সেটা কনসোলে দেখানো
+            if (data.steps && data.steps.length > 0) {
+                console.log("ক্যালকুলেশনের ধাপসমূহ:\n" + data.steps.join("\n"));
+            }
+
+        } else {
+            // পাইথন অংকটা মেলাতে না পারলে
+            alert(currentLang === 'en' ? `Error: ${data.error}` : `সমস্যা: ${data.error}`);
+        }
+
+    } catch (error) {
+        // নেটওয়ার্ক সমস্যা বা সার্ভার অফ থাকলে
+        console.error(error);
+        alert(currentLang === 'en' ? "Server connection failed!" : "সার্ভারের সাথে কানেক্ট করা যাচ্ছে না!");
+    }
+});
+
+    
 
     updateStaticTexts();
     renderGrid();

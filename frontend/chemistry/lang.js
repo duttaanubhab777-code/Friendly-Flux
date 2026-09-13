@@ -12,17 +12,24 @@ const dictionary = {
 
 const chemistryFormulas = {
     "moles": {
-        id: "moles", 
-        all_variables: ["n", "mass", "molar_mass"],
+        id: "moles",
+        all_variables: ["n", "mass", "M"],
         name: { en: "Moles", bn: "মোল সংখ্যা" },
         formula: "n = mass / M",
         tags: ["moles", "mass", "molar", "মোল", "ভর"]
     },
     "molarity": {
-        id: "molarity", 
-        all_variables: ["M", "moles", "volume"],
+        id: "molarity",
+        all_variables: ["Mol", "n", "V"],
         name: { en: "Molarity", bn: "মোলারিটি" },
-        formula: "M = moles / V",
+        formula: "Mol = n / V",
         tags: ["molarity", "volume", "concentration", "মোলারিটি", "আয়তন"]
+    },
+    "ideal_gas": {
+        id: "ideal_gas",
+        all_variables: ["P", "V", "n", "T"],
+        name: { en: "Ideal Gas Equation", bn: "আদর্শ গ্যাস সমীকরণ" },
+        formula: "P·V = n·0.0821·T",
+        tags: ["gas", "pressure", "temperature", "গ্যাস", "চাপ"]
     }
 };
