@@ -47,7 +47,18 @@ def solve_target(formula_strings: list, known_values: dict, target: str):
                 substituted = eq.subs({symbols(k): v for k, v in known.items()})
                 solved = sympy_solve(substituted, symbols(unknown))
                 if solved:
-                    known[unknown] = float(solved[0])
+                    # sympy_solve() যেকোনো ক্রমে root গুলো দেয় — উদাহরণ:
+                    # v**2 = 100 সমাধান করলে [-10, 10] আসে, [0]-তে সরাসরি
+                    # ইনডেক্স করলে মাঝেমধ্যে ভুল করে -10 বেছে নেয়। এখানে
+                    # শুধু বাস্তব (real) সমাধানগুলো রাখা হচ্ছে, আর একাধিক
+                    # থাকলে বড়টা (ধনাত্মক) নেওয়া হচ্ছে, কারণ ভর/বেগ/আয়তনের
+                    # মতো রাশি বাস্তব জগতে ঋণাত্মক হয় না।
+                    # নোট: ভবিষ্যতে যদি এমন কোনো রাশি (যেমন তাপমাত্রার
+                    # পরিবর্তন) যোগ করো যেখানে ঋণাত্মক মানও অর্থবহ, তখন এই
+                    # heuristic-টা আবার দেখে নিও।
+                    real_solutions = [s for s in solved if getattr(s, "is_real", True)]
+                    chosen = max(real_solutions) if real_solutions else solved[0]
+                    known[unknown] = float(chosen)
                     steps.append(f"{unknown} = {known[unknown]}")
                     progress = True
 
