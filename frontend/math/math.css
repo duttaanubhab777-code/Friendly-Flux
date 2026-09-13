@@ -1,0 +1,151 @@
+/* Theme Variables — physics.css / chemistry.css এর মতোই কাঠামো, শুধু রং আলাদা (amber) */
+:root {
+    --bg-color: #f3f4f6;
+    --nav-bg: #ffffff;
+    --text-main: #1f2937;
+    --text-muted: #6b7280;
+    --primary: #d97706;
+    --primary-hover: #b45309;
+    --card-bg: #ffffff;
+    --border: #e5e7eb;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+}
+
+[data-theme="dark"] {
+    --bg-color: #111827;
+    --nav-bg: #1f2937;
+    --text-main: #f9fafb;
+    --text-muted: #9ca3af;
+    --card-bg: #1f2937;
+    --border: #374151;
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background-color: var(--bg-color); color: var(--text-main); transition: var(--transition); }
+
+/* Navigation */
+.navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; background: var(--nav-bg); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; }
+.logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+.icon-btn { background: none; border: 1px solid var(--border); color: var(--text-main); padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: var(--transition); font-weight: bold; }
+.icon-btn:hover { background: var(--border); }
+
+/* Main Container & Layout */
+.container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+.hero { text-align: center; margin-bottom: 2rem; }
+.hero h1 { font-size: 2.2rem; margin-bottom: 10px; }
+.hero p { color: var(--text-muted); font-size: 1.05rem; }
+
+.hidden { display: none !important; }
+
+/* ---------------------------------------------------------------- */
+/* Calculus tool                                                     */
+/* ---------------------------------------------------------------- */
+.calc-tool {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 26px;
+    box-shadow: var(--shadow);
+}
+
+.mode-toggle { display: flex; gap: 10px; margin-bottom: 22px; }
+.mode-btn {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-color);
+    color: var(--text-muted);
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 0.95rem;
+}
+.mode-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+.field-label { display: block; font-weight: 600; margin-bottom: 8px; }
+
+#expr-input {
+    width: 100%;
+    padding: 14px;
+    font-size: 1.15rem;
+    font-family: 'Consolas', monospace;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-color);
+    color: var(--text-main);
+    resize: vertical;
+    outline: none;
+}
+#expr-input:focus { border-color: var(--primary); }
+
+/* Keypad — phone keyboard-e sohoje na paoya symbol gulor jonno */
+.keypad {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+}
+.keypad button {
+    padding: 12px 4px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-color);
+    color: var(--text-main);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.keypad button:hover { background: var(--primary); color: white; border-color: var(--primary); }
+#key-clear { grid-column: span 2; color: #ef4444; }
+
+.hint { color: var(--text-muted); font-size: 0.85rem; margin-top: 12px; line-height: 1.5; }
+
+.options-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+.option-group label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.9rem; color: var(--text-muted); }
+.option-group input[type="text"], .option-group input[type="number"] {
+    width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--bg-color); color: var(--text-main); outline: none; font-size: 1rem;
+}
+.option-group input:focus { border-color: var(--primary); }
+.checkbox-label { display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--text-main); cursor: pointer; }
+.checkbox-label input { width: 18px; height: 18px; }
+
+.primary-btn {
+    width: 100%; padding: 15px; background: var(--primary); color: white; border: none;
+    border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: var(--transition);
+    margin-top: 24px;
+}
+.primary-btn:hover { background: var(--primary-hover); }
+
+.result-box {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    min-height: 30px;
+    color: var(--primary);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+footer.ff-footer {
+    background-color: #0f172a;
+    color: #cbd5e1;
+    text-align: center;
+    padding: 24px 20px;
+    margin-top: 40px;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 480px) {
+    .keypad { grid-template-columns: repeat(4, 1fr); }
+}

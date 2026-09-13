@@ -1,12 +1,106 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Math Solver</title>
-    </head>
-    <body>
-      <script src="lang.js"></script>
-      <script src="math.js"></script>
-    </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculus Solver | Friendly Flux</title>
+    <link rel="stylesheet" href="math.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="logo"><i class="fa-solid fa-square-root-variable"></i> <span data-lang="title">Math Solver</span></div>
+        <div class="nav-controls">
+            <button id="lang-toggle" class="icon-btn">EN / বাংলা</button>
+            <button id="theme-toggle" class="icon-btn"><i class="fa-solid fa-moon"></i></button>
+        </div>
+    </nav>
+
+    <main class="container">
+        <header class="hero">
+            <h1 data-lang="heroTitle">Integration &amp; Differentiation Solver</h1>
+            <p data-lang="heroSub">Type any expression — as hard as you like — and get the worked-out answer.</p>
+        </header>
+
+        <!-- ================= Calculus Tool ================= -->
+        <section class="calc-tool">
+
+            <!-- Mode switch -->
+            <div class="mode-toggle" role="tablist">
+                <button type="button" class="mode-btn active" data-mode="differentiate" data-lang="modeDiff">Differentiate (d/dx)</button>
+                <button type="button" class="mode-btn" data-mode="integrate" data-lang="modeInt">Integrate (∫)</button>
+            </div>
+
+            <!-- Expression input -->
+            <label class="field-label" for="expr-input" data-lang="exprLabel">Write your problem here</label>
+            <textarea id="expr-input" rows="2" placeholder="e.g. sin(x)^2 * cos(x)   or   x^3 y^2 + ln(x)"></textarea>
+
+            <!-- Quick-insert keypad — so hard-to-type symbols are one tap away -->
+            <div class="keypad" id="keypad">
+                <button type="button" data-insert="^">x^y</button>
+                <button type="button" data-insert="sqrt(" data-close=")">√</button>
+                <button type="button" data-insert="pi">π</button>
+                <button type="button" data-insert="e">e</button>
+                <button type="button" data-insert="sin(" data-close=")">sin</button>
+                <button type="button" data-insert="cos(" data-close=")">cos</button>
+                <button type="button" data-insert="tan(" data-close=")">tan</button>
+                <button type="button" data-insert="ln(" data-close=")">ln</button>
+                <button type="button" data-insert="(">( </button>
+                <button type="button" data-insert=")">)</button>
+                <button type="button" data-insert="/">÷</button>
+                <button type="button" data-insert="*">×</button>
+                <button type="button" data-insert="x">x</button>
+                <button type="button" data-insert="y">y</button>
+                <button type="button" id="key-backspace"><i class="fa-solid fa-delete-left"></i></button>
+                <button type="button" id="key-clear" data-lang="clearBtn">Clear</button>
+            </div>
+
+            <p class="hint" data-lang="typingHint">
+                Tip: use ^ for power (x^2), * or a space for multiplication (2x or 2*x), sqrt(x) for √x, and ln(x) for natural log.
+            </p>
+
+            <!-- Options row -->
+            <div class="options-row">
+                <div class="option-group">
+                    <label data-lang="wrtLabel">With respect to</label>
+                    <input type="text" id="var-input" value="x" maxlength="5">
+                </div>
+                <div class="option-group" id="order-group">
+                    <label data-lang="orderLabel">Derivative order</label>
+                    <input type="number" id="order-input" value="1" min="1" max="6">
+                </div>
+                <div class="option-group hidden" id="definite-toggle-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="definite-toggle">
+                        <span data-lang="definiteLabel">Definite integral (with limits)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="options-row hidden" id="bounds-row">
+                <div class="option-group">
+                    <label data-lang="lowerLabel">Lower limit</label>
+                    <input type="text" id="lower-input" placeholder="e.g. 0">
+                </div>
+                <div class="option-group">
+                    <label data-lang="upperLabel">Upper limit</label>
+                    <input type="text" id="upper-input" placeholder="e.g. pi">
+                </div>
+            </div>
+
+            <button id="solve-btn" class="primary-btn" data-lang="solveBtn">Solve</button>
+
+            <div id="calc-result" class="result-box"></div>
+        </section>
+
+    </main>
+
+    <footer class="ff-footer">
+        <p>&copy; 2026 Friendly Flux. Built by Anubhab Dutta &amp; Arnab Adhikari.</p>
+    </footer>
+
+    <script src="lang.js"></script>
+    <script src="math.js"></script>
+</body>
 </html>

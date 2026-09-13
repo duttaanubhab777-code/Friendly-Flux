@@ -12,6 +12,7 @@ from flask_cors import CORS
 from formulas.physics_formulas import PHYSICS_FORMULAS
 from formulas.chemistry_formulas import CHEMISTRY_FORMULAS
 from formulas.formula_engine import solve_target
+from formulas.calculus_engine import solve_calculus, CalculusError
 
 app = Flask(__name__)
 
@@ -102,6 +103,33 @@ def chemistry_solve():
         })
     except ValueError as e:
         return jsonify({"success": False, "error": str(e), "known_values_so_far": known_values}), 400
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+
+# ---------------------------------------------------------------------------
+# CALCULUS — ইন্টিগ্রেশন / ডিফারেনশিয়েশন (sympy দিয়ে symbolic সমাধান)
+# ---------------------------------------------------------------------------
+@app.route("/api/math/calculus", methods=["POST"])
+def calculus_solve():
+    data = request.get_json(silent=True) or {}
+    operation = data.get("operation", "")
+    expression = data.get("expression", "")
+    variable = data.get("variable", "x")
+    order = data.get("order", 1)
+    lower = data.get("lower")
+    upper = data.get("upper")
+
+    if operation not in ("differentiate", "integrate"):
+        return jsonify({"success": False, "error": "operation must be 'differentiate' or 'integrate'"}), 400
+
+    try:
+        outcome = solve_calculus(operation, expression, variable, order, lower, upper)
+        return jsonify({"success": True, **outcome})
+    except CalculusError as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+    except TimeoutError as e:
+        return jsonify({"success": False, "error": "This expression is too complex and timed out"}), 400
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400
 
