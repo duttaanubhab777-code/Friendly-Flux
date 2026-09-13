@@ -13,6 +13,7 @@ from formulas.physics_formulas import PHYSICS_FORMULAS
 from formulas.chemistry_formulas import CHEMISTRY_FORMULAS
 from formulas.formula_engine import solve_target
 from formulas.calculus_engine import solve_calculus, CalculusError
+from formulas.graph_engine import generate_graph_data
 
 app = Flask(__name__)
 
@@ -129,6 +130,29 @@ def calculus_solve():
     except CalculusError as e:
         return jsonify({"success": False, "error": str(e)}), 400
     except TimeoutError as e:
+        return jsonify({"success": False, "error": "This expression is too complex and timed out"}), 400
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+
+# ---------------------------------------------------------------------------
+# GRAPH — any single-variable expression → numerical points for plotting
+# ---------------------------------------------------------------------------
+@app.route("/api/math/graph", methods=["POST"])
+def math_graph():
+    data = request.get_json(silent=True) or {}
+    expression = data.get("expression", "")
+    variable = data.get("variable", "x")
+    xmin = data.get("xmin", -10)
+    xmax = data.get("xmax", 10)
+    num_points = data.get("num_points", 300)
+
+    try:
+        outcome = generate_graph_data(expression, variable, xmin, xmax, num_points)
+        return jsonify({"success": True, **outcome})
+    except CalculusError as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+    except TimeoutError:
         return jsonify({"success": False, "error": "This expression is too complex and timed out"}), 400
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400

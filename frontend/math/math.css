@@ -9,7 +9,10 @@
     --card-bg: #ffffff;
     --border: #e5e7eb;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    --transition: all 0.3s ease;
+    --transition: all 0.2s ease;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --chip-bg: #fef3e2;
 }
 
 [data-theme="dark"] {
@@ -20,6 +23,7 @@
     --card-bg: #1f2937;
     --border: #374151;
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+    --chip-bg: #3a2a12;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -50,7 +54,7 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
     box-shadow: var(--shadow);
 }
 
-.mode-toggle { display: flex; gap: 10px; margin-bottom: 22px; }
+.mode-toggle { display: flex; gap: 10px; margin-bottom: 20px; }
 .mode-btn {
     flex: 1;
     padding: 12px;
@@ -65,6 +69,21 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
 }
 .mode-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
 
+/* Quick example chips — one tap fills a known-good problem */
+.example-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+.example-chip {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--chip-bg);
+    color: var(--text-main);
+    font-family: 'Consolas', monospace;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.example-chip:hover { border-color: var(--primary); color: var(--primary); }
+
 .field-label { display: block; font-weight: 600; margin-bottom: 8px; }
 
 #expr-input {
@@ -73,34 +92,66 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
     font-size: 1.15rem;
     font-family: 'Consolas', monospace;
     border-radius: 10px;
-    border: 1px solid var(--border);
+    border: 2px solid var(--border);
     background: var(--bg-color);
     color: var(--text-main);
     resize: vertical;
     outline: none;
+    transition: var(--transition);
 }
 #expr-input:focus { border-color: var(--primary); }
+#expr-input.invalid { border-color: var(--danger); }
 
-/* Keypad — phone keyboard-e sohoje na paoya symbol gulor jonno */
+/* Live validation line under the expression box */
+.live-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 20px;
+    margin-top: 8px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+.live-status.ok { color: var(--success); }
+.live-status.error { color: var(--danger); }
+.live-status .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+
+/* Keypad tabs — ফাংশনগুলো ক্যাটাগরি অনুযায়ী ভাগ করা, যাতে একগাদা বোতাম
+   একসাথে না দেখিয়ে সহজে খুঁজে পাওয়া যায় */
+.keypad-wrap { margin-top: 14px; }
+.keypad-tabs { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+.keypad-tab {
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg-color);
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.keypad-tab.active { background: var(--primary); border-color: var(--primary); color: white; }
+
 .keypad {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     gap: 8px;
-    margin-top: 12px;
 }
+.keypad-panel.hidden { display: none; }
 .keypad button {
     padding: 12px 4px;
     border-radius: 8px;
     border: 1px solid var(--border);
     background: var(--bg-color);
     color: var(--text-main);
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
 }
 .keypad button:hover { background: var(--primary); color: white; border-color: var(--primary); }
-#key-clear { grid-column: span 2; color: #ef4444; }
+#key-backspace, #key-clear { color: var(--danger); }
 
 .hint { color: var(--text-muted); font-size: 0.85rem; margin-top: 12px; line-height: 1.5; }
 
@@ -111,7 +162,8 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
     margin-top: 20px;
 }
 .option-group label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.9rem; color: var(--text-muted); }
-.option-group input[type="text"], .option-group input[type="number"] {
+.option-group .sub-hint { display: block; font-size: 0.75rem; margin-top: 6px; color: var(--text-muted); }
+.option-group input[type="text"] {
     width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
     background: var(--bg-color); color: var(--text-main); outline: none; font-size: 1rem;
 }
@@ -119,23 +171,80 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
 .checkbox-label { display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--text-main); cursor: pointer; }
 .checkbox-label input { width: 18px; height: 18px; }
 
+/* Stepper for derivative order — fewer typos than a bare number field on mobile */
+.stepper { display: flex; align-items: stretch; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.stepper button {
+    width: 42px;
+    background: var(--bg-color);
+    border: none;
+    color: var(--text-main);
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+}
+.stepper button:hover { background: var(--primary); color: white; }
+.stepper input {
+    flex: 1;
+    text-align: center;
+    border: none;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-main);
+    font-size: 1rem;
+    font-weight: 600;
+    outline: none;
+    -moz-appearance: textfield;
+}
+.stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
 .primary-btn {
     width: 100%; padding: 15px; background: var(--primary); color: white; border: none;
     border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: var(--transition);
     margin-top: 24px;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
 }
 .primary-btn:hover { background: var(--primary-hover); }
+.primary-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
-.result-box {
+.spinner {
+    width: 18px; height: 18px;
+    border: 3px solid rgba(255,255,255,0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Result card */
+.result-card {
     margin-top: 20px;
-    font-size: 1.2rem;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-color);
+    padding: 0;
+    overflow: hidden;
+}
+.result-card.hidden { display: none; }
+.result-card.error { border-color: var(--danger); }
+.result-card-body {
+    padding: 18px;
+    font-size: 1.25rem;
     font-weight: bold;
     text-align: center;
-    min-height: 30px;
     color: var(--primary);
     white-space: pre-wrap;
     word-break: break-word;
 }
+.result-card.error .result-card-body { color: var(--danger); font-size: 1rem; font-weight: 500; }
+.result-card-note { padding: 0 18px 14px; text-align: center; font-size: 0.85rem; color: var(--text-muted); font-weight: normal; }
+.result-card-actions { display: flex; justify-content: center; padding-bottom: 14px; }
+.copy-btn {
+    background: none; border: 1px solid var(--border); color: var(--text-muted);
+    padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: var(--transition);
+}
+.copy-btn:hover { border-color: var(--primary); color: var(--primary); }
 
 footer.ff-footer {
     background-color: #0f172a;
@@ -148,4 +257,39 @@ footer.ff-footer {
 
 @media (max-width: 480px) {
     .keypad { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ---------------------------------------------------------------- */
+/* Graph card                                                        */
+/* ---------------------------------------------------------------- */
+.graph-card {
+    margin-top: 20px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--bg-color);
+    padding: 0;
+    overflow: hidden;
+}
+.graph-card.hidden { display: none; }
+.graph-card-header {
+    padding: 14px 18px 8px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--primary);
+    text-align: center;
+    word-break: break-word;
+}
+.graph-canvas-wrap {
+    padding: 8px 12px 16px;
+    width: 100%;
+}
+.graph-canvas-wrap canvas {
+    width: 100% !important;
+    max-height: 420px;
+}
+.graph-card-note {
+    padding: 0 18px 14px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--text-muted);
 }
