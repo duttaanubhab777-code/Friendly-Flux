@@ -267,19 +267,32 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    function showResult({ text, note, isError }) {
-        graphCard.classList.add("hidden");
-        resultCard.classList.remove("hidden");
-        resultCard.classList.toggle("error", !!isError);
-        resultText.innerText = text;
+    function showResult({ text, latex, numericResult, note, isError }) {
+    graphCard.classList.add("hidden");
+    resultCard.classList.remove("hidden");
+    resultCard.classList.toggle("error", !!isError);
 
-        if (note) {
-            resultNote.innerText = note;
-            resultNote.classList.remove("hidden");
-        } else {
-            resultNote.classList.add("hidden");
+    resultText.dataset.plainText = text; // কপি বাটনের জন্য প্লেইন টেক্সট রেখে দিলাম
+
+    if (latex && !isError) {
+        let toRender = latex;
+        if (numericResult) toRender += ` \\approx ${numericResult}`;
+        try {
+            katex.render(toRender, resultText, { throwOnError: false, displayMode: true });
+        } catch (e) {
+            resultText.innerText = text;
         }
-        resultActions.classList.toggle("hidden", !!isError);
+    } else {
+        resultText.innerText = text;
+    }
+
+    if (note) {
+        resultNote.innerText = note;
+        resultNote.classList.remove("hidden");
+    } else {
+        resultNote.classList.add("hidden");
+    }
+    resultActions.classList.toggle("hidden", !!isError);
     }
 
     function renderGraph(points, expression, note) {
@@ -357,12 +370,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     copyResultBtn.addEventListener("click", () => {
-        navigator.clipboard.writeText(resultText.innerText).then(() => {
-            const original = copyResultBtn.innerText;
-            copyResultBtn.innerText = t("copiedBtn");
-            setTimeout(() => { copyResultBtn.innerText = original; }, 1500);
-        });
+    navigator.clipboard.writeText(resultText.dataset.plainText || resultText.innerText).then(() => {
+        const original = copyResultBtn.innerText;
+        copyResultBtn.innerText = t("copiedBtn");
+        setTimeout(() => { copyResultBtn.innerText = original; }, 1500);
     });
+});
 
     solveBtn.addEventListener("click", async () => {
         const expression = exprInput.value.trim();
@@ -431,13 +444,19 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
 
             if (data.success) {
-                let text = `= ${data.result}`;
-                if (data.is_numeric && data.numeric_result) {
-                    text += `  ≈ ${data.numeric_result}`;
-                }
-                showResult({ text, note: data.note, isError: false });
-            } else {
-                showResult({ text: data.error, isError: true });
+    let text = `= ${data.result}`;
+    if (data.is_numeric && data.numeric_result) {
+        text += `  ≈ ${data.numeric_result}`;
+    }
+    showResult({
+        text,
+        latex: data.latex,
+        numericResult: data.is_numeric ? data.numeric_result : null,
+        note: data.note,
+        isError: false,
+    });
+} else {
+    showResult({ text: data.error, isError: true });
             }
         } catch (err) {
             console.error(err);

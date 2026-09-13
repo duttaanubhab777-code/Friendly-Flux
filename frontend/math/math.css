@@ -236,6 +236,10 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
     color: var(--primary);
     white-space: pre-wrap;
     word-break: break-word;
+  
+    overflow-x: auto;
+    
+
 }
 .result-card.error .result-card-body { color: var(--danger); font-size: 1rem; font-weight: 500; }
 .result-card-note { padding: 0 18px 14px; text-align: center; font-size: 0.85rem; color: var(--text-muted); font-weight: normal; }
