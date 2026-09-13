@@ -178,4 +178,4 @@ def chemistry_solve():
 
 if __name__ == "__main__":
     # লোকাল টেস্টের জন্য। PythonAnywhere-এ WSGI ফাইল দিয়ে চলবে, এটা লাগবে না।
-    app.run(debug=True, port=5500)
+    app.run(debug=True, port=5000)
