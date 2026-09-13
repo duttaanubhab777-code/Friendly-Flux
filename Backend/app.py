@@ -41,6 +41,8 @@ ALLOWED_ORIGINS = [
     "https://duttaanubhab777-code.github.io",   # <-- এখানে নিজের GitHub Pages ডোমেইন বসাও
     "http://127.0.0.1:5500",                    # লোকাল টেস্ট (VS Code Live Server)
     "http://localhost:5500",
+  "http://localhost:9999",
+  #Acode app a localtest er jonno
 ]
 CORS(app, resources={r"/api/*": {"origins": ALLOWED_ORIGINS}})
 
