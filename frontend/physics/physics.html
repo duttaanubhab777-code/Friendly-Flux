@@ -18,26 +18,86 @@
     </nav>
 
     <main class="container">
-        <!-- Header & Search Section -->
+        <!-- Header Section -->
         <header class="hero">
             <h1 data-lang="heroTitle">Explore the Laws of Universe</h1>
             <p data-lang="heroSub">Search and calculate complex physics formulas instantly.</p>
-            
-            <div class="search-box">
+        </header>
+
+        <!-- Mode Switcher Tabs -->
+        <div class="mode-tabs">
+            <button id="tab-basic" class="tab-btn active" data-lang="tabBasic">Basic Formulas</button>
+            <button id="tab-smart" class="tab-btn" data-lang="tabSmart">Smart AI Solver</button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 1. Basic Mode (আপনার আগের সার্চ এবং গ্রিড)   -->
+        <!-- ========================================== -->
+        <div id="basic-mode-container">
+            <div class="search-box" style="margin-bottom: 2rem;">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="search-input" data-placeholder="searchPlaceholder" placeholder="Search formulas (e.g., Force, বেগ)...">
             </div>
-        </header>
 
-        <!-- Formula Grid (Tap to select) -->
-        <section class="formula-section">
-            <h2 data-lang="availableFormulas">Available Formulas</h2>
-            <div id="formula-grid" class="grid">
-                <!-- Cards will be injected by JS -->
+            <!-- Formula Grid (Tap to select) -->
+            <section class="formula-section">
+                <h2 data-lang="availableFormulas">Available Formulas</h2>
+                <div id="formula-grid" class="grid">
+                    <!-- Cards will be injected by JS -->
+                </div>
+            </section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 2. Smart AI Solver Mode (নতুন অংশ)          -->
+        <!-- ========================================== -->
+        <div id="smart-mode-container" class="hidden">
+            <div class="smart-card">
+                <h3 data-lang="smartTitle">Smart Physics Solver</h3>
+                
+                <!-- Target Variable Select -->
+                <div class="input-group" style="margin-bottom: 20px;">
+                    <label data-lang="smartTargetLabel">What do you want to find?</label>
+                    <select id="smart-target" class="custom-input">
+                        <option value="" data-lang="targetDefault">-- Select Target --</option>
+                        <option value="v">v (Final Velocity)</option>
+                        <option value="u">u (Initial Velocity)</option>
+                        <option value="a">a (Acceleration)</option>
+                        <option value="t">t (Time)</option>
+                        <option value="s">s (Displacement)</option>
+                        <option value="F">F (Force)</option>
+                        <option value="m">m (Mass)</option>
+                        <option value="KE">KE (Kinetic Energy)</option>
+                        <option value="PE">PE (Potential Energy)</option>
+                    </select>
+                </div>
+
+                <!-- Known Values Container -->
+                <div style="margin-bottom: 15px;">
+                    <label data-lang="smartKnownLabel">Add known values:</label>
+                    <div id="smart-known-values">
+                        <!-- JavaScript নিজে থেকে এখানে ইনপুট বক্স বসাবে -->
+                    </div>
+                </div>
+                
+                <!-- Add Variable Button -->
+                <button id="btn-add-var" class="secondary-btn" data-lang="addVarBtn">
+                    + Add Value
+                </button>
+                
+                <!-- Calculate Button -->
+                <button id="btn-solve-smart" class="primary-btn" data-lang="solveBtn">
+                    Calculate Result
+                </button>
+                
+                <!-- Result Display Area -->
+                <div id="smart-result-display"></div>
             </div>
-        </section>
+        </div>
 
-        <!-- Dynamic Calculator Area (Hidden until a formula is tapped) -->
+        <!-- ========================================== -->
+        <!-- Dynamic Calculator Area (Old Pop-up)       -->
+        <!-- ========================================== -->
         <section id="calculator-section" class="calculator-panel hidden">
             <div class="calc-header">
                 <h3 id="calc-title">Formula Name</h3>
@@ -63,7 +123,9 @@
             </div>
         </section>
     </main>
-  <script src="lang.js"></script>
+    
+    <!-- Scripts Loading in Order -->
+    <script src="lang.js"></script>
     <script src="../shared.js"></script>
     <script src="physics.js"></script>
 </body>

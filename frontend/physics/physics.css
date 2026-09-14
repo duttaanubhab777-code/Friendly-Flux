@@ -67,3 +67,123 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
 /* Info Section */
 .info-section { margin-top: 50px; border-top: 1px solid var(--border); padding-top: 30px; }
 .info-card { background: var(--card-bg); border-radius: 12px; padding: 20px; border: 1px solid var(--border); }
+
+
+/* ==========================================================================
+   Smart AI Solver & Tabs Styles
+   ========================================================================== */
+
+/* Mode Switcher Tabs */
+.mode-tabs {
+    display: flex;
+    background-color: var(--bg-color); /* থিমের ব্যাকগ্রাউন্ড */
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 5px;
+    margin: 20px auto 30px auto;
+    max-width: 400px;
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.tab-btn.active {
+    background-color: var(--card-bg); /* ডার্ক/লাইট মোড অনুযায়ী কার্ডের রঙ */
+    color: var(--primary);
+    box-shadow: var(--shadow);
+}
+
+/* Smart Solver Card */
+.smart-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.smart-card h3 {
+    text-align: center;
+    color: var(--text-main);
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.smart-card label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+/* Custom Inputs for Smart Solver */
+.custom-input {
+    width: 100%;
+    padding: 12px;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 1rem;
+    outline: none;
+    transition: var(--transition);
+}
+
+.custom-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Secondary Button (+ Add Value) */
+.secondary-btn {
+    background-color: transparent;
+    color: var(--primary);
+    border: 2px dashed var(--primary);
+    border-radius: 8px;
+    padding: 12px;
+    width: 100%;
+    margin-top: 15px;
+    margin-bottom: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.secondary-btn:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+}
+
+/* Remove Variable Button (Cross Icon) */
+.remove-var {
+    background: transparent;
+    border: none;
+    color: #ef4444; /* লাল রঙের আইকন */
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0 10px;
+    transition: var(--transition);
+}
+
+.remove-var:hover {
+    transform: scale(1.1);
+}
+
+/* Smart Solver Result Display */
+#smart-result-display {
+    margin-top: 25px;
+    text-align: center;
+    color: var(--text-main);
+}

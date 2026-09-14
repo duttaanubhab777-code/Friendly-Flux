@@ -7,8 +7,18 @@ const dictionary = {
     calcBtn: { en: "Calculate Result", bn: "ফলাফল নির্ণয় করুন" },
     targetLabel: { en: "What do you want to find?", bn: "কী বের করতে চান?" },
     targetDefault: { en: "-- Select Target --", bn: "-- নির্বাচন করুন --" },
-    scientistTitle: { en: "Legendary Physicists", bn: "মহান পদার্থবিজ্ঞানীগণ" }
+    scientistTitle: { en: "Legendary Physicists", bn: "মহান পদার্থবিজ্ঞানীগণ" },
+
+
+  tabBasic: { en: "Basic Formulas", bn: "সাধারণ সূত্র" },
+    tabSmart: { en: "Smart AI Solver", bn: "স্মার্ট এ.আই সলভার" },
+    smartTitle: { en: "Smart Physics Solver", bn: "স্মার্ট ফিজিক্স সলভার" },
+    smartTargetLabel: { en: "What do you want to find?", bn: "আপনি কী বের করতে চান?" },
+    smartKnownLabel: { en: "Add known values:", bn: "জানা মানগুলো যোগ করুন:" },
+    addVarBtn: { en: "+ Add Value", bn: "+ নতুন মান যোগ করুন" },
+    solveBtn: { en: "Calculate Result", bn: "ফলাফল নির্ণয় করুন" }
 };
+
 
 const physicsFormulas = {
     // ---- Mechanics: kinematics ----
