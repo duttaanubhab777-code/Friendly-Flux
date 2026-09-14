@@ -20,6 +20,16 @@ document.addEventListener("DOMContentLoaded", () => {
             this.innerHTML = '<i class="fa-solid fa-sun"></i>';
         }
     });
+  const guideBtn = document.getElementById("symbol-guide-btn");
+const guidePanel = document.getElementById("symbol-guide-panel");
+const closeGuideBtn = document.getElementById("close-guide-btn");
+
+guideBtn.addEventListener("click", () => {
+    guidePanel.classList.toggle("hidden");
+});
+closeGuideBtn.addEventListener("click", () => {
+    guidePanel.classList.add("hidden");
+});
 
     document.getElementById("lang-toggle").addEventListener("click", () => {
         currentLang = currentLang === "en" ? "bn" : "en";
@@ -137,17 +147,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const exprInput = document.getElementById("expr-input");
 
     function insertAtCursor(text, closingText) {
-        const start = exprInput.selectionStart;
-        const end = exprInput.selectionEnd;
-        const before = exprInput.value.substring(0, start);
-        const after = exprInput.value.substring(end);
-        const toInsert = closingText ? text + closingText : text;
-        exprInput.value = before + toInsert + after;
-        // cursor বসবে ব্র্যাকেটের ভেতরে (যেমন "sin(" লিখলে cursor "(" এর পরে বসবে)
-        const cursorPos = start + text.length;
-        exprInput.focus();
-        exprInput.setSelectionRange(cursorPos, cursorPos);
-        updateLiveStatus();
+    const start = exprInput.selectionStart;
+    const end = exprInput.selectionEnd;
+    const before = exprInput.value.substring(0, start);
+    const after = exprInput.value.substring(end);
+
+    // আগের ক্যারেক্টার অক্ষর/সংখ্যা হলে, আর নতুন যা বসছে সেটাও অক্ষর দিয়ে শুরু হলে, মাঝে * বসাও
+    const prevChar = before.slice(-1);
+    const needsSeparator = /[a-zA-Z0-9)]$/.test(prevChar) && /^[a-zA-Z]/.test(text);
+    const separator = needsSeparator ? "*" : "";
+
+    const toInsert = separator + text + (closingText || "");
+    exprInput.value = before + toInsert + after;
+    const cursorPos = start + separator.length + text.length;
+    exprInput.focus();
+    exprInput.setSelectionRange(cursorPos, cursorPos);
+    updateLiveStatus();
     }
 
     // সব keypad panel-এর data-insert বোতামের জন্য একটাই delegated listener
@@ -199,8 +214,84 @@ document.addEventListener("DOMContentLoaded", () => {
         return depth > 0 ? "missing-close" : "balanced";
     }
 
-    function updateLiveStatus() {
-        const text = exprInput.value.trim();
+  function findMatchingParen(str, openIndex) {
+    let depth = 1;
+    for (let i = openIndex + 1; i < str.length; i++) {
+        if (str[i] === "(") depth++;
+        else if (str[i] === ")") {
+            depth--;
+            if (depth === 0) return i;
+        }
+    }
+    return -1;
+}
+
+function convertSqrt(text) {
+    let idx = text.indexOf("sqrt(");
+    while (idx !== -1) {
+        const openParen = idx + 4;
+        const closeParen = findMatchingParen(text, openParen);
+        if (closeParen === -1) break;
+        const inner = text.slice(openParen + 1, closeParen);
+        text = text.slice(0, idx) + "\\sqrt{" + inner + "}" + text.slice(closeParen + 1);
+        idx = text.indexOf("sqrt(");
+    }
+    return text;
+}
+  function convertAbs(text) {
+    let idx = text.indexOf("abs(");
+    while (idx !== -1) {
+        const openParen = idx + 3;
+        const closeParen = findMatchingParen(text, openParen);
+        if (closeParen === -1) break;
+        const inner = text.slice(openParen + 1, closeParen);
+        text = text.slice(0, idx) + "\\left|" + inner + "\\right|" + text.slice(closeParen + 1);
+        idx = text.indexOf("abs(");
+    }
+    return text;
+  }
+
+function toLatexPreview(raw) {
+    let s = raw;
+    s = convertSqrt(s);
+    s = convertAbs(s);
+    s = s.replace(/\*/g, " \\cdot ");
+    s = s.replace(/\bpi\b/g, "\\pi");
+
+    // KaTeX নিজে চেনে এমন ফাংশন — সরাসরি ব্যাকস্ল্যাশ ব্যবহার করা যায়
+    const nativeFuncs = ["sin", "cos", "tan", "cot", "sec", "csc",
+                         "sinh", "cosh", "tanh", "ln", "log", "exp"];
+    nativeFuncs.forEach((f) => {
+        s = s.replace(new RegExp("\\b" + f + "\\(", "g"), "\\" + f + "(");
+    });
+
+    // asin/acos/atan কে বেশি প্রচলিত arcsin/arccos/arctan হিসেবে দেখানো (এগুলো KaTeX চেনে)
+    s = s.replace(/\basin\(/g, "\\arcsin(");
+    s = s.replace(/\bacos\(/g, "\\arccos(");
+    s = s.replace(/\batan\(/g, "\\arctan(");
+
+    // বাকি সব কাস্টম/কম-প্রচলিত ফাংশন — \operatorname{} দিয়ে upright দেখানো
+    const customFuncs = ["asinh", "acosh", "atanh", "acsch", "asech", "acoth",
+                         "csch", "sech", "coth", "floor", "ceil", "sign", "gamma"];
+    customFuncs.forEach((f) => {
+        s = s.replace(new RegExp("\\b" + f + "\\(", "g"), "\\operatorname{" + f + "}(");
+    });
+
+    return s;
+}
+  function updateLiveStatus() {
+    const text = exprInput.value.trim();
+
+    const previewEl = document.getElementById("expr-preview");
+    if (text) {
+        katex.render(toLatexPreview(text), previewEl, { throwOnError: false });
+    } else {
+        previewEl.innerHTML = "";
+    }
+
+    
+
+    
         exprInput.classList.remove("invalid");
         liveStatus.classList.remove("ok", "error");
 

@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculus Solver | Friendly Flux</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="math.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
@@ -44,6 +46,26 @@
 
             <!-- Live feedback: brackets balanced? characters allowed? -->
             <div class="live-status" id="live-status"></div>
+          <div id="expr-preview" class="expr-preview"></div>
+
+          <button type="button" id="symbol-guide-btn" class="icon-btn" data-lang="guideBtn">Symbols Guide</button>
+
+<div id="symbol-guide-panel" class="symbol-guide-panel hidden">
+    <div class="symbol-guide-header">
+        <span data-lang="guideTitle">Typing Guide</span>
+        <button type="button" id="close-guide-btn">&times;</button>
+    </div>
+    <table class="symbol-guide-table">
+    <tr><td>π</td><td><code>pi</code></td></tr>
+    <tr><td>√x</td><td><code>sqrt(x)</code></td></tr>
+    <tr><td>a/b</td><td><code>a/b</code></td></tr>
+    <tr><td>×</td><td><code>*</code> (or a space)</td></tr>
+    <tr><td>sin, cos, tan</td><td><code>sin(x)</code>, <code>cos(x)</code>, <code>tan(x)</code></td></tr>
+    <tr><td>ln, log</td><td><code>ln(x)</code>, <code>log(x)</code></td></tr>
+    <tr><td>x²</td><td><code>x²</code></td></tr>
+    <tr><td>|x|</td><td><code>|x|</code></td></tr>
+    </table>
+</div>
 
             <!-- Quick-insert keypad, grouped into tabs so it doesn't turn into wall of buttons -->
             <div class="keypad-wrap">
@@ -195,6 +217,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="lang.js"></script>
-    <script src="math.js"></script>
+    <script src="math.js?v=2"></script>
 </body>
 </html>

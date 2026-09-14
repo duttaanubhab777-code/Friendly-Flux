@@ -1,57 +1,83 @@
-/* Theme Variables — physics.css / chemistry.css এর মতোই কাঠামো, শুধু রং আলাদা (amber) */
+/* ==================================================================
+   Math Solver — "Board" theme
+   Light = whiteboard (marker ink), Dark = chalkboard (chalk dust)
+   ================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
-    --bg-color: #f3f4f6;
+    --bg-color: #f7f5ef;
     --nav-bg: #ffffff;
-    --text-main: #1f2937;
-    --text-muted: #6b7280;
-    --primary: #d97706;
-    --primary-hover: #b45309;
+    --text-main: #2b2b28;
+    --text-muted: #6b6a60;
+    --primary: #2f6f9e;      /* whiteboard marker blue */
+    --primary-hover: #24567c;
+    --accent-warn: #c0392b;   /* red marker */
     --card-bg: #ffffff;
-    --border: #e5e7eb;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --border: #d8d5c8;
+    --shadow: 0 4px 14px -4px rgba(40, 40, 30, 0.15);
     --transition: all 0.2s ease;
-    --success: #16a34a;
-    --danger: #dc2626;
-    --chip-bg: #fef3e2;
+    --success: #2e7d4f;
+    --danger: #c0392b;
+    --chip-bg: #eef2f5;
+    --board-texture: none;
+    --font-display: 'Kalam', cursive;
+    --font-body: 'Inter', system-ui, sans-serif;
 }
 
 [data-theme="dark"] {
-    --bg-color: #111827;
-    --nav-bg: #1f2937;
-    --text-main: #f9fafb;
-    --text-muted: #9ca3af;
-    --card-bg: #1f2937;
-    --border: #374151;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
-    --chip-bg: #3a2a12;
+    --bg-color: #1a2420;
+    --nav-bg: #182420;
+    --text-main: #e8e6d9;
+    --text-muted: #a3a89a;
+    --primary: #e8c547;      /* chalk yellow */
+    --primary-hover: #cfae35;
+    --accent-warn: #e8927c;
+    --card-bg: #212e29;
+    --border: rgba(232, 230, 217, 0.18);
+    --shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.5);
+    --success: #7fc78f;
+    --danger: #e8927c;
+    --chip-bg: #2a3a34;
+    --board-texture:
+        radial-gradient(circle at 15% 25%, rgba(255,255,255,0.025) 0%, transparent 45%),
+        radial-gradient(circle at 85% 75%, rgba(255,255,255,0.02) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(255,255,255,0.015) 0%, transparent 60%);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-body { background-color: var(--bg-color); color: var(--text-main); transition: var(--transition); }
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-body); }
+body {
+    background-color: var(--bg-color);
+    background-image: var(--board-texture);
+    color: var(--text-main);
+    transition: var(--transition);
+}
 
 /* Navigation */
-.navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; background: var(--nav-bg); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; }
-.logo { font-size: 1.5rem; font-weight: bold; color: var(--primary); display: flex; align-items: center; gap: 10px; }
-.icon-btn { background: none; border: 1px solid var(--border); color: var(--text-main); padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: var(--transition); font-weight: bold; }
-.icon-btn:hover { background: var(--border); }
+.navbar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 5%; background: var(--nav-bg); box-shadow: var(--shadow); position: sticky; top: 0; z-index: 100; border-bottom: 1px solid var(--border); }
+.logo { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 10px; }
+.nav-controls { display: flex; gap: 8px; }
+.icon-btn { background: none; border: 1.5px solid var(--border); color: var(--text-main); padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: var(--transition); font-weight: 600; font-size: 0.85rem; }
+.icon-btn:hover { border-color: var(--primary); color: var(--primary); }
 
 /* Main Container & Layout */
-.container { max-width: 800px; margin: 0 auto; padding: 2rem; }
+.container { max-width: 800px; margin: 0 auto; padding: 1.2rem; }
 .hero { text-align: center; margin-bottom: 2rem; }
-.hero h1 { font-size: 2.2rem; margin-bottom: 10px; }
-.hero p { color: var(--text-muted); font-size: 1.05rem; }
+.hero h1 { font-family: var(--font-display); font-size: 2.4rem; font-weight: 700; margin-bottom: 10px; letter-spacing: 0.3px; }
+.hero p { color: var(--text-muted); font-size: 1rem; max-width: 480px; margin: 0 auto; }
 
 .hidden { display: none !important; }
 
 /* ---------------------------------------------------------------- */
-/* Calculus tool                                                     */
+/* Calculus tool — the "board" itself                                */
 /* ---------------------------------------------------------------- */
 .calc-tool {
     background: var(--card-bg);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 26px;
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
     box-shadow: var(--shadow);
+    position: relative;
 }
 
 .mode-toggle { display: flex; gap: 10px; margin-bottom: 20px; }
@@ -59,56 +85,71 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
     flex: 1;
     padding: 12px;
     border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--bg-color);
+    border: 1.5px solid var(--border);
+    background: transparent;
     color: var(--text-muted);
     font-weight: 700;
     cursor: pointer;
     transition: var(--transition);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
 }
-.mode-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+.mode-btn.active { background: var(--primary); border-color: var(--primary); color: var(--bg-color); }
 
-/* Quick example chips — one tap fills a known-good problem */
+/* Quick example chips */
 .example-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
 .example-chip {
     padding: 6px 12px;
     border-radius: 999px;
-    border: 1px solid var(--border);
+    border: 1.5px dashed var(--border);
     background: var(--chip-bg);
     color: var(--text-main);
     font-family: 'Consolas', monospace;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     cursor: pointer;
     transition: var(--transition);
 }
 .example-chip:hover { border-color: var(--primary); color: var(--primary); }
 
-.field-label { display: block; font-weight: 600; margin-bottom: 8px; }
+.field-label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 0.95rem; }
 
 #expr-input {
     width: 100%;
     padding: 14px;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-family: 'Consolas', monospace;
     border-radius: 10px;
-    border: 2px solid var(--border);
+    border: 1.5px solid var(--border);
     background: var(--bg-color);
     color: var(--text-main);
     resize: vertical;
     outline: none;
     transition: var(--transition);
 }
-#expr-input:focus { border-color: var(--primary); }
+#expr-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent); }
 #expr-input.invalid { border-color: var(--danger); }
 
-/* Live validation line under the expression box */
+/* Live LaTeX preview — the "chalk writing" moment */
+.expr-preview {
+    text-align: center;
+    min-height: 28px;
+    margin: 10px 0;
+    padding: 8px 4px;
+    font-size: 1.15em;
+    overflow-x: auto;
+    color: var(--primary);
+    animation: chalkFadeIn 0.2s ease;
+}
+@keyframes chalkFadeIn {
+    from { opacity: 0; transform: translateY(-2px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 .live-status {
     display: flex;
     align-items: center;
     gap: 6px;
     min-height: 20px;
-    margin-top: 8px;
+    margin-top: 4px;
     font-size: 0.85rem;
     color: var(--text-muted);
 }
@@ -116,22 +157,61 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
 .live-status.error { color: var(--danger); }
 .live-status .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
 
-/* Keypad tabs — ফাংশনগুলো ক্যাটাগরি অনুযায়ী ভাগ করা, যাতে একগাদা বোতাম
-   একসাথে না দেখিয়ে সহজে খুঁজে পাওয়া যায় */
+/* Symbols Guide trigger */
+#symbol-guide-btn {
+    display: inline-block;
+    margin: 10px 0 4px auto;
+    background: transparent;
+    color: var(--primary);
+    border: 1.5px dashed var(--primary);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+#symbol-guide-btn:hover { background: var(--chip-bg); }
+
+.symbol-guide-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 82%;
+    max-width: 320px;
+    background: var(--card-bg);
+    border-left: 1.5px solid var(--border);
+    padding: 20px;
+    z-index: 999;
+    overflow-y: auto;
+    box-shadow: -8px 0 30px -6px rgba(0,0,0,0.25);
+    transform: translateX(0);
+    transition: transform 0.28s ease;
+}
+.symbol-guide-panel.hidden { transform: translateX(100%); display: block; }
+.symbol-guide-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; font-family: var(--font-display); font-size: 1.3rem; color: var(--primary); }
+#close-guide-btn { background: none; border: none; color: var(--text-muted); font-size: 1.4rem; cursor: pointer; line-height: 1; }
+.symbol-guide-table { width: 100%; border-collapse: collapse; }
+.symbol-guide-table td { padding: 8px 4px; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+.symbol-guide-table td:first-child { color: var(--text-main); font-weight: 600; }
+.symbol-guide-table code { color: var(--primary); background: var(--chip-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+
+/* Keypad */
 .keypad-wrap { margin-top: 14px; }
 .keypad-tabs { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
 .keypad-tab {
     padding: 6px 10px;
     border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--bg-color);
+    border: 1.5px solid var(--border);
+    background: transparent;
     color: var(--text-muted);
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
 }
-.keypad-tab.active { background: var(--primary); border-color: var(--primary); color: white; }
+.keypad-tab.active { background: var(--primary); border-color: var(--primary); color: var(--bg-color); }
 
 .keypad {
     display: grid;
@@ -142,18 +222,18 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
 .keypad button {
     padding: 12px 4px;
     border-radius: 8px;
-    border: 1px solid var(--border);
-    background: var(--bg-color);
+    border: 1.5px solid var(--border);
+    background: transparent;
     color: var(--text-main);
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
 }
-.keypad button:hover { background: var(--primary); color: white; border-color: var(--primary); }
-#key-backspace, #key-clear { color: var(--danger); }
+.keypad button:hover { background: var(--primary); color: var(--bg-color); border-color: var(--primary); }
+#key-backspace, #key-clear, #key-backspace-2, #key-clear-2, #key-backspace-3, #key-clear-3, #key-backspace-4, #key-clear-4 { color: var(--danger); }
 
-.hint { color: var(--text-muted); font-size: 0.85rem; margin-top: 12px; line-height: 1.5; }
+.hint { color: var(--text-muted); font-size: 0.82rem; margin-top: 12px; line-height: 1.5; }
 
 .options-row {
     display: grid;
@@ -164,18 +244,17 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
 .option-group label { display: block; margin-bottom: 8px; font-weight: 500; font-size: 0.9rem; color: var(--text-muted); }
 .option-group .sub-hint { display: block; font-size: 0.75rem; margin-top: 6px; color: var(--text-muted); }
 .option-group input[type="text"] {
-    width: 100%; padding: 12px; border-radius: 8px; border: 1px solid var(--border);
+    width: 100%; padding: 12px; border-radius: 8px; border: 1.5px solid var(--border);
     background: var(--bg-color); color: var(--text-main); outline: none; font-size: 1rem;
 }
 .option-group input:focus { border-color: var(--primary); }
 .checkbox-label { display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--text-main); cursor: pointer; }
 .checkbox-label input { width: 18px; height: 18px; }
 
-/* Stepper for derivative order — fewer typos than a bare number field on mobile */
-.stepper { display: flex; align-items: stretch; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.stepper { display: flex; align-items: stretch; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; }
 .stepper button {
     width: 42px;
-    background: var(--bg-color);
+    background: transparent;
     border: none;
     color: var(--text-main);
     font-size: 1.2rem;
@@ -183,13 +262,13 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
     cursor: pointer;
     transition: var(--transition);
 }
-.stepper button:hover { background: var(--primary); color: white; }
+.stepper button:hover { background: var(--primary); color: var(--bg-color); }
 .stepper input {
     flex: 1;
     text-align: center;
     border: none;
-    border-left: 1px solid var(--border);
-    border-right: 1px solid var(--border);
+    border-left: 1.5px solid var(--border);
+    border-right: 1.5px solid var(--border);
     background: var(--card-bg);
     color: var(--text-main);
     font-size: 1rem;
@@ -200,67 +279,71 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
 .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
 .primary-btn {
-    width: 100%; padding: 15px; background: var(--primary); color: white; border: none;
-    border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: var(--transition);
+    width: 100%; padding: 15px; background: var(--primary); color: var(--bg-color); border: none;
+    border-radius: 10px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: var(--transition);
     margin-top: 24px;
     display: flex; align-items: center; justify-content: center; gap: 10px;
+    font-family: var(--font-display);
+    letter-spacing: 0.5px;
 }
-.primary-btn:hover { background: var(--primary-hover); }
-.primary-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+.primary-btn:hover { background: var(--primary-hover); transform: translateY(-1px); }
+.primary-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
 .spinner {
     width: 18px; height: 18px;
-    border: 3px solid rgba(255,255,255,0.4);
-    border-top-color: white;
+    border: 3px solid color-mix(in srgb, var(--bg-color) 40%, transparent);
+    border-top-color: var(--bg-color);
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Result card */
+/* Result card — where the answer gets "written" */
 .result-card {
     margin-top: 20px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
+    border-radius: 12px;
+    border: 1.5px dashed var(--border);
     background: var(--bg-color);
     padding: 0;
     overflow: hidden;
+    animation: chalkFadeIn 0.3s ease;
 }
 .result-card.hidden { display: none; }
-.result-card.error { border-color: var(--danger); }
+.result-card.error { border-color: var(--danger); border-style: solid; }
 .result-card-body {
-    padding: 18px;
-    font-size: 1.25rem;
-    font-weight: bold;
+    padding: 22px 18px;
+    font-size: 1.3rem;
+    font-weight: 600;
     text-align: center;
     color: var(--primary);
     white-space: pre-wrap;
     word-break: break-word;
-  
     overflow-x: auto;
-    
-
 }
 .result-card.error .result-card-body { color: var(--danger); font-size: 1rem; font-weight: 500; }
 .result-card-note { padding: 0 18px 14px; text-align: center; font-size: 0.85rem; color: var(--text-muted); font-weight: normal; }
 .result-card-actions { display: flex; justify-content: center; padding-bottom: 14px; }
 .copy-btn {
-    background: none; border: 1px solid var(--border); color: var(--text-muted);
+    background: none; border: 1.5px solid var(--border); color: var(--text-muted);
     padding: 6px 14px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; transition: var(--transition);
 }
 .copy-btn:hover { border-color: var(--primary); color: var(--primary); }
 
 footer.ff-footer {
-    background-color: #0f172a;
-    color: #cbd5e1;
+    background-color: var(--nav-bg);
+    color: var(--text-muted);
     text-align: center;
     padding: 24px 20px;
     margin-top: 40px;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
 }
 
 @media (max-width: 480px) {
     .keypad { grid-template-columns: repeat(4, 1fr); }
+    .hero h1 { font-size: 1.9rem; }
+    .container { padding: 0.8rem; }
+    .calc-tool { padding: 12px; border-radius: 12px; }
 }
 
 /* ---------------------------------------------------------------- */
@@ -268,8 +351,8 @@ footer.ff-footer {
 /* ---------------------------------------------------------------- */
 .graph-card {
     margin-top: 20px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
     background: var(--bg-color);
     padding: 0;
     overflow: hidden;
@@ -282,18 +365,8 @@ footer.ff-footer {
     color: var(--primary);
     text-align: center;
     word-break: break-word;
+    font-family: var(--font-display);
 }
-.graph-canvas-wrap {
-    padding: 8px 12px 16px;
-    width: 100%;
-}
-.graph-canvas-wrap canvas {
-    width: 100% !important;
-    max-height: 420px;
-}
-.graph-card-note {
-    padding: 0 18px 14px;
-    text-align: center;
-    font-size: 0.85rem;
-    color: var(--text-muted);
-}
+.graph-canvas-wrap { padding: 8px 12px 16px; width: 100%; }
+.graph-canvas-wrap canvas { width: 100% !important; max-height: 420px; }
+.graph-card-note { padding: 0 18px 14px; text-align: center; font-size: 0.85rem; color: var(--text-muted); }
