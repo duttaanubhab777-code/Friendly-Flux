@@ -187,6 +187,7 @@ def solve_calculus(operation: str, expression: str, variable: str = "x", order: 
     expr_text = _validate_and_preprocess(expression)
     expr = _run_with_timeout(lambda: _parse(expr_text))
 
+
     variables = _resolve_variables(variable)
     is_mixed = len(variables) > 1
 

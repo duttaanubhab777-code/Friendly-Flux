@@ -1,6 +1,6 @@
 const dictionary = {
     title: { en: "Math Solver", bn: "গণিত সমাধান" },
-    heroTitle: { en: "Integration & Differentiation Solver", bn: "ইন্টিগ্রেশন ও ডিফারেনশিয়েশন সমাধান" },
+    heroTitle: { en: "Integration & Differentiation & Graph problem Solver", bn: "ইন্টিগ্রেশন ও ডিফারেনশিয়েশন ও গ্রাফ সমস্যা সমাধানকারী" },
     heroSub: { en: "Type any expression — as hard as you like — and get the worked-out answer.", bn: "যত কঠিন অংকই হোক, লিখে দাও — উত্তর বের করে দেবে।" },
     modeDiff: { en: "Differentiate (d/dx)", bn: "ডিফারেনশিয়েট (d/dx)" },
     modeInt: { en: "Integrate (∫)", bn: "ইন্টিগ্রেট (∫)" },

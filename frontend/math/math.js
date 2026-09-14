@@ -225,7 +225,92 @@ closeGuideBtn.addEventListener("click", () => {
     }
     return -1;
 }
+function findMatchingBrace(str, openIndex) {
+    let depth = 1;
+    for (let i = openIndex + 1; i < str.length; i++) {
+        if (str[i] === "{") depth++;
+        else if (str[i] === "}") {
+            depth--;
+            if (depth === 0) return i;
+        }
+    }
+    return -1;
+}
 
+function readTermForward(text, start) {
+    let i = start;
+    if (text[i] === "(") {
+        const close = findMatchingParen(text, i);
+        if (close === -1) return { term: text.slice(i), end: text.length };
+        return { term: text.slice(i + 1, close), end: close + 1 };
+    }
+    if (text[i] === "\\") {
+        let j = i + 1;
+        while (j < text.length && /[a-zA-Z]/.test(text[j])) j++;
+        while (text[j] === "{") {
+            const close = findMatchingBrace(text, j);
+            if (close === -1) break;
+            j = close + 1;
+        }
+        while (text[j] === "(") {
+            const close = findMatchingParen(text, j);
+            if (close === -1) break;
+            j = close + 1;
+        }
+        return { term: text.slice(i, j), end: j };
+    }
+    let j = i;
+    while (j < text.length && /[a-zA-Z0-9_.]/.test(text[j])) j++;
+    while (text[j] === "(") {
+        const close = findMatchingParen(text, j);
+        if (close === -1) break;
+        j = close + 1;
+    }
+    if (text[j] === "^") {
+        j++;
+        if (text[j] === "{") {
+            const close = findMatchingBrace(text, j);
+            if (close !== -1) j = close + 1;
+        } else if (j < text.length) {
+            j++;
+        }
+    }
+    return { term: text.slice(i, j), end: j };
+}
+
+function readTermBackward(text, end) {
+    if (text[end - 1] === ")") {
+        let depth = 1, j = end - 2;
+        while (j >= 0 && depth > 0) {
+            if (text[j] === ")") depth++;
+            else if (text[j] === "(") depth--;
+            if (depth === 0) break;
+            j--;
+        }
+        if (j < 0) return { term: text.slice(0, end), start: 0 };
+        let k = j;
+        while (k > 0 && /[a-zA-Z0-9_.]/.test(text[k - 1])) k--;
+        return { term: text.slice(k, end), start: k };
+    }
+    let j = end;
+    while (j > 0 && /[a-zA-Z0-9_.]/.test(text[j - 1])) j--;
+    return { term: text.slice(j, end), start: j };
+}
+
+function convertDivision(text) {
+    let idx = text.indexOf("/");
+    let guard = 0;
+    while (idx !== -1 && guard < 50) {
+        guard++;
+        const before = readTermBackward(text, idx);
+        const after = readTermForward(text, idx + 1);
+        const replaced = "\\frac{" + before.term + "}{" + after.term + "}";
+        text = text.slice(0, before.start) + replaced + text.slice(after.end);
+        idx = text.indexOf("/");
+    }
+    return text;
+}
+  
 function convertSqrt(text) {
     let idx = text.indexOf("sqrt(");
     while (idx !== -1) {
@@ -255,6 +340,7 @@ function toLatexPreview(raw) {
     let s = raw;
     s = convertSqrt(s);
     s = convertAbs(s);
+  s = convertDivision(s);
     s = s.replace(/\*/g, " \\cdot ");
     s = s.replace(/\bpi\b/g, "\\pi");
 
@@ -391,7 +477,13 @@ function toLatexPreview(raw) {
         graphCard.classList.remove("hidden");
 
         const titleEl = document.getElementById("graph-title");
-        titleEl.innerText = `${t("graphTitle")}: ${expression}`;
+titleEl.innerHTML = "";
+const labelSpan = document.createElement("span");
+labelSpan.innerText = `${t("graphTitle")}: `;
+titleEl.appendChild(labelSpan);
+const mathSpan = document.createElement("span");
+titleEl.appendChild(mathSpan);
+katex.render(toLatexPreview(expression), mathSpan, { throwOnError: false });
 
         const noteEl = document.getElementById("graph-note");
         if (note) {
@@ -412,7 +504,9 @@ function toLatexPreview(raw) {
 
         const xs = points.map((p) => p.x);
         const ys = points.map((p) => p.y);
-
+      const rootStyles = getComputedStyle(document.documentElement);
+const primaryColor = rootStyles.getPropertyValue('--primary').trim();
+const isMobile = window.innerWidth < 480;
         chartInstance = new Chart(ctx, {
             type: "line",
             data: {
@@ -420,8 +514,8 @@ function toLatexPreview(raw) {
                 datasets: [{
                     label: expression,
                     data: ys,
-                    borderColor: isDark ? "#f59e0b" : "#d97706",
-                    backgroundColor: isDark ? "rgba(245, 158, 11, 0.15)" : "rgba(217, 119, 6, 0.1)",
+                    borderColor: primaryColor,
+backgroundColor: primaryColor + "26",
                     borderWidth: 2.5,
                     pointRadius: 0,
                     pointHoverRadius: 4,
@@ -432,7 +526,7 @@ function toLatexPreview(raw) {
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
-                aspectRatio: 1.6,
+                aspectRatio: isMobile ? 0.85 : 1.1,
                 interaction: { mode: "index", intersect: false },
                 plugins: {
                     legend: { display: false },
@@ -447,12 +541,12 @@ function toLatexPreview(raw) {
                     x: {
                         type: "linear",
                         title: { display: true, text: "x", color: isDark ? "#9ca3af" : "#6b7280" },
-                        ticks: { color: isDark ? "#9ca3af" : "#6b7280", maxTicksLimit: 10 },
+                        ticks: { color: isDark ? "#9ca3af" : "#6b7280", maxTicksLimit: isMobile ? 6 : 10, font: { size: isMobile ? 10 : 12 } },
                         grid: { color: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" },
                     },
                     y: {
                         title: { display: true, text: "y", color: isDark ? "#9ca3af" : "#6b7280" },
-                        ticks: { color: isDark ? "#9ca3af" : "#6b7280" },
+                        ticks: { color: isDark ? "#9ca3af" : "#6b7280", font: { size: isMobile ? 10 : 12 } },
                         grid: { color: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" },
                     },
                 },

@@ -134,7 +134,7 @@ body {
     min-height: 28px;
     margin: 10px 0;
     padding: 8px 4px;
-    font-size: 1.15em;
+    font-size: 1.em;
     overflow-x: auto;
     color: var(--primary);
     animation: chalkFadeIn 0.2s ease;
@@ -344,6 +344,8 @@ footer.ff-footer {
     .hero h1 { font-size: 1.9rem; }
     .container { padding: 0.8rem; }
     .calc-tool { padding: 12px; border-radius: 12px; }
+  .graph-canvas-wrap { padding: 4px 4px 10px; }
+.graph-card-header { font-size: 0.95rem; padding: 12px 12px 6px; }
 }
 
 /* ---------------------------------------------------------------- */
@@ -368,5 +370,8 @@ footer.ff-footer {
     font-family: var(--font-display);
 }
 .graph-canvas-wrap { padding: 8px 12px 16px; width: 100%; }
-.graph-canvas-wrap canvas { width: 100% !important; max-height: 420px; }
+.graph-canvas-wrap canvas {
+    width: 100% !important;
+    max-height: 600px;
+}
 .graph-card-note { padding: 0 18px 14px; text-align: center; font-size: 0.85rem; color: var(--text-muted); }
