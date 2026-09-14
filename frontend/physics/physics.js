@@ -27,7 +27,7 @@ function initPhysicsPage() {
     const smartContainer = document.getElementById("smart-mode-container");
     const oldCalcSection = document.getElementById("calculator-section"); 
 
-        // ২. ট্যাব সুইচিং লজিক (ക്লাসভিত্তিক ও নিখুঁত সমাধান)
+    // ২. ট্যাব সুইচিং লজিক (ক্লাসভিত্তিক ও নিখুঁত সমাধান)
     if (tabBasic && tabSmart && basicContainer && smartContainer) {
         
         // শুরুতে ডিফল্ট অবস্থা সেট করা হচ্ছে
@@ -63,7 +63,6 @@ function initPhysicsPage() {
     }
 
 
-
     // ৩. নতুন ইনপুট ফিল্ড (জানা মান) যোগ করার লজিক
     const smartKnownContainer = document.getElementById("smart-known-values");
     const btnAddVar = document.getElementById("btn-add-var");
@@ -91,6 +90,90 @@ function initPhysicsPage() {
         addSmartInputRow();
         btnAddVar.addEventListener("click", addSmartInputRow);
     }
+
+
+    /* ==========================================================================
+       CUSTOM SELECT POPUP LOGIC (নতুন যোগ করা হলো)
+       ========================================================================== */
+    const targetTrigger = document.getElementById("smart-target-trigger");
+    const targetText = document.getElementById("smart-target-text");
+    const targetHiddenInput = document.getElementById("smart-target");
+    
+    const customModal = document.getElementById("custom-select-modal");
+    const modalCloseBtn = document.getElementById("close-select-modal");
+    const modalOptionsList = document.getElementById("custom-modal-options");
+
+    // স্মার্ট সলভারের টার্গেট অপশনগুলো
+    const smartOptions = [
+        { value: "v", label: "v (Final Velocity)" },
+        { value: "u", label: "u (Initial Velocity)" },
+        { value: "a", label: "a (Acceleration)" },
+        { value: "t", label: "t (Time)" },
+        { value: "s", label: "s (Displacement)" },
+        { value: "F", label: "F (Force)" },
+        { value: "m", label: "m (Mass)" },
+        { value: "KE", label: "KE (Kinetic Energy)" },
+        { value: "PE", label: "PE (Potential Energy)" }
+    ];
+
+    function openSelectModal() {
+        if(!customModal || !modalOptionsList) return;
+        
+        modalOptionsList.innerHTML = ""; // আগের লিস্ট পরিষ্কার করা
+        const currentValue = targetHiddenInput.value;
+
+        // লিস্ট তৈরি করা
+        smartOptions.forEach(opt => {
+            const li = document.createElement("li");
+            li.dataset.value = opt.value;
+            
+            const isSelected = currentValue === opt.value;
+            if(isSelected) li.classList.add("selected");
+
+            li.innerHTML = `
+                <span>${opt.label}</span>
+                <i class="fa-solid fa-check check-icon"></i>
+            `;
+
+            // অপশনে ক্লিক ইভেন্ট
+            li.addEventListener("click", function() {
+                // সব অপশন থেকে টিক মুছে ফেলা
+                document.querySelectorAll(".custom-option-list li").forEach(el => el.classList.remove("selected"));
+                
+                // ক্লিক করা অপশনে টিক দেওয়া
+                this.classList.add("selected");
+                
+                // লুকানো ইনপুট এবং বাটনের টেক্সট আপডেট করা
+                targetHiddenInput.value = opt.value;
+                targetText.innerText = opt.label;
+                
+                // টিক চিহ্নের অ্যানিমেশন দেখানোর জন্য ৩৫০ মিলি-সেকেন্ড অপেক্ষা করে পপআপ বন্ধ করা
+                setTimeout(() => {
+                    closeSelectModal();
+                }, 350); 
+            });
+
+            modalOptionsList.appendChild(li);
+        });
+
+        // পপআপ দেখানো
+        customModal.classList.remove("hidden");
+    }
+
+    function closeSelectModal() {
+        if(customModal) customModal.classList.add("hidden");
+    }
+
+    if(targetTrigger) targetTrigger.addEventListener("click", openSelectModal);
+    if(modalCloseBtn) modalCloseBtn.addEventListener("click", closeSelectModal);
+
+    // পপআপের বাইরের কালো অংশে ক্লিক করলে বন্ধ হওয়া
+    if(customModal) {
+        customModal.addEventListener("click", (e) => {
+            if(e.target === customModal) closeSelectModal();
+        });
+    }
+
 
     // ৪. ব্যাকএন্ডে API রিকোয়েস্ট পাঠানো 
     const btnSolveSmart = document.getElementById("btn-solve-smart");
@@ -130,7 +213,7 @@ function initPhysicsPage() {
 
             if(resultDisplay) resultDisplay.innerHTML = isEnglish ? "<i>Calculating path...</i>" : "<i>ধাপ নির্ণয় করা হচ্ছে...</i>";
 
-                    // ১. ফাংশনটি এখানে যোগ করুন (যদি আগে না থাকে)
+            // ১. ফাংশনটি এখানে যোগ করুন (যদি আগে না থাকে)
             function getApiBase() {
                 if (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") {
                     return "http://127.0.0.1:5000";
@@ -145,27 +228,26 @@ function initPhysicsPage() {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ target: target, variables: knownValues }) 
                 });
-
                 
                 const data = await response.json();
 
                 if(resultDisplay) {
                     if(data.success) {
                         let stepsHtml = data.steps && data.steps.length > 0 
-                            ? `<div style="font-size: 0.9em; margin-top: 15px; padding: 10px; background: #f3f4f6; border-radius: 8px; color: #4b5563; text-align: left;">
-                                 <b style="color: #3b82f6;">Calculation Steps:</b><br>
+                            ? `<div style="font-size: 0.9em; margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px; text-align: left;">
+                                 <b style="color: var(--primary);">Calculation Steps:</b><br>
                                  ${data.steps.join("<br>")}
                                </div>` 
                             : "";
                             
-                        resultDisplay.innerHTML = `<span style="color: #2563eb; font-size: 1.3em;">${data.target} = ${data.result}</span> ${stepsHtml}`;
+                        resultDisplay.innerHTML = `<span style="color: var(--primary); font-size: 1.3em;">${data.target} = ${data.result}</span> ${stepsHtml}`;
                     } else {
-                        resultDisplay.innerHTML = `<span style="color: #ef4444;">Error: ${data.error}</span>`;
+                        resultDisplay.innerHTML = `<span style="color: #ff6b6b;">Error: ${data.error}</span>`;
                     }
                 }
             } catch (error) {
                 console.error(error);
-                if(resultDisplay) resultDisplay.innerHTML = `<span style="color: #ef4444;">Server connection failed!</span>`;
+                if(resultDisplay) resultDisplay.innerHTML = `<span style="color: #ff6b6b;">Server connection failed!</span>`;
             }
         });
     }

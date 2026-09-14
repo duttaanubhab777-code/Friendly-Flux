@@ -22,6 +22,19 @@ const FriendlyFluxApp = (function () {
         const calcTitle = document.getElementById("calc-title");
         const resultDisplay = document.getElementById("result-display");
 
+        // কাস্টম পপআপের বেসিক ইভেন্ট লিসেনার (সবার জন্য)
+        const customModal = document.getElementById("custom-select-modal");
+        const modalCloseBtn = document.getElementById("close-select-modal");
+        
+        function closeGenericModal() {
+            if(customModal) customModal.classList.add("hidden");
+        }
+
+        if(modalCloseBtn) modalCloseBtn.addEventListener("click", closeGenericModal);
+        if(customModal) customModal.addEventListener("click", (e) => {
+            if (e.target === customModal) closeGenericModal();
+        });
+
         const themeToggle = document.getElementById("theme-toggle");
         if (themeToggle) {
             themeToggle.addEventListener("click", function () {
@@ -85,47 +98,81 @@ const FriendlyFluxApp = (function () {
             const item = formulas[id];
 
             if (calcTitle) calcTitle.innerText = `${item.name[currentLang]} (${item.formula})`;
-            if (resultDisplay) resultDisplay.innerText = "";
+            if (resultDisplay) resultDisplay.innerHTML = "";
 
             if (dynamicInputs) {
+                // সাধারণ <select> সরিয়ে এখানে কাস্টম ট্রিগার বাটন দেওয়া হলো
                 dynamicInputs.innerHTML = `
-                    <div class="input-group" style="grid-column: 1 / -1;">
+                    <div class="input-group" style="grid-column: 1 / -1; margin-bottom: 15px;">
                         <label>${dictionary.targetLabel[currentLang]}</label>
-                        <select id="target-variable">
-                            <option value="">${dictionary.targetDefault[currentLang]}</option>
-                            ${item.all_variables.map((v) => `<option value="${v}">Find ${v}</option>`).join("")}
-                        </select>
+                        <input type="hidden" id="target-variable" value="">
+                        <button type="button" id="basic-target-trigger" class="custom-input custom-select-trigger">
+                            <span id="basic-target-text">${dictionary.targetDefault[currentLang]}</span>
+                            <i class="fa-solid fa-chevron-down"></i>
+                        </button>
                     </div>
                     <div id="value-inputs" class="input-grid" style="grid-column: 1 / -1; display: contents;"></div>
                 `;
 
-                const targetSelect = document.getElementById("target-variable");
+                const targetHiddenInput = document.getElementById("target-variable");
+                const targetText = document.getElementById("basic-target-text");
+                const targetTrigger = document.getElementById("basic-target-trigger");
                 const valueInputs = document.getElementById("value-inputs");
+                const modalOptionsList = document.getElementById("custom-modal-options");
 
-                if (targetSelect) {
-                    targetSelect.addEventListener("change", function () {
-                        const target = this.value;
-                        if (valueInputs) valueInputs.innerHTML = "";
-                        if (target) {
-                            const variablesToInput = item.all_variables.filter((v) => v !== target);
-                            variablesToInput.forEach((variable) => {
-                                const labelStr = currentLang === "en" ? `Enter value of ${variable}` : `${variable} এর মান দিন`;
-                                if (valueInputs) {
+                if (targetTrigger && customModal && modalOptionsList) {
+                    targetTrigger.addEventListener("click", () => {
+                        modalOptionsList.innerHTML = ""; 
+                        const currentValue = targetHiddenInput.value;
+
+                        item.all_variables.forEach((variable) => {
+                            const li = document.createElement("li");
+                            const labelText = currentLang === "en" ? `Find ${variable}` : `${variable} বের করুন`;
+                            
+                            if (currentValue === variable) {
+                                li.classList.add("selected");
+                            }
+                            
+                            li.innerHTML = `
+                                <span>${labelText}</span>
+                                <i class="fa-solid fa-check check-icon"></i>
+                            `;
+                            
+                            // অপশনে ক্লিক করলে যা হবে
+                            li.addEventListener("click", function() {
+                                document.querySelectorAll("#custom-modal-options li").forEach(el => el.classList.remove("selected"));
+                                this.classList.add("selected");
+                                
+                                targetHiddenInput.value = variable;
+                                targetText.innerText = labelText;
+                                
+                                // বাকি ইনপুটগুলো জেনারেট করা
+                                valueInputs.innerHTML = "";
+                                const variablesToInput = item.all_variables.filter((v) => v !== variable);
+                                variablesToInput.forEach((vInput) => {
+                                    const inputLabelStr = currentLang === "en" ? `Enter value of ${vInput}` : `${vInput} এর মান দিন`;
                                     valueInputs.innerHTML += `
                                         <div class="input-group">
-                                            <label>${labelStr}</label>
-                                            <input type="number" step="any" id="var-${variable}" placeholder="${variable}">
+                                            <label>${inputLabelStr}</label>
+                                            <input type="number" step="any" id="var-${vInput}" placeholder="${vInput}" class="custom-input">
                                         </div>
                                     `;
-                                }
+                                });
+
+                                setTimeout(closeGenericModal, 350);
                             });
-                        }
+                            
+                            modalOptionsList.appendChild(li);
+                        });
+                        
+                        customModal.classList.remove("hidden");
                     });
                 }
             }
 
             if (calcSection) {
                 calcSection.classList.remove("hidden");
+                calcSection.style.display = ""; // ট্যাব সুইচিং লেআউট বাগ প্রতিরোধ
                 calcSection.scrollIntoView({ behavior: "smooth" });
             }
         }
@@ -142,8 +189,8 @@ const FriendlyFluxApp = (function () {
         if (calculateBtn) {
             calculateBtn.addEventListener("click", async () => {
                 if (!selectedFormulaId) return;
-                const targetSelect = document.getElementById("target-variable");
-                const target = targetSelect ? targetSelect.value : "";
+                const targetHiddenInput = document.getElementById("target-variable");
+                const target = targetHiddenInput ? targetHiddenInput.value : "";
                 
                 if (!target) {
                     alert(currentLang === "en" ? "Please select a target!" : "অনুগ্রহ করে টার্গেট সিলেক্ট করুন!");
@@ -168,7 +215,7 @@ const FriendlyFluxApp = (function () {
                 }
 
                 if (resultDisplay) {
-                    resultDisplay.innerText = currentLang === "en" ? "Calculating..." : "হিসাব হচ্ছে...";
+                    resultDisplay.innerHTML = currentLang === "en" ? "<i>Calculating...</i>" : "<i>হিসাব হচ্ছে...</i>";
                 }
 
                 try {
@@ -181,19 +228,22 @@ const FriendlyFluxApp = (function () {
 
                     if (resultDisplay) {
                         if (data.success) {
-                            resultDisplay.innerText = `${data.target} = ${data.result}`;
-                            if (data.steps && data.steps.length > 0) {
-                                console.log("ক্যালকুলেশনের ধাপসমূহ:\n" + data.steps.join("\n"));
-                            }
+                            // রেজাল্ট ডিজাইন স্মার্ট সলভারের মতো প্রিমিয়াম করা হলো
+                            let stepsHtml = data.steps && data.steps.length > 0 
+                                ? `<div style="font-size: 0.9em; margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.1); border-radius: 8px; text-align: left; color: var(--text-main);">
+                                     <b style="color: var(--primary);">Calculation Steps:</b><br>
+                                     ${data.steps.join("<br>")}
+                                   </div>` 
+                                : "";
+                            resultDisplay.innerHTML = `<span style="color: var(--primary); font-size: 1.3em;">${data.target} = ${data.result}</span> ${stepsHtml}`;
                         } else {
-                            resultDisplay.innerText = currentLang === "en" ? `Error: ${data.error}` : `সমস্যা: ${data.error}`;
+                            resultDisplay.innerHTML = `<span style="color: #ff6b6b;">${currentLang === "en" ? 'Error:' : 'সমস্যা:'} ${data.error}</span>`;
                         }
                     }
                 } catch (err) {
                     console.error(err);
                     if (resultDisplay) {
-                        resultDisplay.innerText =
-                            currentLang === "en" ? "Server connection failed!" : "সার্ভারের সাথে কানেক্ট করা যাচ্ছে না!";
+                        resultDisplay.innerHTML = `<span style="color: #ff6b6b;">${currentLang === "en" ? 'Server connection failed!' : 'সার্ভারের সাথে কানেক্ট করা যাচ্ছে না!'}</span>`;
                     }
                 }
             });

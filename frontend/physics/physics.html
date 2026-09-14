@@ -31,7 +31,7 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- 1. Basic Mode (আপনার আগের সার্চ এবং গ্রিড)   -->
+        <!-- 1. Basic Mode                              -->
         <!-- ========================================== -->
         <div id="basic-mode-container">
             <div class="search-box" style="margin-bottom: 2rem;">
@@ -39,7 +39,7 @@
                 <input type="text" id="search-input" data-placeholder="searchPlaceholder" placeholder="Search formulas (e.g., Force, বেগ)...">
             </div>
 
-            <!-- Formula Grid (Tap to select) -->
+            <!-- Formula Grid -->
             <section class="formula-section">
                 <h2 data-lang="availableFormulas">Available Formulas</h2>
                 <div id="formula-grid" class="grid">
@@ -49,34 +49,31 @@
         </div>
 
         <!-- ========================================== -->
-        <!-- 2. Smart AI Solver Mode (নতুন অংশ)          -->
+        <!-- 2. Smart AI Solver Mode                    -->
         <!-- ========================================== -->
         <div id="smart-mode-container" class="hidden">
             <div class="smart-card">
                 <h3 data-lang="smartTitle">Smart Physics Solver</h3>
                 
-                <!-- Target Variable Select -->
+                <!-- Custom Popup Target Variable Select -->
                 <div class="input-group" style="margin-bottom: 20px;">
                     <label data-lang="smartTargetLabel">What do you want to find?</label>
-                    <select id="smart-target" class="custom-input">
-                        <option value="" data-lang="targetDefault">-- Select Target --</option>
-                        <option value="v">v (Final Velocity)</option>
-                        <option value="u">u (Initial Velocity)</option>
-                        <option value="a">a (Acceleration)</option>
-                        <option value="t">t (Time)</option>
-                        <option value="s">s (Displacement)</option>
-                        <option value="F">F (Force)</option>
-                        <option value="m">m (Mass)</option>
-                        <option value="KE">KE (Kinetic Energy)</option>
-                        <option value="PE">PE (Potential Energy)</option>
-                    </select>
+                    
+                    <!-- Hidden input to store actual selected value for calculations -->
+                    <input type="hidden" id="smart-target" value="">
+                    
+                    <!-- Trigger Button for the Popup -->
+                    <button type="button" id="smart-target-trigger" class="custom-input custom-select-trigger" data-modal="target-options">
+                        <span id="smart-target-text" data-lang="targetDefault">-- Select Target --</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
                 </div>
 
                 <!-- Known Values Container -->
                 <div style="margin-bottom: 15px;">
                     <label data-lang="smartKnownLabel">Add known values:</label>
                     <div id="smart-known-values">
-                        <!-- JavaScript নিজে থেকে এখানে ইনপুট বক্স বসাবে -->
+                        <!-- JS will inject inputs here -->
                     </div>
                 </div>
                 
@@ -122,6 +119,22 @@
                 </div>
             </div>
         </section>
+
+        <!-- ========================================== -->
+        <!-- Generic Custom Select Modal (Popup)        -->
+        <!-- ========================================== -->
+        <div id="custom-select-modal" class="custom-modal-overlay hidden">
+            <div class="custom-modal-content">
+                <div class="calc-header" style="margin-bottom: 10px; border-bottom: 2px dashed var(--primary); padding-bottom: 10px;">
+                    <h3 id="custom-modal-title">Select Option</h3>
+                    <button id="close-select-modal" class="icon-btn" style="border: none; background: transparent;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <ul id="custom-modal-options" class="custom-option-list">
+                    <!-- Options injected via JS -->
+                </ul>
+            </div>
+        </div>
+
     </main>
     
     <!-- Scripts Loading in Order -->
