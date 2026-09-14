@@ -13,7 +13,7 @@ from formulas.physics_formulas import PHYSICS_FORMULAS
 from formulas.chemistry_formulas import CHEMISTRY_FORMULAS
 from formulas.formula_engine import solve_target
 from formulas.calculus_engine import solve_calculus, CalculusError
-from formulas.graph_engine import generate_graph_data
+from formulas.math_ocr import extract_expression_from_image, OcrError
 
 app = Flask(__name__)
 
@@ -136,26 +136,32 @@ def calculus_solve():
 
 
 # ---------------------------------------------------------------------------
-# GRAPH — any single-variable expression → numerical points for plotting
+# MATH — ছবি থেকে অংক পড়ে নেওয়া (OCR via Gemini vision)
 # ---------------------------------------------------------------------------
-@app.route("/api/math/graph", methods=["POST"])
-def math_graph():
-    data = request.get_json(silent=True) or {}
-    expression = data.get("expression", "")
-    variable = data.get("variable", "x")
-    xmin = data.get("xmin", -10)
-    xmax = data.get("xmax", 10)
-    num_points = data.get("num_points", 300)
+_MAX_OCR_IMAGE_BYTES = 8 * 1024 * 1024  # 8MB
 
+
+@app.route("/api/math/ocr", methods=["POST"])
+def math_ocr():
+    if "image" not in request.files:
+        return jsonify({"success": False, "error": "No image file was sent"}), 400
+
+    file = request.files["image"]
+    if not file or file.filename == "":
+        return jsonify({"success": False, "error": "No image file was sent"}), 400
+
+    image_bytes = file.read()
+    if len(image_bytes) > _MAX_OCR_IMAGE_BYTES:
+        return jsonify({"success": False, "error": "Image is too large (max 8MB)"}), 400
+
+    mime_type = file.mimetype or "image/jpeg"
     try:
-        outcome = generate_graph_data(expression, variable, xmin, xmax, num_points)
-        return jsonify({"success": True, **outcome})
-    except CalculusError as e:
+        expression = extract_expression_from_image(image_bytes, mime_type)
+        return jsonify({"success": True, "expression": expression})
+    except OcrError as e:
         return jsonify({"success": False, "error": str(e)}), 400
-    except TimeoutError:
-        return jsonify({"success": False, "error": "This expression is too complex and timed out"}), 400
     except Exception as e:
-        return jsonify({"success": False, "error": str(e)}), 400
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 if __name__ == "__main__":

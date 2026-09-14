@@ -20,16 +20,6 @@ document.addEventListener("DOMContentLoaded", () => {
             this.innerHTML = '<i class="fa-solid fa-sun"></i>';
         }
     });
-  const guideBtn = document.getElementById("symbol-guide-btn");
-const guidePanel = document.getElementById("symbol-guide-panel");
-const closeGuideBtn = document.getElementById("close-guide-btn");
-
-guideBtn.addEventListener("click", () => {
-    guidePanel.classList.toggle("hidden");
-});
-closeGuideBtn.addEventListener("click", () => {
-    guidePanel.classList.add("hidden");
-});
 
     document.getElementById("lang-toggle").addEventListener("click", () => {
         currentLang = currentLang === "en" ? "bn" : "en";
@@ -52,13 +42,12 @@ closeGuideBtn.addEventListener("click", () => {
     const EXAMPLES = {
         differentiate: ["sin(x)^2 * cos(x)", "x^3 + 2*x - 5", "e^x * ln(x)", "1/(x^2 + 1)"],
         integrate: ["x^2", "sin(x)", "1/x", "e^x * cos(x)"],
-        graph: ["sin(x)", "x^2", "1/(x^2+1)", "e^(-x^2)", "tan(x)", "sin(x)/x"],
     };
     const exampleRow = document.getElementById("example-row");
 
     function renderExamples() {
         exampleRow.innerHTML = "";
-        (EXAMPLES[mode] || []).forEach((example) => {
+        EXAMPLES[mode].forEach((example) => {
             const chip = document.createElement("button");
             chip.type = "button";
             chip.className = "example-chip";
@@ -72,26 +61,17 @@ closeGuideBtn.addEventListener("click", () => {
         });
     }
 
-    // ---------- Mode switch: Differentiate / Integrate / Graph ----------
+    // ---------- Mode switch: Differentiate vs Integrate ----------
     const modeButtons = document.querySelectorAll(".mode-btn");
     const orderGroup = document.getElementById("order-group");
     const definiteToggleGroup = document.getElementById("definite-toggle-group");
     const boundsRow = document.getElementById("bounds-row");
-    const graphRangeRow = document.getElementById("graph-range-row");
     const definiteToggle = document.getElementById("definite-toggle");
     const resultCard = document.getElementById("result-card");
-    const graphCard = document.getElementById("graph-card");
-
-    let chartInstance = null;
 
     function hideResult() {
         resultCard.classList.add("hidden");
         resultCard.classList.remove("error");
-        graphCard.classList.add("hidden");
-        if (chartInstance) {
-            chartInstance.destroy();
-            chartInstance = null;
-        }
     }
 
     modeButtons.forEach((btn) => {
@@ -100,28 +80,15 @@ closeGuideBtn.addEventListener("click", () => {
             modeButtons.forEach((b) => b.classList.remove("active"));
             btn.classList.add("active");
 
-            orderGroup.classList.add("hidden");
-            definiteToggleGroup.classList.add("hidden");
-            boundsRow.classList.add("hidden");
-            graphRangeRow.classList.add("hidden");
-
             if (mode === "differentiate") {
                 orderGroup.classList.remove("hidden");
-            } else if (mode === "integrate") {
+                definiteToggleGroup.classList.add("hidden");
+                boundsRow.classList.add("hidden");
+            } else {
+                orderGroup.classList.add("hidden");
                 definiteToggleGroup.classList.remove("hidden");
                 boundsRow.classList.toggle("hidden", !definiteToggle.checked);
-            } else if (mode === "graph") {
-                graphRangeRow.classList.remove("hidden");
             }
-
-            // Update button text
-            const btnText = document.getElementById("solve-btn-text");
-            if (mode === "graph") {
-                btnText.innerText = t("graphBtn");
-            } else {
-                btnText.innerText = t("solveBtn");
-            }
-
             renderExamples();
             hideResult();
         });
@@ -147,22 +114,17 @@ closeGuideBtn.addEventListener("click", () => {
     const exprInput = document.getElementById("expr-input");
 
     function insertAtCursor(text, closingText) {
-    const start = exprInput.selectionStart;
-    const end = exprInput.selectionEnd;
-    const before = exprInput.value.substring(0, start);
-    const after = exprInput.value.substring(end);
-
-    // আগের ক্যারেক্টার অক্ষর/সংখ্যা হলে, আর নতুন যা বসছে সেটাও অক্ষর দিয়ে শুরু হলে, মাঝে * বসাও
-    const prevChar = before.slice(-1);
-    const needsSeparator = /[a-zA-Z0-9)]$/.test(prevChar) && /^[a-zA-Z]/.test(text);
-    const separator = needsSeparator ? "*" : "";
-
-    const toInsert = separator + text + (closingText || "");
-    exprInput.value = before + toInsert + after;
-    const cursorPos = start + separator.length + text.length;
-    exprInput.focus();
-    exprInput.setSelectionRange(cursorPos, cursorPos);
-    updateLiveStatus();
+        const start = exprInput.selectionStart;
+        const end = exprInput.selectionEnd;
+        const before = exprInput.value.substring(0, start);
+        const after = exprInput.value.substring(end);
+        const toInsert = closingText ? text + closingText : text;
+        exprInput.value = before + toInsert + after;
+        // cursor বসবে ব্র্যাকেটের ভেতরে (যেমন "sin(" লিখলে cursor "(" এর পরে বসবে)
+        const cursorPos = start + text.length;
+        exprInput.focus();
+        exprInput.setSelectionRange(cursorPos, cursorPos);
+        updateLiveStatus();
     }
 
     // সব keypad panel-এর data-insert বোতামের জন্য একটাই delegated listener
@@ -214,84 +176,8 @@ closeGuideBtn.addEventListener("click", () => {
         return depth > 0 ? "missing-close" : "balanced";
     }
 
-  function findMatchingParen(str, openIndex) {
-    let depth = 1;
-    for (let i = openIndex + 1; i < str.length; i++) {
-        if (str[i] === "(") depth++;
-        else if (str[i] === ")") {
-            depth--;
-            if (depth === 0) return i;
-        }
-    }
-    return -1;
-}
-
-function convertSqrt(text) {
-    let idx = text.indexOf("sqrt(");
-    while (idx !== -1) {
-        const openParen = idx + 4;
-        const closeParen = findMatchingParen(text, openParen);
-        if (closeParen === -1) break;
-        const inner = text.slice(openParen + 1, closeParen);
-        text = text.slice(0, idx) + "\\sqrt{" + inner + "}" + text.slice(closeParen + 1);
-        idx = text.indexOf("sqrt(");
-    }
-    return text;
-}
-  function convertAbs(text) {
-    let idx = text.indexOf("abs(");
-    while (idx !== -1) {
-        const openParen = idx + 3;
-        const closeParen = findMatchingParen(text, openParen);
-        if (closeParen === -1) break;
-        const inner = text.slice(openParen + 1, closeParen);
-        text = text.slice(0, idx) + "\\left|" + inner + "\\right|" + text.slice(closeParen + 1);
-        idx = text.indexOf("abs(");
-    }
-    return text;
-  }
-
-function toLatexPreview(raw) {
-    let s = raw;
-    s = convertSqrt(s);
-    s = convertAbs(s);
-    s = s.replace(/\*/g, " \\cdot ");
-    s = s.replace(/\bpi\b/g, "\\pi");
-
-    // KaTeX নিজে চেনে এমন ফাংশন — সরাসরি ব্যাকস্ল্যাশ ব্যবহার করা যায়
-    const nativeFuncs = ["sin", "cos", "tan", "cot", "sec", "csc",
-                         "sinh", "cosh", "tanh", "ln", "log", "exp"];
-    nativeFuncs.forEach((f) => {
-        s = s.replace(new RegExp("\\b" + f + "\\(", "g"), "\\" + f + "(");
-    });
-
-    // asin/acos/atan কে বেশি প্রচলিত arcsin/arccos/arctan হিসেবে দেখানো (এগুলো KaTeX চেনে)
-    s = s.replace(/\basin\(/g, "\\arcsin(");
-    s = s.replace(/\bacos\(/g, "\\arccos(");
-    s = s.replace(/\batan\(/g, "\\arctan(");
-
-    // বাকি সব কাস্টম/কম-প্রচলিত ফাংশন — \operatorname{} দিয়ে upright দেখানো
-    const customFuncs = ["asinh", "acosh", "atanh", "acsch", "asech", "acoth",
-                         "csch", "sech", "coth", "floor", "ceil", "sign", "gamma"];
-    customFuncs.forEach((f) => {
-        s = s.replace(new RegExp("\\b" + f + "\\(", "g"), "\\operatorname{" + f + "}(");
-    });
-
-    return s;
-}
-  function updateLiveStatus() {
-    const text = exprInput.value.trim();
-
-    const previewEl = document.getElementById("expr-preview");
-    if (text) {
-        katex.render(toLatexPreview(text), previewEl, { throwOnError: false });
-    } else {
-        previewEl.innerHTML = "";
-    }
-
-    
-
-    
+    function updateLiveStatus() {
+        const text = exprInput.value.trim();
         exprInput.classList.remove("invalid");
         liveStatus.classList.remove("ok", "error");
 
@@ -324,6 +210,47 @@ function toLatexPreview(raw) {
 
     exprInput.addEventListener("input", updateLiveStatus);
 
+    // ---------- Scan a photo of the problem ----------
+    const ocrImageInput = document.getElementById("expr-image-input");
+    const ocrStatus = document.getElementById("ocr-status");
+
+    ocrImageInput.addEventListener("change", async () => {
+        const file = ocrImageInput.files[0];
+        if (!file) return;
+
+        ocrStatus.classList.remove("hidden", "error");
+        ocrStatus.innerText = t("ocrReading");
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        try {
+            const response = await fetch(`${getApiBase()}/api/math/ocr`, {
+                method: "POST",
+                body: formData,
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                exprInput.value = data.expression;
+                updateLiveStatus();
+                ocrStatus.classList.remove("error");
+                ocrStatus.innerText = t("ocrDone");
+                setTimeout(() => ocrStatus.classList.add("hidden"), 2500);
+            } else {
+                ocrStatus.classList.add("error");
+                ocrStatus.innerText = data.error;
+            }
+        } catch (err) {
+            console.error(err);
+            ocrStatus.classList.add("error");
+            ocrStatus.innerText = t("serverErrMsg");
+        } finally {
+            // একই ফাইল আবার বেছে নিলেও যেন change ইভেন্ট ফায়ার হয়
+            ocrImageInput.value = "";
+        }
+    });
+
     // ---------- Derivative-order stepper ----------
     const orderInput = document.getElementById("order-input");
     function clampOrder(value) {
@@ -351,122 +278,30 @@ function toLatexPreview(raw) {
     function setLoading(isLoading) {
         solveBtn.disabled = isLoading;
         solveBtnSpinner.classList.toggle("hidden", !isLoading);
-        if (isLoading) {
-            solveBtnText.innerText = mode === "graph" ? t("graphingBtn") : t("solvingBtn");
-        } else {
-            solveBtnText.innerText = mode === "graph" ? t("graphBtn") : t("solveBtn");
-        }
+        solveBtnText.innerText = isLoading ? t("solvingBtn") : t("solveBtn");
     }
 
-    function showResult({ text, latex, numericResult, note, isError }) {
-    graphCard.classList.add("hidden");
-    resultCard.classList.remove("hidden");
-    resultCard.classList.toggle("error", !!isError);
-
-    resultText.dataset.plainText = text; // কপি বাটনের জন্য প্লেইন টেক্সট রেখে দিলাম
-
-    if (latex && !isError) {
-        let toRender = latex;
-        if (numericResult) toRender += ` \\approx ${numericResult}`;
-        try {
-            katex.render(toRender, resultText, { throwOnError: false, displayMode: true });
-        } catch (e) {
-            resultText.innerText = text;
-        }
-    } else {
+    function showResult({ text, note, isError }) {
+        resultCard.classList.remove("hidden");
+        resultCard.classList.toggle("error", !!isError);
         resultText.innerText = text;
-    }
 
-    if (note) {
-        resultNote.innerText = note;
-        resultNote.classList.remove("hidden");
-    } else {
-        resultNote.classList.add("hidden");
-    }
-    resultActions.classList.toggle("hidden", !!isError);
-    }
-
-    function renderGraph(points, expression, note) {
-        resultCard.classList.add("hidden");
-        graphCard.classList.remove("hidden");
-
-        const titleEl = document.getElementById("graph-title");
-        titleEl.innerText = `${t("graphTitle")}: ${expression}`;
-
-        const noteEl = document.getElementById("graph-note");
         if (note) {
-            noteEl.innerText = note;
-            noteEl.classList.remove("hidden");
+            resultNote.innerText = note;
+            resultNote.classList.remove("hidden");
         } else {
-            noteEl.classList.add("hidden");
+            resultNote.classList.add("hidden");
         }
-
-        if (chartInstance) {
-            chartInstance.destroy();
-            chartInstance = null;
-        }
-
-        const canvas = document.getElementById("graph-canvas");
-        const ctx = canvas.getContext("2d");
-        const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-
-        const xs = points.map((p) => p.x);
-        const ys = points.map((p) => p.y);
-
-        chartInstance = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: xs,
-                datasets: [{
-                    label: expression,
-                    data: ys,
-                    borderColor: isDark ? "#f59e0b" : "#d97706",
-                    backgroundColor: isDark ? "rgba(245, 158, 11, 0.15)" : "rgba(217, 119, 6, 0.1)",
-                    borderWidth: 2.5,
-                    pointRadius: 0,
-                    pointHoverRadius: 4,
-                    tension: 0.15,
-                    fill: true,
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                aspectRatio: 1.6,
-                interaction: { mode: "index", intersect: false },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            title: (items) => `x = ${items[0].label}`,
-                            label: (item) => `y = ${item.formattedValue}`,
-                        },
-                    },
-                },
-                scales: {
-                    x: {
-                        type: "linear",
-                        title: { display: true, text: "x", color: isDark ? "#9ca3af" : "#6b7280" },
-                        ticks: { color: isDark ? "#9ca3af" : "#6b7280", maxTicksLimit: 10 },
-                        grid: { color: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" },
-                    },
-                    y: {
-                        title: { display: true, text: "y", color: isDark ? "#9ca3af" : "#6b7280" },
-                        ticks: { color: isDark ? "#9ca3af" : "#6b7280" },
-                        grid: { color: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" },
-                    },
-                },
-            },
-        });
+        resultActions.classList.toggle("hidden", !!isError);
     }
 
     copyResultBtn.addEventListener("click", () => {
-    navigator.clipboard.writeText(resultText.dataset.plainText || resultText.innerText).then(() => {
-        const original = copyResultBtn.innerText;
-        copyResultBtn.innerText = t("copiedBtn");
-        setTimeout(() => { copyResultBtn.innerText = original; }, 1500);
+        navigator.clipboard.writeText(resultText.innerText).then(() => {
+            const original = copyResultBtn.innerText;
+            copyResultBtn.innerText = t("copiedBtn");
+            setTimeout(() => { copyResultBtn.innerText = original; }, 1500);
+        });
     });
-});
 
     solveBtn.addEventListener("click", async () => {
         const expression = exprInput.value.trim();
@@ -478,43 +313,6 @@ function toLatexPreview(raw) {
             return;
         }
 
-        setLoading(true);
-
-        if (mode === "graph") {
-            // ---------- Graph mode ----------
-            const xminRaw = document.getElementById("xmin-input").value.trim();
-            const xmaxRaw = document.getElementById("xmax-input").value.trim();
-            const body = {
-                expression,
-                variable,
-                xmin: xminRaw === "" ? -10 : Number(xminRaw),
-                xmax: xmaxRaw === "" ? 10 : Number(xmaxRaw),
-                num_points: 400,
-            };
-
-            try {
-                const response = await fetch(`${getApiBase()}/api/math/graph`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(body),
-                });
-                const data = await response.json();
-
-                if (data.success && data.points && data.points.length > 0) {
-                    renderGraph(data.points, data.expression || expression, data.note);
-                } else {
-                    showResult({ text: data.error || t("noPointsMsg"), isError: true });
-                }
-            } catch (err) {
-                console.error(err);
-                showResult({ text: t("serverErrMsg"), isError: true });
-            } finally {
-                setLoading(false);
-            }
-            return;
-        }
-
-        // ---------- Differentiate / Integrate ----------
         const body = { operation: mode, expression, variable };
 
         if (mode === "differentiate") {
@@ -524,6 +322,7 @@ function toLatexPreview(raw) {
             body.upper = document.getElementById("upper-input").value.trim();
         }
 
+        setLoading(true);
         showResult({ text: t("solvingBtn"), isError: false });
 
         try {
@@ -535,19 +334,13 @@ function toLatexPreview(raw) {
             const data = await response.json();
 
             if (data.success) {
-    let text = `= ${data.result}`;
-    if (data.is_numeric && data.numeric_result) {
-        text += `  ≈ ${data.numeric_result}`;
-    }
-    showResult({
-        text,
-        latex: data.latex,
-        numericResult: data.is_numeric ? data.numeric_result : null,
-        note: data.note,
-        isError: false,
-    });
-} else {
-    showResult({ text: data.error, isError: true });
+                let text = `= ${data.result}`;
+                if (data.is_numeric && data.numeric_result) {
+                    text += `  ≈ ${data.numeric_result}`;
+                }
+                showResult({ text, note: data.note, isError: false });
+            } else {
+                showResult({ text: data.error, isError: true });
             }
         } catch (err) {
             console.error(err);

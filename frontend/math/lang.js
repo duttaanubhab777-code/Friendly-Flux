@@ -4,14 +4,7 @@ const dictionary = {
     heroSub: { en: "Type any expression — as hard as you like — and get the worked-out answer.", bn: "যত কঠিন অংকই হোক, লিখে দাও — উত্তর বের করে দেবে।" },
     modeDiff: { en: "Differentiate (d/dx)", bn: "ডিফারেনশিয়েট (d/dx)" },
     modeInt: { en: "Integrate (∫)", bn: "ইন্টিগ্রেট (∫)" },
-    modeGraph: { en: "Graph", bn: "গ্রাফ" },
     exprLabel: { en: "Write your problem here", bn: "তোমার অংকটা এখানে লেখো" },
-    xminLabel: { en: "x min", bn: "x ন্যূনতম" },
-    xmaxLabel: { en: "x max", bn: "x সর্বোচ্চ" },
-    graphTitle: { en: "Graph of the function", bn: "ফাংশনের গ্রাফ" },
-    graphBtn: { en: "Plot Graph", bn: "গ্রাফ আঁকো" },
-    graphingBtn: { en: "Plotting...", bn: "গ্রাফ আঁকা হচ্ছে..." },
-    noPointsMsg: { en: "No real points could be plotted in this range.", bn: "এই সীমায় কোনো বাস্তব বিন্দু পাওয়া যায়নি।" },
     clearBtn: { en: "Clear", bn: "মুছে ফেলো" },
     tabBasic: { en: "Basic", bn: "সাধারণ" },
     tabTrig: { en: "Trig", bn: "ত্রিকোণমিতি" },
@@ -37,5 +30,8 @@ const dictionary = {
     statusUnbalancedOpen: { en: "Missing a closing ')'", bn: "একটা ')' বাকি আছে" },
     statusUnbalancedClose: { en: "Extra ')' with no matching '('", bn: "অতিরিক্ত ')' আছে, মিলছে না" },
     statusBadChar: { en: "Contains a character that isn't allowed", bn: "এমন একটা অক্ষর আছে যেটা চলবে না" },
-    statusEmpty: { en: "Start typing your expression above", bn: "উপরে তোমার অংকটা লিখতে শুরু করো" }
+    statusEmpty: { en: "Start typing your expression above", bn: "উপরে তোমার অংকটা লিখতে শুরু করো" },
+    ocrBtn: { en: "Scan from photo", bn: "ছবি থেকে স্ক্যান করো" },
+    ocrReading: { en: "Reading the photo...", bn: "ছবি পড়া হচ্ছে..." },
+    ocrDone: { en: "Filled in from photo ✓", bn: "ছবি থেকে বসানো হয়েছে ✓" }
 };

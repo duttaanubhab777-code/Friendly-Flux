@@ -3,32 +3,17 @@ Formula Engine — string আকারে লেখা ফর্মুলা থ
 (forward-chaining) টার্গেট ভ্যারিয়েবল বের করে।
 """
 import re
-from sympy import (
-    symbols, Eq, sympify, solve as sympy_solve,
-    sin, cos, tan, exp, log, sqrt, pi, E, Abs,
-)
+from sympy import symbols, Eq, sympify, solve as sympy_solve
 
 _TOKEN_RE = re.compile(r'[a-zA-Z_][a-zA-Z0-9_]*')
-_RESERVED = {
-    'sin', 'cos', 'tan', 'exp', 'log', 'log10', 'ln', 'sqrt', 'pi', 'abs',
-}
-
-# sympy locals so log10 / ln work inside formula strings
-# Note: do NOT map bare "E" here — it would collide with energy symbols (E, E_cell, …)
-_MATH_LOCALS = {
-    'sin': sin, 'cos': cos, 'tan': tan,
-    'exp': exp, 'log': log, 'ln': log,
-    'log10': lambda x: log(x, 10),
-    'sqrt': sqrt, 'pi': pi, 'abs': Abs,
-}
+_RESERVED = {'sin', 'cos', 'tan', 'exp', 'log', 'sqrt', 'pi', 'E'}
 
 
 def parse_formula(formula_str: str) -> Eq:
     """ "F = m*a"  ->  Eq(F, m*a) """
-    lhs_str, rhs_str = formula_str.split('=', 1)
+    lhs_str, rhs_str = formula_str.split('=')
     names = set(_TOKEN_RE.findall(formula_str)) - _RESERVED
     local_syms = {name: symbols(name) for name in names}
-    local_syms.update(_MATH_LOCALS)
     return Eq(
         sympify(lhs_str.strip(), locals=local_syms),
         sympify(rhs_str.strip(), locals=local_syms)

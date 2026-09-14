@@ -30,7 +30,7 @@ from sympy import (
     asinh, acosh, atanh, acsch, asech, acoth,
     log, exp, sqrt, pi, E, oo, I,
     factorial, floor, ceiling, sign, gamma, Max, Min,
-    Integral, diff, integrate, simplify, Abs, nsimplify, latex
+    Integral, diff, integrate, simplify, Abs, nsimplify
 )
 from sympy.parsing.sympy_parser import (
     parse_expr, standard_transformations,
@@ -70,6 +70,12 @@ class CalculusError(ValueError):
     pass
 
 
+# math_ocr.py এই দুটো reuse করে (OCR থেকে আসা টেক্সট একই নিয়মে যাচাই করার জন্য),
+# তাই একই রেগেক্স/লিমিট দুবার না লিখে public alias করে রাখা হলো
+ALLOWED_CHARS = _ALLOWED_CHARS
+MAX_EXPRESSION_LENGTH = _MAX_LEN
+
+
 def _check_balanced_brackets(text: str) -> None:
     depth = 0
     for ch in text:
@@ -81,6 +87,10 @@ def _check_balanced_brackets(text: str) -> None:
                 raise CalculusError("There's an extra ')' with no matching '(' — check your brackets")
     if depth > 0:
         raise CalculusError("A '(' is missing its matching ')' — check your brackets")
+
+
+# math_ocr.py এর জন্য public নাম
+check_balanced_brackets = _check_balanced_brackets
 
 
 def _validate_and_preprocess(raw: str) -> str:
@@ -146,8 +156,6 @@ def _format_result(expr) -> str:
     text = text.replace("log(", "ln(")
     return text
 
-def _format_latex(expr) -> str:
-    return latex(simplify(expr))
 
 def _resolve_variables(variable: str):
     """
@@ -200,7 +208,7 @@ def solve_calculus(operation: str, expression: str, variable: str = "x", order: 
         missing = [str(v) for v in variables if v not in expr.free_symbols]
         if missing and len(missing) == len(variables):
             names = ", ".join(missing)
-            return {"result": "0", "latex": "0", "is_numeric": False, "is_definite": False,
+            return {"result": "0", "is_numeric": False, "is_definite": False,
                     "note": f"None of '{names}' appear in the expression, so the derivative is 0."}
 
         if is_mixed:
@@ -208,7 +216,6 @@ def solve_calculus(operation: str, expression: str, variable: str = "x", order: 
             names = "".join(str(v) for v in variables)
             return {
                 "result": _format_result(result_expr),
-              "latex": _format_latex(result_expr),
                 "is_numeric": False,
                 "is_definite": False,
                 "note": f"Mixed partial derivative ∂{len(variables)}/∂{names} "
@@ -218,7 +225,6 @@ def solve_calculus(operation: str, expression: str, variable: str = "x", order: 
         result_expr = _run_with_timeout(lambda: diff(expr, variables[0], order))
         return {
             "result": _format_result(result_expr),
-          "latex": _format_latex(result_expr),
             "is_numeric": False,
             "is_definite": False,
             "note": None,
@@ -241,7 +247,6 @@ def solve_calculus(operation: str, expression: str, variable: str = "x", order: 
             numeric_val = _run_with_timeout(lambda: result_expr.evalf())
             return {
                 "result": _format_result(result_expr),
-              "latex": _format_latex(result_expr),
                 "numeric_result": _format_numeric(numeric_val),
                 "is_numeric": True,
                 "is_definite": True,
@@ -260,7 +265,6 @@ def solve_calculus(operation: str, expression: str, variable: str = "x", order: 
 
         return {
             "result": _format_result(result_expr) + " + C",
-          "latex": _format_latex(result_expr) + " + C",
             "is_numeric": False,
             "is_definite": False,
             "note": note,
