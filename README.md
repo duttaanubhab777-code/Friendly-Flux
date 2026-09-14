@@ -2,7 +2,7 @@
 
 **Friendly Flux** is a web platform for solving problems in **Mathematics, Physics, and Chemistry**, built as a lightweight Flask API paired with a static, framework-free frontend. It combines a step-by-step formula solver (for Physics/Chemistry) with a full symbolic calculus engine (for Math), so learners can plug in known values or type an expression and get a worked, human-readable answer.
 
-🔗 **Live site:** https://duttaanubhab777-code.github.io
+🔗 **Live site:** https://duttaanubhab777-code.github.io/Friendly-Flux/frontend/
 
 ---
 
