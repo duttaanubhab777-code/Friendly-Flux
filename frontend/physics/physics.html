@@ -12,8 +12,11 @@
     <nav class="navbar">
         <div class="logo"><i class="fa-solid fa-atom"></i> <span data-lang="title">PhysicsLab</span></div>
         <div class="nav-controls">
-            <button id="lang-toggle" class="icon-btn">EN / বাংলা</button>
-            <button id="theme-toggle" class="icon-btn"><i class="fa-solid fa-moon"></i></button>
+    <button id="lang-toggle" class="icon-btn">EN / বাংলা</button>
+    <div class="theme-switch">
+        <button id="theme-light-btn" class="active" aria-label="Light mode"><i class="fa-solid fa-sun"></i></button>
+        <button id="theme-dark-btn" aria-label="Dark mode"><i class="fa-solid fa-moon"></i></button>
+    </div>
         </div>
     </nav>
 
@@ -129,11 +132,24 @@
                     <h3 id="custom-modal-title">Select Option</h3>
                     <button id="close-select-modal" class="icon-btn" style="border: none; background: transparent;"><i class="fa-solid fa-xmark"></i></button>
                 </div>
+      <!-- এই নতুন সার্চ বারটি এখানে যোগ করা হলো -->
+                <div style="padding: 5px 0 15px 0;">
+                    <input type="text" id="modal-search-input" class="custom-input" placeholder="Search target..." style="width: 100%; border-radius: 8px;">
+                </div>
+        
                 <ul id="custom-modal-options" class="custom-option-list">
                     <!-- Options injected via JS -->
                 </ul>
             </div>
         </div>
+      <div id="variable-info-modal" class="custom-modal-overlay hidden">
+    <div class="custom-modal-content">
+        <h3 id="variable-info-title" style="margin-bottom: 15px;"></h3>
+        <div id="variable-info-body" style="overflow-y: auto; flex: 1;"></div>
+        <button id="variable-info-ok" class="primary-btn" style="margin-top: 15px;">OK</button>
+        <button id="variable-info-change" class="secondary-btn">Target Change</button>
+    </div>
+      </div>
 
     </main>
     

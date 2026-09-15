@@ -92,8 +92,8 @@ function initPhysicsPage() {
     }
 
 
-    /* ==========================================================================
-       CUSTOM SELECT POPUP LOGIC (নতুন যোগ করা হলো)
+        /* ==========================================================================
+       VARIABLE INFO & CUSTOM SELECT POPUP LOGIC (Fully Auto-Dynamic + Search)
        ========================================================================== */
     const targetTrigger = document.getElementById("smart-target-trigger");
     const targetText = document.getElementById("smart-target-text");
@@ -102,77 +102,186 @@ function initPhysicsPage() {
     const customModal = document.getElementById("custom-select-modal");
     const modalCloseBtn = document.getElementById("close-select-modal");
     const modalOptionsList = document.getElementById("custom-modal-options");
+    const modalSearchInput = document.getElementById("modal-search-input"); // সার্চ বার
 
-    // স্মার্ট সলভারের টার্গেট অপশনগুলো
-    const smartOptions = [
-        { value: "v", label: "v (Final Velocity)" },
-        { value: "u", label: "u (Initial Velocity)" },
-        { value: "a", label: "a (Acceleration)" },
-        { value: "t", label: "t (Time)" },
-        { value: "s", label: "s (Displacement)" },
-        { value: "F", label: "F (Force)" },
-        { value: "m", label: "m (Mass)" },
-        { value: "KE", label: "KE (Kinetic Energy)" },
-        { value: "PE", label: "PE (Potential Energy)" }
-    ];
+    // তোমার তৈরি করা বাইলিঙ্গুয়াল ইনফো ফাংশন
+    function showVariableInfo(symbol) {
+        const infoModal = document.getElementById("variable-info-modal");
+        const infoTitle = document.getElementById("variable-info-title");
+        const infoBody = document.getElementById("variable-info-body");
+        if (!infoModal) return;
 
-    function openSelectModal() {
-        if(!customModal || !modalOptionsList) return;
+        const tabBasic = document.getElementById("tab-basic");
+        const isEnglish = tabBasic && tabBasic.innerText.includes("Basic"); 
+        const langKey = isEnglish ? "en" : "bn";
+
+        const matches = Object.values(physicsFormulas).filter(f => f.all_variables.includes(symbol));
+        const usedSymbols = [...new Set(matches.flatMap(f => f.all_variables))];
+
+        infoTitle.innerText = isEnglish ? `Ways to find "${symbol}"` : `"${symbol}" বের করার উপায়গুলো`;
+        infoBody.innerHTML =
+            matches.map(f => `<p style="margin-bottom:10px;"><b>${f.name[langKey]}</b><br>${f.formula}</p>`).join("") +
+            `<hr style="margin:15px 0; border-color: var(--border);">` +
+            usedSymbols.map(s => {
+                const varName = variableGlossary[s] ? variableGlossary[s][langKey] : "?";
+                return `<p>${s} = ${varName}</p>`;
+            }).join("");
+            
+        const infoOkBtn = document.getElementById("variable-info-ok");
+        const infoChangeBtn = document.getElementById("variable-info-change");
         
-        modalOptionsList.innerHTML = ""; // আগের লিস্ট পরিষ্কার করা
-        const currentValue = targetHiddenInput.value;
+        if (infoOkBtn) infoOkBtn.innerText = isEnglish ? "OK" : "ঠিক আছে";
+        if (infoChangeBtn) infoChangeBtn.innerText = isEnglish ? "Target Change" : "টার্গেট পরিবর্তন";
 
-        // লিস্ট তৈরি করা
-        smartOptions.forEach(opt => {
+        infoModal.classList.remove("hidden");
+    }
+
+    // অটো-ম্যাজিক: সমস্ত ফর্মুলা ঘেঁটে নিজে থেকে ডেটা তৈরি করার ফাংশন
+    function getDynamicOptions() {
+        if (typeof physicsFormulas === 'undefined') return [];
+        
+        const uniqueVars = [...new Set(Object.values(physicsFormulas).flatMap(f => f.all_variables))];
+        
+        return uniqueVars.map(v => {
+            const enName = (typeof variableGlossary !== 'undefined' && variableGlossary[v]) ? variableGlossary[v].en : "";
+            const bnName = (typeof variableGlossary !== 'undefined' && variableGlossary[v]) ? variableGlossary[v].bn : "";
+            return {
+                value: v,
+                en: enName ? `${v} (${enName})` : v,
+                bn: bnName ? `${v} (${bnName})` : v
+            };
+        }).sort((a, b) => a.value.localeCompare(b.value)); 
+    }
+
+    // রেন্ডার ও ফিল্টার করার ফাংশন
+    function renderModalOptions(searchQuery = "") {
+        if(!modalOptionsList) return;
+        
+        const tabBasic = document.getElementById("tab-basic");
+        const isEnglish = tabBasic && tabBasic.innerText.includes("Basic");
+        const langKey = isEnglish ? "en" : "bn";
+        
+        modalOptionsList.innerHTML = ""; 
+        const currentValue = targetHiddenInput.value;
+        const query = searchQuery.toLowerCase().trim();
+
+        const options = getDynamicOptions(); 
+
+        options.forEach(opt => {
+            const labelText = opt[langKey];
+            
+            // সার্চ ফিল্টারিং
+            if (query && !labelText.toLowerCase().includes(query) && !opt.value.toLowerCase().includes(query)) {
+                return; 
+            }
+
             const li = document.createElement("li");
             li.dataset.value = opt.value;
-            
-            const isSelected = currentValue === opt.value;
-            if(isSelected) li.classList.add("selected");
+            if(currentValue === opt.value) li.classList.add("selected");
 
             li.innerHTML = `
-                <span>${opt.label}</span>
+                <span>${labelText}</span>
                 <i class="fa-solid fa-check check-icon"></i>
             `;
 
-            // অপশনে ক্লিক ইভেন্ট
             li.addEventListener("click", function() {
-                // সব অপশন থেকে টিক মুছে ফেলা
                 document.querySelectorAll(".custom-option-list li").forEach(el => el.classList.remove("selected"));
-                
-                // ক্লিক করা অপশনে টিক দেওয়া
                 this.classList.add("selected");
                 
-                // লুকানো ইনপুট এবং বাটনের টেক্সট আপডেট করা
                 targetHiddenInput.value = opt.value;
-                targetText.innerText = opt.label;
+                targetText.removeAttribute("data-lang"); 
+                targetText.innerText = labelText;
                 
-                // টিক চিহ্নের অ্যানিমেশন দেখানোর জন্য ৩৫০ মিলি-সেকেন্ড অপেক্ষা করে পপআপ বন্ধ করা
-                setTimeout(() => {
-                    closeSelectModal();
-                }, 350); 
+                showVariableInfo(opt.value);
+                
+                setTimeout(() => { closeSelectModal(); }, 250); 
             });
 
             modalOptionsList.appendChild(li);
         });
+    }
 
-        // পপআপ দেখানো
+    function openSelectModal() {
+        if(!customModal) return;
+        
+        const tabBasic = document.getElementById("tab-basic");
+        const isEnglish = tabBasic && tabBasic.innerText.includes("Basic");
+        
+        const customModalTitle = document.getElementById("custom-modal-title");
+        if (customModalTitle) {
+            customModalTitle.innerText = isEnglish ? "Select Target Variable" : "টার্গেট ভ্যারিয়েবল নির্বাচন করুন";
+        }
+        
+        if(modalSearchInput) {
+            modalSearchInput.value = ""; 
+            modalSearchInput.placeholder = isEnglish ? "Search target..." : "খুঁজুন...";
+        }
+
+        renderModalOptions(); 
         customModal.classList.remove("hidden");
+        
+        if(modalSearchInput) setTimeout(() => modalSearchInput.focus(), 100);
     }
 
     function closeSelectModal() {
         if(customModal) customModal.classList.add("hidden");
     }
 
-    if(targetTrigger) targetTrigger.addEventListener("click", openSelectModal);
-    if(modalCloseBtn) modalCloseBtn.addEventListener("click", closeSelectModal);
+    // --- EVENT LISTENERS ---
+    const infoOkBtn = document.getElementById("variable-info-ok");
+    const infoChangeBtn = document.getElementById("variable-info-change");
+    
+    if (infoOkBtn) infoOkBtn.addEventListener("click", () => document.getElementById("variable-info-modal").classList.add("hidden"));
+    if (infoChangeBtn) infoChangeBtn.addEventListener("click", () => {
+        document.getElementById("variable-info-modal").classList.add("hidden");
+        openSelectModal();
+    });
 
-    // পপআপের বাইরের কালো অংশে ক্লিক করলে বন্ধ হওয়া
+    if(targetTrigger) {
+        targetTrigger.addEventListener("click", () => {
+            if (targetHiddenInput.value) {
+                showVariableInfo(targetHiddenInput.value);
+            } else {
+                openSelectModal();
+            }
+        });
+    }
+    
+    if(modalCloseBtn) modalCloseBtn.addEventListener("click", closeSelectModal);
+    
     if(customModal) {
         customModal.addEventListener("click", (e) => {
             if(e.target === customModal) closeSelectModal();
         });
     }
+
+    if(modalSearchInput) {
+        modalSearchInput.addEventListener("input", (e) => {
+            renderModalOptions(e.target.value);
+        });
+    }
+
+    // ভাষা পরিবর্তন হলে টার্গেট ট্রান্সলেট হবে
+    const langToggleBtnMain = document.getElementById("lang-toggle");
+    if (langToggleBtnMain) {
+        langToggleBtnMain.addEventListener("click", () => {
+            setTimeout(() => {
+                const tabBasic = document.getElementById("tab-basic");
+                const isEnglish = tabBasic && tabBasic.innerText.includes("Basic");
+                const langKey = isEnglish ? "en" : "bn";
+
+                const currentVal = targetHiddenInput.value;
+                if (currentVal) {
+                    const options = getDynamicOptions();
+                    const selectedOpt = options.find(opt => opt.value === currentVal);
+                    if (selectedOpt) {
+                        targetText.innerText = selectedOpt[langKey];
+                    }
+                }
+            }, 100); 
+        });
+    }
+
 
 
     // ৪. ব্যাকএন্ডে API রিকোয়েস্ট পাঠানো 

@@ -35,19 +35,26 @@ const FriendlyFluxApp = (function () {
             if (e.target === customModal) closeGenericModal();
         });
 
-        const themeToggle = document.getElementById("theme-toggle");
-        if (themeToggle) {
-            themeToggle.addEventListener("click", function () {
-                const html = document.documentElement;
-                if (html.getAttribute("data-theme") === "dark") {
-                    html.removeAttribute("data-theme");
-                    this.innerHTML = '<i class="fa-solid fa-moon"></i>';
-                } else {
-                    html.setAttribute("data-theme", "dark");
-                    this.innerHTML = '<i class="fa-solid fa-sun"></i>';
-                }
-            });
-        }
+        const themeLightBtn = document.getElementById("theme-light-btn");
+const themeDarkBtn = document.getElementById("theme-dark-btn");
+
+function setTheme(mode) {
+    const html = document.documentElement;
+    if (mode === "dark") {
+        html.setAttribute("data-theme", "dark");
+        themeDarkBtn.classList.add("active");
+        themeLightBtn.classList.remove("active");
+    } else {
+        html.removeAttribute("data-theme");
+        themeLightBtn.classList.add("active");
+        themeDarkBtn.classList.remove("active");
+    }
+}
+
+if (themeLightBtn && themeDarkBtn) {
+    themeLightBtn.addEventListener("click", () => setTheme("light"));
+    themeDarkBtn.addEventListener("click", () => setTheme("dark"));
+}
 
         const langToggle = document.getElementById("lang-toggle");
         if (langToggle) {
