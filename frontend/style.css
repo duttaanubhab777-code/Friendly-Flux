@@ -155,6 +155,7 @@ body {
 .math-card { border-top-color: #eab308; }
 .physics-card { border-top-color: #ef4444; }
 .chemistry-card { border-top-color: #22c55e; }
+.geometry-card { border-top-color: #6366f1; }
 
 .icon {
     font-size: 3rem;

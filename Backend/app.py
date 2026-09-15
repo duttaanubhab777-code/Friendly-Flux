@@ -14,6 +14,7 @@ from formulas.chemistry_formulas import CHEMISTRY_FORMULAS
 from formulas.formula_engine import solve_target
 from formulas.calculus_engine import solve_calculus, CalculusError
 from formulas.math_ocr import extract_expression_from_image, OcrError
+from formulas.geometry3d_engine import solve_geometry3d, Geometry3DError
 
 app = Flask(__name__)
 
@@ -162,6 +163,26 @@ def math_ocr():
         return jsonify({"success": False, "error": str(e)}), 400
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+
+# ---------------------------------------------------------------------------
+# THREE-DIMENSIONAL GEOMETRY
+# ---------------------------------------------------------------------------
+@app.route("/api/geometry3d/solve", methods=["POST"])
+def geometry3d_solve():
+    data = request.get_json(silent=True) or {}
+    operation = data.get("operation", "")
+    params = data.get("params", {})
+
+    try:
+        outcome = solve_geometry3d(operation, params)
+        return jsonify({"success": True, **outcome})
+    except Geometry3DError as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+    except TimeoutError:
+        return jsonify({"success": False, "error": "This calculation is too complex and timed out"}), 400
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
 
 
 if __name__ == "__main__":
