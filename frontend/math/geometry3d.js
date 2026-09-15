@@ -548,17 +548,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    function showGeoSuccess(data) {
+        function showGeoSuccess(data) {
         geoResultCard.classList.remove("hidden", "error");
-        geoResultHead.textContent = window.t("resultHead");
+        geoResultHead.textContent = window.t ? window.t("resultHead") : "Result";
         geoResultHead.classList.remove("hidden");
 
-        // LaTeX Rendering for Geometry Output
         geoResultText.dataset.plainText = data.result;
+        
+        // নতুন লাইন: রেজাল্ট থেকে সব * চিহ্ন মুছে ফেলার জন্য
+        let cleanResult = (data.latex || data.result).replace(/\*/g, "");
+
         try {
-            katex.render(data.latex || data.result, geoResultText, { throwOnError: false, displayMode: true });
+            katex.render(cleanResult, geoResultText, { throwOnError: false, displayMode: true });
         } catch (e) {
-            geoResultText.textContent = data.result;
+            geoResultText.textContent = data.result.replace(/\*/g, "");
         }
 
         if (data.extra) {
@@ -568,23 +571,26 @@ document.addEventListener("DOMContentLoaded", () => {
             geoResultExtra.classList.add("hidden");
         }
 
-        // LaTeX Rendering for Geometry Steps
         if (Array.isArray(data.steps) && data.steps.length) {
             geoStepsList.innerHTML = "";
             data.steps.forEach((step) => {
                 const li = document.createElement("li");
                 li.dataset.plainText = step;
+                
+                // নতুন লাইন: স্টেপস থেকেও সব * চিহ্ন মুছে ফেলার জন্য
+                let cleanStep = step.replace(/\*/g, "");
+                
                 try {
-                    katex.render(step, li, { throwOnError: false, displayMode: false });
+                    katex.render(cleanStep, li, { throwOnError: false, displayMode: false });
                 } catch(e) {
-                    li.textContent = step;
+                    li.textContent = cleanStep;
                 }
                 geoStepsList.appendChild(li);
             });
             geoStepsToggle.classList.remove("hidden");
             geoStepsList.classList.add("hidden");
             geoStepsToggle.classList.remove("open");
-            geoStepsToggle.querySelector("span").textContent = window.t("showSteps");
+            geoStepsToggle.textContent = window.t ? window.t("showSteps") : "Show steps";
         } else {
             geoStepsToggle.classList.add("hidden");
             geoStepsList.classList.add("hidden");
@@ -592,6 +598,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         geoResultActions.classList.remove("hidden");
     }
+
 
     function showGeoError(message) {
         geoResultCard.classList.remove("hidden");
