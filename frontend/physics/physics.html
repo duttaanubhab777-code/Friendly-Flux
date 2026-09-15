@@ -12,32 +12,92 @@
     <nav class="navbar">
         <div class="logo"><i class="fa-solid fa-atom"></i> <span data-lang="title">PhysicsLab</span></div>
         <div class="nav-controls">
-            <button id="lang-toggle" class="icon-btn">EN / বাংলা</button>
-            <button id="theme-toggle" class="icon-btn"><i class="fa-solid fa-moon"></i></button>
+    <button id="lang-toggle" class="icon-btn">EN / বাংলা</button>
+    <div class="theme-switch">
+        <button id="theme-light-btn" class="active" aria-label="Light mode"><i class="fa-solid fa-sun"></i></button>
+        <button id="theme-dark-btn" aria-label="Dark mode"><i class="fa-solid fa-moon"></i></button>
+    </div>
         </div>
     </nav>
 
     <main class="container">
-        <!-- Header & Search Section -->
+        <!-- Header Section -->
         <header class="hero">
             <h1 data-lang="heroTitle">Explore the Laws of Universe</h1>
             <p data-lang="heroSub">Search and calculate complex physics formulas instantly.</p>
-            
-            <div class="search-box">
+        </header>
+
+        <!-- Mode Switcher Tabs -->
+        <div class="mode-tabs">
+            <button id="tab-basic" class="tab-btn active" data-lang="tabBasic">Basic Formulas</button>
+            <button id="tab-smart" class="tab-btn" data-lang="tabSmart">Smart AI Solver</button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 1. Basic Mode                              -->
+        <!-- ========================================== -->
+        <div id="basic-mode-container">
+            <div class="search-box" style="margin-bottom: 2rem;">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="search-input" data-placeholder="searchPlaceholder" placeholder="Search formulas (e.g., Force, বেগ)...">
             </div>
-        </header>
 
-        <!-- Formula Grid (Tap to select) -->
-        <section class="formula-section">
-            <h2 data-lang="availableFormulas">Available Formulas</h2>
-            <div id="formula-grid" class="grid">
-                <!-- Cards will be injected by JS -->
+            <!-- Formula Grid -->
+            <section class="formula-section">
+                <h2 data-lang="availableFormulas">Available Formulas</h2>
+                <div id="formula-grid" class="grid">
+                    <!-- Cards will be injected by JS -->
+                </div>
+            </section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 2. Smart AI Solver Mode                    -->
+        <!-- ========================================== -->
+        <div id="smart-mode-container" class="hidden">
+            <div class="smart-card">
+                <h3 data-lang="smartTitle">Smart Physics Solver</h3>
+                
+                <!-- Custom Popup Target Variable Select -->
+                <div class="input-group" style="margin-bottom: 20px;">
+                    <label data-lang="smartTargetLabel">What do you want to find?</label>
+                    
+                    <!-- Hidden input to store actual selected value for calculations -->
+                    <input type="hidden" id="smart-target" value="">
+                    
+                    <!-- Trigger Button for the Popup -->
+                    <button type="button" id="smart-target-trigger" class="custom-input custom-select-trigger" data-modal="target-options">
+                        <span id="smart-target-text" data-lang="targetDefault">-- Select Target --</span>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+
+                <!-- Known Values Container -->
+                <div style="margin-bottom: 15px;">
+                    <label data-lang="smartKnownLabel">Add known values:</label>
+                    <div id="smart-known-values">
+                        <!-- JS will inject inputs here -->
+                    </div>
+                </div>
+                
+                <!-- Add Variable Button -->
+                <button id="btn-add-var" class="secondary-btn" data-lang="addVarBtn">
+                    + Add Value
+                </button>
+                
+                <!-- Calculate Button -->
+                <button id="btn-solve-smart" class="primary-btn" data-lang="solveBtn">
+                    Calculate Result
+                </button>
+                
+                <!-- Result Display Area -->
+                <div id="smart-result-display"></div>
             </div>
-        </section>
+        </div>
 
-        <!-- Dynamic Calculator Area (Hidden until a formula is tapped) -->
+        <!-- ========================================== -->
+        <!-- Dynamic Calculator Area (Old Pop-up)       -->
+        <!-- ========================================== -->
         <section id="calculator-section" class="calculator-panel hidden">
             <div class="calc-header">
                 <h3 id="calc-title">Formula Name</h3>
@@ -62,8 +122,39 @@
                 </div>
             </div>
         </section>
+
+        <!-- ========================================== -->
+        <!-- Generic Custom Select Modal (Popup)        -->
+        <!-- ========================================== -->
+        <div id="custom-select-modal" class="custom-modal-overlay hidden">
+            <div class="custom-modal-content">
+                <div class="calc-header" style="margin-bottom: 10px; border-bottom: 2px dashed var(--primary); padding-bottom: 10px;">
+                    <h3 id="custom-modal-title">Select Option</h3>
+                    <button id="close-select-modal" class="icon-btn" style="border: none; background: transparent;"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+      <!-- এই নতুন সার্চ বারটি এখানে যোগ করা হলো -->
+                <div style="padding: 5px 0 15px 0;">
+                    <input type="text" id="modal-search-input" class="custom-input" placeholder="Search target..." style="width: 100%; border-radius: 8px;">
+                </div>
+        
+                <ul id="custom-modal-options" class="custom-option-list">
+                    <!-- Options injected via JS -->
+                </ul>
+            </div>
+        </div>
+      <div id="variable-info-modal" class="custom-modal-overlay hidden">
+    <div class="custom-modal-content">
+        <h3 id="variable-info-title" style="margin-bottom: 15px;"></h3>
+        <div id="variable-info-body" style="overflow-y: auto; flex: 1;"></div>
+        <button id="variable-info-ok" class="primary-btn" style="margin-top: 15px;">OK</button>
+        <button id="variable-info-change" class="secondary-btn">Target Change</button>
+    </div>
+      </div>
+
     </main>
-  <script src="lang.js"></script>
+    
+    <!-- Scripts Loading in Order -->
+    <script src="lang.js"></script>
     <script src="../shared.js"></script>
     <script src="physics.js"></script>
 </body>

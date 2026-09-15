@@ -176,8 +176,175 @@ document.addEventListener("DOMContentLoaded", () => {
         return depth > 0 ? "missing-close" : "balanced";
     }
 
+<<<<<<< HEAD
     function updateLiveStatus() {
         const text = exprInput.value.trim();
+=======
+  function findMatchingParen(str, openIndex) {
+    let depth = 1;
+    for (let i = openIndex + 1; i < str.length; i++) {
+        if (str[i] === "(") depth++;
+        else if (str[i] === ")") {
+            depth--;
+            if (depth === 0) return i;
+        }
+    }
+    return -1;
+}
+function findMatchingBrace(str, openIndex) {
+    let depth = 1;
+    for (let i = openIndex + 1; i < str.length; i++) {
+        if (str[i] === "{") depth++;
+        else if (str[i] === "}") {
+            depth--;
+            if (depth === 0) return i;
+        }
+    }
+    return -1;
+}
+
+function readTermForward(text, start) {
+    let i = start;
+    if (text[i] === "(") {
+        const close = findMatchingParen(text, i);
+        if (close === -1) return { term: text.slice(i), end: text.length };
+        return { term: text.slice(i + 1, close), end: close + 1 };
+    }
+    if (text[i] === "\\") {
+        let j = i + 1;
+        while (j < text.length && /[a-zA-Z]/.test(text[j])) j++;
+        while (text[j] === "{") {
+            const close = findMatchingBrace(text, j);
+            if (close === -1) break;
+            j = close + 1;
+        }
+        while (text[j] === "(") {
+            const close = findMatchingParen(text, j);
+            if (close === -1) break;
+            j = close + 1;
+        }
+        return { term: text.slice(i, j), end: j };
+    }
+    let j = i;
+    while (j < text.length && /[a-zA-Z0-9_.]/.test(text[j])) j++;
+    while (text[j] === "(") {
+        const close = findMatchingParen(text, j);
+        if (close === -1) break;
+        j = close + 1;
+    }
+    if (text[j] === "^") {
+        j++;
+        if (text[j] === "{") {
+            const close = findMatchingBrace(text, j);
+            if (close !== -1) j = close + 1;
+        } else if (j < text.length) {
+            j++;
+        }
+    }
+    return { term: text.slice(i, j), end: j };
+}
+
+function readTermBackward(text, end) {
+    if (text[end - 1] === ")") {
+        let depth = 1, j = end - 2;
+        while (j >= 0 && depth > 0) {
+            if (text[j] === ")") depth++;
+            else if (text[j] === "(") depth--;
+            if (depth === 0) break;
+            j--;
+        }
+        if (j < 0) return { term: text.slice(0, end), start: 0 };
+        let k = j;
+        while (k > 0 && /[a-zA-Z0-9_.]/.test(text[k - 1])) k--;
+        return { term: text.slice(k, end), start: k };
+    }
+    let j = end;
+    while (j > 0 && /[a-zA-Z0-9_.]/.test(text[j - 1])) j--;
+    return { term: text.slice(j, end), start: j };
+}
+
+function convertDivision(text) {
+    let idx = text.indexOf("/");
+    let guard = 0;
+    while (idx !== -1 && guard < 50) {
+        guard++;
+        const before = readTermBackward(text, idx);
+        const after = readTermForward(text, idx + 1);
+        const replaced = "\\frac{" + before.term + "}{" + after.term + "}";
+        text = text.slice(0, before.start) + replaced + text.slice(after.end);
+        idx = text.indexOf("/");
+    }
+    return text;
+}
+  
+function convertSqrt(text) {
+    let idx = text.indexOf("sqrt(");
+    while (idx !== -1) {
+        const openParen = idx + 4;
+        const closeParen = findMatchingParen(text, openParen);
+        if (closeParen === -1) break;
+        const inner = text.slice(openParen + 1, closeParen);
+        text = text.slice(0, idx) + "\\sqrt{" + inner + "}" + text.slice(closeParen + 1);
+        idx = text.indexOf("sqrt(");
+    }
+    return text;
+}
+  function convertAbs(text) {
+    let idx = text.indexOf("abs(");
+    while (idx !== -1) {
+        const openParen = idx + 3;
+        const closeParen = findMatchingParen(text, openParen);
+        if (closeParen === -1) break;
+        const inner = text.slice(openParen + 1, closeParen);
+        text = text.slice(0, idx) + "\\left|" + inner + "\\right|" + text.slice(closeParen + 1);
+        idx = text.indexOf("abs(");
+    }
+    return text;
+  }
+
+function toLatexPreview(raw) {
+    let s = raw;
+    s = convertSqrt(s);
+    s = convertAbs(s);
+  s = convertDivision(s);
+    s = s.replace(/\*/g, " \\cdot ");
+    s = s.replace(/\bpi\b/g, "\\pi");
+
+    // KaTeX নিজে চেনে এমন ফাংশন — সরাসরি ব্যাকস্ল্যাশ ব্যবহার করা যায়
+    const nativeFuncs = ["sin", "cos", "tan", "cot", "sec", "csc",
+                         "sinh", "cosh", "tanh", "ln", "log", "exp"];
+    nativeFuncs.forEach((f) => {
+        s = s.replace(new RegExp("\\b" + f + "\\(", "g"), "\\" + f + "(");
+    });
+
+    // asin/acos/atan কে বেশি প্রচলিত arcsin/arccos/arctan হিসেবে দেখানো (এগুলো KaTeX চেনে)
+    s = s.replace(/\basin\(/g, "\\arcsin(");
+    s = s.replace(/\bacos\(/g, "\\arccos(");
+    s = s.replace(/\batan\(/g, "\\arctan(");
+
+    // বাকি সব কাস্টম/কম-প্রচলিত ফাংশন — \operatorname{} দিয়ে upright দেখানো
+    const customFuncs = ["asinh", "acosh", "atanh", "acsch", "asech", "acoth",
+                         "csch", "sech", "coth", "floor", "ceil", "sign", "gamma"];
+    customFuncs.forEach((f) => {
+        s = s.replace(new RegExp("\\b" + f + "\\(", "g"), "\\operatorname{" + f + "}(");
+    });
+
+    return s;
+}
+  function updateLiveStatus() {
+    const text = exprInput.value.trim();
+
+    const previewEl = document.getElementById("expr-preview");
+    if (text) {
+        katex.render(toLatexPreview(text), previewEl, { throwOnError: false });
+    } else {
+        previewEl.innerHTML = "";
+    }
+
+    
+
+    
+>>>>>>> dd4e3ac14308b7150201246a51e2e8ca1356a7e3
         exprInput.classList.remove("invalid");
         liveStatus.classList.remove("ok", "error");
 
@@ -286,13 +453,102 @@ document.addEventListener("DOMContentLoaded", () => {
         resultCard.classList.toggle("error", !!isError);
         resultText.innerText = text;
 
+<<<<<<< HEAD
+=======
+    if (note) {
+        resultNote.innerText = note;
+        resultNote.classList.remove("hidden");
+    } else {
+        resultNote.classList.add("hidden");
+    }
+    resultActions.classList.toggle("hidden", !!isError);
+    }
+
+    function renderGraph(points, expression, note) {
+        resultCard.classList.add("hidden");
+        graphCard.classList.remove("hidden");
+
+        const titleEl = document.getElementById("graph-title");
+titleEl.innerHTML = "";
+const labelSpan = document.createElement("span");
+labelSpan.innerText = `${t("graphTitle")}: `;
+titleEl.appendChild(labelSpan);
+const mathSpan = document.createElement("span");
+titleEl.appendChild(mathSpan);
+katex.render(toLatexPreview(expression), mathSpan, { throwOnError: false });
+
+        const noteEl = document.getElementById("graph-note");
+>>>>>>> dd4e3ac14308b7150201246a51e2e8ca1356a7e3
         if (note) {
             resultNote.innerText = note;
             resultNote.classList.remove("hidden");
         } else {
             resultNote.classList.add("hidden");
         }
+<<<<<<< HEAD
         resultActions.classList.toggle("hidden", !!isError);
+=======
+
+        if (chartInstance) {
+            chartInstance.destroy();
+            chartInstance = null;
+        }
+
+        const canvas = document.getElementById("graph-canvas");
+        const ctx = canvas.getContext("2d");
+        const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+
+        const xs = points.map((p) => p.x);
+        const ys = points.map((p) => p.y);
+      const rootStyles = getComputedStyle(document.documentElement);
+const primaryColor = rootStyles.getPropertyValue('--primary').trim();
+const isMobile = window.innerWidth < 480;
+        chartInstance = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels: xs,
+                datasets: [{
+                    label: expression,
+                    data: ys,
+                    borderColor: primaryColor,
+backgroundColor: primaryColor + "26",
+                    borderWidth: 2.5,
+                    pointRadius: 0,
+                    pointHoverRadius: 4,
+                    tension: 0.15,
+                    fill: true,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                aspectRatio: isMobile ? 0.85 : 1.1,
+                interaction: { mode: "index", intersect: false },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            title: (items) => `x = ${items[0].label}`,
+                            label: (item) => `y = ${item.formattedValue}`,
+                        },
+                    },
+                },
+                scales: {
+                    x: {
+                        type: "linear",
+                        title: { display: true, text: "x", color: isDark ? "#9ca3af" : "#6b7280" },
+                        ticks: { color: isDark ? "#9ca3af" : "#6b7280", maxTicksLimit: isMobile ? 6 : 10, font: { size: isMobile ? 10 : 12 } },
+                        grid: { color: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" },
+                    },
+                    y: {
+                        title: { display: true, text: "y", color: isDark ? "#9ca3af" : "#6b7280" },
+                        ticks: { color: isDark ? "#9ca3af" : "#6b7280", font: { size: isMobile ? 10 : 12 } },
+                        grid: { color: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" },
+                    },
+                },
+            },
+        });
+>>>>>>> dd4e3ac14308b7150201246a51e2e8ca1356a7e3
     }
 
     copyResultBtn.addEventListener("click", () => {

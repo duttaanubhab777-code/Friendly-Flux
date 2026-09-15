@@ -102,6 +102,7 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
 #expr-input:focus { border-color: var(--primary); }
 #expr-input.invalid { border-color: var(--danger); }
 
+<<<<<<< HEAD
 /* Scan-from-photo row */
 .ocr-row { display: flex; align-items: center; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
 .ocr-btn {
@@ -110,6 +111,16 @@ body { background-color: var(--bg-color); color: var(--text-main); transition: v
     border-radius: 8px;
     border: 1px dashed var(--primary);
     background: var(--chip-bg);
+=======
+/* Live LaTeX preview — the "chalk writing" moment */
+.expr-preview {
+    text-align: center;
+    min-height: 28px;
+    margin: 10px 0;
+    padding: 8px 4px;
+    font-size: 1.em;
+    overflow-x: auto;
+>>>>>>> dd4e3ac14308b7150201246a51e2e8ca1356a7e3
     color: var(--primary);
     font-weight: 600;
     font-size: 0.9rem;
@@ -275,4 +286,41 @@ footer.ff-footer {
 
 @media (max-width: 480px) {
     .keypad { grid-template-columns: repeat(4, 1fr); }
+<<<<<<< HEAD
 }
+=======
+    .hero h1 { font-size: 1.9rem; }
+    .container { padding: 0.8rem; }
+    .calc-tool { padding: 12px; border-radius: 12px; }
+  .graph-canvas-wrap { padding: 4px 4px 10px; }
+.graph-card-header { font-size: 0.95rem; padding: 12px 12px 6px; }
+}
+
+/* ---------------------------------------------------------------- */
+/* Graph card                                                        */
+/* ---------------------------------------------------------------- */
+.graph-card {
+    margin-top: 20px;
+    border-radius: 12px;
+    border: 1.5px solid var(--border);
+    background: var(--bg-color);
+    padding: 0;
+    overflow: hidden;
+}
+.graph-card.hidden { display: none; }
+.graph-card-header {
+    padding: 14px 18px 8px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--primary);
+    text-align: center;
+    word-break: break-word;
+    font-family: var(--font-display);
+}
+.graph-canvas-wrap { padding: 8px 12px 16px; width: 100%; }
+.graph-canvas-wrap canvas {
+    width: 100% !important;
+    max-height: 600px;
+}
+.graph-card-note { padding: 0 18px 14px; text-align: center; font-size: 0.85rem; color: var(--text-muted); }
+>>>>>>> dd4e3ac14308b7150201246a51e2e8ca1356a7e3
