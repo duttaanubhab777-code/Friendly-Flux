@@ -20,6 +20,16 @@ document.addEventListener("DOMContentLoaded", () => {
             this.innerHTML = '<i class="fa-solid fa-sun"></i>';
         }
     });
+  const guideBtn = document.getElementById("symbol-guide-btn");
+const guidePanel = document.getElementById("symbol-guide-panel");
+const closeGuideBtn = document.getElementById("close-guide-btn");
+
+guideBtn.addEventListener("click", () => {
+    guidePanel.classList.toggle("hidden");
+});
+closeGuideBtn.addEventListener("click", () => {
+    guidePanel.classList.add("hidden");
+});
 
     document.getElementById("lang-toggle").addEventListener("click", () => {
         currentLang = currentLang === "en" ? "bn" : "en";
@@ -42,12 +52,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const EXAMPLES = {
         differentiate: ["sin(x)^2 * cos(x)", "x^3 + 2*x - 5", "e^x * ln(x)", "1/(x^2 + 1)"],
         integrate: ["x^2", "sin(x)", "1/x", "e^x * cos(x)"],
+        graph: ["sin(x)", "x^2", "1/(x^2+1)", "e^(-x^2)", "tan(x)", "sin(x)/x"],
     };
     const exampleRow = document.getElementById("example-row");
 
     function renderExamples() {
         exampleRow.innerHTML = "";
-        EXAMPLES[mode].forEach((example) => {
+        (EXAMPLES[mode] || []).forEach((example) => {
             const chip = document.createElement("button");
             chip.type = "button";
             chip.className = "example-chip";
@@ -61,17 +72,26 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // ---------- Mode switch: Differentiate vs Integrate ----------
+    // ---------- Mode switch: Differentiate / Integrate / Graph ----------
     const modeButtons = document.querySelectorAll(".mode-btn");
     const orderGroup = document.getElementById("order-group");
     const definiteToggleGroup = document.getElementById("definite-toggle-group");
     const boundsRow = document.getElementById("bounds-row");
+    const graphRangeRow = document.getElementById("graph-range-row");
     const definiteToggle = document.getElementById("definite-toggle");
     const resultCard = document.getElementById("result-card");
+    const graphCard = document.getElementById("graph-card");
+
+    let chartInstance = null;
 
     function hideResult() {
         resultCard.classList.add("hidden");
         resultCard.classList.remove("error");
+        graphCard.classList.add("hidden");
+        if (chartInstance) {
+            chartInstance.destroy();
+            chartInstance = null;
+        }
     }
 
     modeButtons.forEach((btn) => {
@@ -80,15 +100,28 @@ document.addEventListener("DOMContentLoaded", () => {
             modeButtons.forEach((b) => b.classList.remove("active"));
             btn.classList.add("active");
 
+            orderGroup.classList.add("hidden");
+            definiteToggleGroup.classList.add("hidden");
+            boundsRow.classList.add("hidden");
+            graphRangeRow.classList.add("hidden");
+
             if (mode === "differentiate") {
                 orderGroup.classList.remove("hidden");
-                definiteToggleGroup.classList.add("hidden");
-                boundsRow.classList.add("hidden");
-            } else {
-                orderGroup.classList.add("hidden");
+            } else if (mode === "integrate") {
                 definiteToggleGroup.classList.remove("hidden");
                 boundsRow.classList.toggle("hidden", !definiteToggle.checked);
+            } else if (mode === "graph") {
+                graphRangeRow.classList.remove("hidden");
             }
+
+            // Update button text
+            const btnText = document.getElementById("solve-btn-text");
+            if (mode === "graph") {
+                btnText.innerText = t("graphBtn");
+            } else {
+                btnText.innerText = t("solveBtn");
+            }
+
             renderExamples();
             hideResult();
         });
@@ -114,17 +147,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const exprInput = document.getElementById("expr-input");
 
     function insertAtCursor(text, closingText) {
-        const start = exprInput.selectionStart;
-        const end = exprInput.selectionEnd;
-        const before = exprInput.value.substring(0, start);
-        const after = exprInput.value.substring(end);
-        const toInsert = closingText ? text + closingText : text;
-        exprInput.value = before + toInsert + after;
-        // cursor বসবে ব্র্যাকেটের ভেতরে (যেমন "sin(" লিখলে cursor "(" এর পরে বসবে)
-        const cursorPos = start + text.length;
-        exprInput.focus();
-        exprInput.setSelectionRange(cursorPos, cursorPos);
-        updateLiveStatus();
+    const start = exprInput.selectionStart;
+    const end = exprInput.selectionEnd;
+    const before = exprInput.value.substring(0, start);
+    const after = exprInput.value.substring(end);
+
+    // আগের ক্যারেক্টার অক্ষর/সংখ্যা হলে, আর নতুন যা বসছে সেটাও অক্ষর দিয়ে শুরু হলে, মাঝে * বসাও
+    const prevChar = before.slice(-1);
+    const needsSeparator = /[a-zA-Z0-9)]$/.test(prevChar) && /^[a-zA-Z]/.test(text);
+    const separator = needsSeparator ? "*" : "";
+
+    const toInsert = separator + text + (closingText || "");
+    exprInput.value = before + toInsert + after;
+    const cursorPos = start + separator.length + text.length;
+    exprInput.focus();
+    exprInput.setSelectionRange(cursorPos, cursorPos);
+    updateLiveStatus();
     }
 
     // সব keypad panel-এর data-insert বোতামের জন্য একটাই delegated listener
@@ -176,10 +214,6 @@ document.addEventListener("DOMContentLoaded", () => {
         return depth > 0 ? "missing-close" : "balanced";
     }
 
-<<<<<<< HEAD
-    function updateLiveStatus() {
-        const text = exprInput.value.trim();
-=======
   function findMatchingParen(str, openIndex) {
     let depth = 1;
     for (let i = openIndex + 1; i < str.length; i++) {
@@ -344,7 +378,6 @@ function toLatexPreview(raw) {
     
 
     
->>>>>>> dd4e3ac14308b7150201246a51e2e8ca1356a7e3
         exprInput.classList.remove("invalid");
         liveStatus.classList.remove("ok", "error");
 
@@ -445,16 +478,32 @@ function toLatexPreview(raw) {
     function setLoading(isLoading) {
         solveBtn.disabled = isLoading;
         solveBtnSpinner.classList.toggle("hidden", !isLoading);
-        solveBtnText.innerText = isLoading ? t("solvingBtn") : t("solveBtn");
+        if (isLoading) {
+            solveBtnText.innerText = mode === "graph" ? t("graphingBtn") : t("solvingBtn");
+        } else {
+            solveBtnText.innerText = mode === "graph" ? t("graphBtn") : t("solveBtn");
+        }
     }
 
-    function showResult({ text, note, isError }) {
-        resultCard.classList.remove("hidden");
-        resultCard.classList.toggle("error", !!isError);
-        resultText.innerText = text;
+    function showResult({ text, latex, numericResult, note, isError }) {
+    graphCard.classList.add("hidden");
+    resultCard.classList.remove("hidden");
+    resultCard.classList.toggle("error", !!isError);
 
-<<<<<<< HEAD
-=======
+    resultText.dataset.plainText = text; // কপি বাটনের জন্য প্লেইন টেক্সট রেখে দিলাম
+
+    if (latex && !isError) {
+        let toRender = latex;
+        if (numericResult) toRender += ` \\approx ${numericResult}`;
+        try {
+            katex.render(toRender, resultText, { throwOnError: false, displayMode: true });
+        } catch (e) {
+            resultText.innerText = text;
+        }
+    } else {
+        resultText.innerText = text;
+    }
+
     if (note) {
         resultNote.innerText = note;
         resultNote.classList.remove("hidden");
@@ -478,16 +527,12 @@ titleEl.appendChild(mathSpan);
 katex.render(toLatexPreview(expression), mathSpan, { throwOnError: false });
 
         const noteEl = document.getElementById("graph-note");
->>>>>>> dd4e3ac14308b7150201246a51e2e8ca1356a7e3
         if (note) {
-            resultNote.innerText = note;
-            resultNote.classList.remove("hidden");
+            noteEl.innerText = note;
+            noteEl.classList.remove("hidden");
         } else {
-            resultNote.classList.add("hidden");
+            noteEl.classList.add("hidden");
         }
-<<<<<<< HEAD
-        resultActions.classList.toggle("hidden", !!isError);
-=======
 
         if (chartInstance) {
             chartInstance.destroy();
@@ -548,16 +593,15 @@ backgroundColor: primaryColor + "26",
                 },
             },
         });
->>>>>>> dd4e3ac14308b7150201246a51e2e8ca1356a7e3
     }
 
     copyResultBtn.addEventListener("click", () => {
-        navigator.clipboard.writeText(resultText.innerText).then(() => {
-            const original = copyResultBtn.innerText;
-            copyResultBtn.innerText = t("copiedBtn");
-            setTimeout(() => { copyResultBtn.innerText = original; }, 1500);
-        });
+    navigator.clipboard.writeText(resultText.dataset.plainText || resultText.innerText).then(() => {
+        const original = copyResultBtn.innerText;
+        copyResultBtn.innerText = t("copiedBtn");
+        setTimeout(() => { copyResultBtn.innerText = original; }, 1500);
     });
+});
 
     solveBtn.addEventListener("click", async () => {
         const expression = exprInput.value.trim();
@@ -569,6 +613,43 @@ backgroundColor: primaryColor + "26",
             return;
         }
 
+        setLoading(true);
+
+        if (mode === "graph") {
+            // ---------- Graph mode ----------
+            const xminRaw = document.getElementById("xmin-input").value.trim();
+            const xmaxRaw = document.getElementById("xmax-input").value.trim();
+            const body = {
+                expression,
+                variable,
+                xmin: xminRaw === "" ? -10 : Number(xminRaw),
+                xmax: xmaxRaw === "" ? 10 : Number(xmaxRaw),
+                num_points: 400,
+            };
+
+            try {
+                const response = await fetch(`${getApiBase()}/api/math/graph`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(body),
+                });
+                const data = await response.json();
+
+                if (data.success && data.points && data.points.length > 0) {
+                    renderGraph(data.points, data.expression || expression, data.note);
+                } else {
+                    showResult({ text: data.error || t("noPointsMsg"), isError: true });
+                }
+            } catch (err) {
+                console.error(err);
+                showResult({ text: t("serverErrMsg"), isError: true });
+            } finally {
+                setLoading(false);
+            }
+            return;
+        }
+
+        // ---------- Differentiate / Integrate ----------
         const body = { operation: mode, expression, variable };
 
         if (mode === "differentiate") {
@@ -578,7 +659,6 @@ backgroundColor: primaryColor + "26",
             body.upper = document.getElementById("upper-input").value.trim();
         }
 
-        setLoading(true);
         showResult({ text: t("solvingBtn"), isError: false });
 
         try {
@@ -590,13 +670,19 @@ backgroundColor: primaryColor + "26",
             const data = await response.json();
 
             if (data.success) {
-                let text = `= ${data.result}`;
-                if (data.is_numeric && data.numeric_result) {
-                    text += `  ≈ ${data.numeric_result}`;
-                }
-                showResult({ text, note: data.note, isError: false });
-            } else {
-                showResult({ text: data.error, isError: true });
+    let text = `= ${data.result}`;
+    if (data.is_numeric && data.numeric_result) {
+        text += `  ≈ ${data.numeric_result}`;
+    }
+    showResult({
+        text,
+        latex: data.latex,
+        numericResult: data.is_numeric ? data.numeric_result : null,
+        note: data.note,
+        isError: false,
+    });
+} else {
+    showResult({ text: data.error, isError: true });
             }
         } catch (err) {
             console.error(err);

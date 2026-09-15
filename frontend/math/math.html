@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculus Solver | Friendly Flux</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="math.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+
 </head>
 <body>
     <!-- Navigation Bar -->
@@ -30,6 +34,7 @@
             <div class="mode-toggle" role="tablist">
                 <button type="button" class="mode-btn active" data-mode="differentiate" data-lang="modeDiff">Differentiate (d/dx)</button>
                 <button type="button" class="mode-btn" data-mode="integrate" data-lang="modeInt">Integrate (∫)</button>
+                <button type="button" class="mode-btn" data-mode="graph" data-lang="modeGraph">Graph</button>
             </div>
 
             <!-- One-tap examples, so a first-time user always has something that works -->
@@ -50,6 +55,26 @@
 
             <!-- Live feedback: brackets balanced? characters allowed? -->
             <div class="live-status" id="live-status"></div>
+          <div id="expr-preview" class="expr-preview"></div>
+
+          <button type="button" id="symbol-guide-btn" class="icon-btn" data-lang="guideBtn">Symbols Guide</button>
+
+<div id="symbol-guide-panel" class="symbol-guide-panel hidden">
+    <div class="symbol-guide-header">
+        <span data-lang="guideTitle">Typing Guide</span>
+        <button type="button" id="close-guide-btn">&times;</button>
+    </div>
+    <table class="symbol-guide-table">
+    <tr><td>π</td><td><code>pi</code></td></tr>
+    <tr><td>√x</td><td><code>sqrt(x)</code></td></tr>
+    <tr><td>a/b</td><td><code>a/b</code></td></tr>
+    <tr><td>×</td><td><code>*</code> (or a space)</td></tr>
+    <tr><td>sin, cos, tan</td><td><code>sin(x)</code>, <code>cos(x)</code>, <code>tan(x)</code></td></tr>
+    <tr><td>ln, log</td><td><code>ln(x)</code>, <code>log(x)</code></td></tr>
+    <tr><td>x²</td><td><code>x²</code></td></tr>
+    <tr><td>|x|</td><td><code>|x|</code></td></tr>
+    </table>
+</div>
 
             <!-- Quick-insert keypad, grouped into tabs so it doesn't turn into wall of buttons -->
             <div class="keypad-wrap">
@@ -154,6 +179,18 @@
                 </div>
             </div>
 
+            <!-- Graph range (shown only in Graph mode) -->
+            <div class="options-row hidden" id="graph-range-row">
+                <div class="option-group">
+                    <label data-lang="xminLabel">x min</label>
+                    <input type="text" id="xmin-input" value="-10" placeholder="-10">
+                </div>
+                <div class="option-group">
+                    <label data-lang="xmaxLabel">x max</label>
+                    <input type="text" id="xmax-input" value="10" placeholder="10">
+                </div>
+            </div>
+
             <button id="solve-btn" class="primary-btn">
                 <span id="solve-btn-spinner" class="spinner hidden"></span>
                 <span id="solve-btn-text" data-lang="solveBtn">Solve</span>
@@ -166,6 +203,17 @@
                     <button type="button" class="copy-btn" id="copy-result-btn" data-lang="copyBtn">Copy result</button>
                 </div>
             </div>
+
+            <!-- Graph canvas (shown after a successful Graph request) -->
+            <div id="graph-card" class="graph-card hidden">
+                <div class="graph-card-header">
+                    <span id="graph-title" data-lang="graphTitle">Graph</span>
+                </div>
+                <div class="graph-canvas-wrap">
+                    <canvas id="graph-canvas"></canvas>
+                </div>
+                <div class="graph-card-note hidden" id="graph-note"></div>
+            </div>
         </section>
 
     </main>
@@ -173,8 +221,11 @@
     <footer class="ff-footer">
         <p>&copy; 2026 Friendly Flux. Built by Anubhab Dutta &amp; Arnab Adhikari.</p>
     </footer>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="lang.js"></script>
-    <script src="math.js"></script>
+    <script src="math.js?v=2"></script>
 </body>
 </html>
