@@ -393,3 +393,39 @@ footer.ff-footer {
     max-height: 600px;
 }
 .graph-card-note { padding: 0 18px 14px; text-align: center; font-size: 0.85rem; color: var(--text-muted); }
+
+
+/* Tool Tabs Design */
+.tool-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    background-color: var(--bg-card, #e5e7eb);
+    padding: 6px;
+    border-radius: 12px;
+    width: fit-content;
+    margin: 0 auto 25px auto;
+}
+
+[data-theme="dark"] .tool-tabs {
+    background-color: #374151;
+}
+
+.tool-tab {
+    background: transparent;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    color: var(--text-muted, #6b7280);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.tool-tab.active {
+    background: var(--primary, #2563eb);
+    color: #ffffff;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}

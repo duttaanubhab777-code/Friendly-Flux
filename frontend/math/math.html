@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="math.css">
+    <link rel="stylesheet" href="geometry3d.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
 
@@ -23,12 +24,17 @@
 
     <main class="container">
         <header class="hero">
+          <div class="tool-tabs" role="tablist">
+    <button type="button" class="tool-tab active" data-tool="calc" data-lang="tabCalc">Calculus</button>
+<button type="button" class="tool-tab" data-tool="geo" data-lang="tabGeo">3D Geometry</button>
+
+          </div>
             <h1 data-lang="heroTitle">Integration &amp; Differentiation Solver</h1>
             <p data-lang="heroSub">Type any expression — as hard as you like — and get the worked-out answer.</p>
         </header>
 
         <!-- ================= Calculus Tool ================= -->
-        <section class="calc-tool">
+        <section class="calc-tool" id="tool-calc">
 
             <!-- Mode switch -->
             <div class="mode-toggle" role="tablist">
@@ -216,6 +222,64 @@
             </div>
         </section>
 
+        <!-- ================= 3D Geometry Tool ================= -->
+              <!-- 3D Geometry Heading -->
+        <div style="text-align: center; margin: 60px 0 30px 0; padding-top: 40px; border-top: 2px dashed var(--border-color, #d1d5db);">
+            <h2 style="font-family: 'Kalam', cursive; font-size: 2.2rem; color: var(--text-color);" data-lang="geoHeroTitle">3D Geometry Problem Solver</h2>
+            <p style="color: var(--text-muted);" data-lang="geoHeroSub">Select a category and solve complex problems instantly.</p>
+        </div>
+
+        <section class="geo-tool" id="tool-geo">
+    <label class="field-label" for="geo-category-select">Category</label>
+    <div class="category-row" id="geo-category-row"></div>
+
+    <label class="field-label" for="geo-operation-select">Problem type</label>
+        <!-- Hidden Select (লজিক ঠিক রাখার জন্য এটা লুকানো থাকবে) -->
+    <select id="geo-operation-select" class="hidden"></select>
+
+    <!-- Custom Dropdown Button (যেটা স্ক্রিনে দেখা যাবে) -->
+    <button type="button" id="geo-custom-select-btn" class="custom-select-btn">
+        <span id="geo-custom-select-text">Loading...</span>
+        <i class="fa-solid fa-chevron-down"></i>
+    </button>
+
+    <!-- The Popup Modal (ক্লিক করলে যেটা নিচ থেকে বা মাঝে ভেসে উঠবে) -->
+    <div id="geo-modal-overlay" class="geo-modal-overlay hidden">
+        <div class="geo-modal-box">
+            <div class="geo-modal-header">
+                <span>Problem Type</span>
+                <button type="button" id="geo-modal-close-btn">&times;</button>
+            </div>
+            <div class="geo-modal-body">
+                <ul id="geo-modal-list" class="geo-modal-list"></ul>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="geo-dynamic-fields" class="dynamic-fields"></div>
+
+    <div class="form-actions">
+        <button type="button" class="ghost-btn" id="geo-fill-example-btn">Fill example values</button>
+        <button type="button" class="ghost-btn" id="geo-clear-fields-btn">Clear</button>
+    </div>
+
+    <button id="geo-solve-btn" class="primary-btn">
+        <span id="geo-solve-btn-spinner" class="spinner hidden"></span>
+        <span id="geo-solve-btn-text">Solve</span>
+    </button>
+
+    <div id="geo-result-card" class="result-card hidden">
+        <div class="result-card-head" id="geo-result-head"></div>
+        <div class="result-card-body" id="geo-result-text"></div>
+        <div class="result-card-extra hidden" id="geo-result-extra"></div>
+        <button type="button" class="steps-toggle hidden" id="geo-steps-toggle">Show working</button>
+        <ol class="steps-list hidden" id="geo-steps-list"></ol>
+        <div class="result-card-actions hidden" id="geo-result-actions">
+            <button type="button" class="copy-btn" id="geo-copy-result-btn">Copy result</button>
+        </div>
+    </div>
+        </section>
     </main>
 
     <footer class="ff-footer">
@@ -226,6 +290,19 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="lang.js"></script>
+  <script src="geometrylang.js"></script>
     <script src="math.js?v=2"></script>
+    <script src="geometry3d.js"></script>
+    <script>
+        // Tab buttons are a scroll shortcut — both tool sections stay visible/scrollable.
+        document.querySelectorAll(".tool-tab").forEach((btn) => {
+            btn.addEventListener("click", () => {
+                document.querySelectorAll(".tool-tab").forEach((b) => b.classList.remove("active"));
+                btn.classList.add("active");
+                const targetId = btn.dataset.tool === "geo" ? "tool-geo" : "tool-calc";
+                document.getElementById(targetId).scrollIntoView({ behavior: "smooth", block: "start" });
+            });
+        });
+    </script>
 </body>
 </html>

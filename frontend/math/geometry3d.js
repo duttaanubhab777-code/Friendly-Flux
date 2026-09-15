@@ -1,46 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-    let currentLang = "en";
+    // Theme বা Lang-এর ইভেন্ট লিসেনার এখানে থাকবে না, কারণ math.js সেটা গ্লোবালি কন্ট্রোল করছে।
+    // window.currentLang, window.getApiBase(), window.t() এই ফাইলে সরাসরি কাজ করবে।
 
-    function getApiBase() {
-        if (window.location.hostname === "127.0.0.1" || window.location.hostname === "localhost") {
-            return "http://127.0.0.1:5000";
-        }
-        return "https://friendlyflux.pythonanywhere.com";
-    }
-
-    function t(key) {
-        return dictionary[key] ? dictionary[key][currentLang] : key;
-    }
-
-    // ---------- Theme & language toggle ----------
-    document.getElementById("theme-toggle").addEventListener("click", function () {
-        const html = document.documentElement;
-        if (html.getAttribute("data-theme") === "dark") {
-            html.removeAttribute("data-theme");
-            this.innerHTML = '<i class="fa-solid fa-moon"></i>';
-        } else {
-            html.setAttribute("data-theme", "dark");
-            this.innerHTML = '<i class="fa-solid fa-sun"></i>';
-        }
-    });
-
-    document.getElementById("lang-toggle").addEventListener("click", () => {
-        currentLang = currentLang === "en" ? "bn" : "en";
-        updateStaticTexts();
-    });
-
-    function updateStaticTexts() {
-        document.querySelectorAll("[data-lang]").forEach((el) => {
-            const key = el.getAttribute("data-lang");
-            if (dictionary[key]) el.textContent = dictionary[key][currentLang];
-        });
-    }
-
-    // =====================================================================
-    // Operation catalog — one entry per 3D-geometry problem type.
-    // "fields" drives what gets rendered; "example" drives the one-tap fill.
-    // Keys here match the backend's expected param names exactly.
-    // =====================================================================
     const OPERATIONS = [
         {
             id: "distance_points", category: "pointsLines", labelKey: "opDistancePoints",
@@ -204,60 +165,111 @@ document.addEventListener("DOMContentLoaded", () => {
     let activeCategory = "all";
     let currentOperation = OPERATIONS[0];
 
-    // ---------- Category pills ----------
-    const categoryRow = document.getElementById("category-row");
-    CATEGORIES.forEach((cat) => {
-        const pill = document.createElement("button");
-        pill.type = "button";
-        pill.className = "category-pill" + (cat.id === "all" ? " active" : "");
-        pill.dataset.lang = cat.labelKey;
-        pill.textContent = t(cat.labelKey);
-        pill.addEventListener("click", () => {
-            activeCategory = cat.id;
-            categoryRow.querySelectorAll(".category-pill").forEach((p) => p.classList.remove("active"));
-            pill.classList.add("active");
-            populateOperationSelect();
+    // HTML-এর সাথে ম্যাচ করার জন্য geo- যুক্ত করা হলো
+    const geoCategoryRow = document.getElementById("geo-category-row");
+    
+    if(geoCategoryRow) {
+        CATEGORIES.forEach((cat) => {
+            const pill = document.createElement("button");
+            pill.type = "button";
+            pill.className = "category-pill" + (cat.id === "all" ? " active" : "");
+            pill.dataset.lang = cat.labelKey;
+            pill.textContent = window.t(cat.labelKey);
+            pill.addEventListener("click", () => {
+                activeCategory = cat.id;
+                geoCategoryRow.querySelectorAll(".category-pill").forEach((p) => p.classList.remove("active"));
+                pill.classList.add("active");
+                populateGeoOperationSelect();
+            });
+            geoCategoryRow.appendChild(pill);
         });
-        categoryRow.appendChild(pill);
-    });
+    }
 
-    // ---------- Operation <select> ----------
-    const operationSelect = document.getElementById("operation-select");
+    
 
-    function populateOperationSelect() {
+        const geoOperationSelect = document.getElementById("geo-operation-select");
+    const geoCustomSelectBtn = document.getElementById("geo-custom-select-btn");
+    const geoCustomSelectText = document.getElementById("geo-custom-select-text");
+    const geoModalOverlay = document.getElementById("geo-modal-overlay");
+    const geoModalCloseBtn = document.getElementById("geo-modal-close-btn");
+    const geoModalList = document.getElementById("geo-modal-list");
+
+    // পপআপ খোলা এবং বন্ধ করার লজিক
+    if(geoCustomSelectBtn) {
+        geoCustomSelectBtn.addEventListener("click", () => geoModalOverlay.classList.remove("hidden"));
+        geoModalCloseBtn.addEventListener("click", () => geoModalOverlay.classList.add("hidden"));
+        geoModalOverlay.addEventListener("click", (e) => {
+            if(e.target === geoModalOverlay) geoModalOverlay.classList.add("hidden");
+        });
+    }
+
+    function populateGeoOperationSelect() {
+        if(!geoOperationSelect || !geoModalList) return;
         const previousId = currentOperation ? currentOperation.id : null;
-        operationSelect.innerHTML = "";
+        
+        geoOperationSelect.innerHTML = "";
+        geoModalList.innerHTML = "";
+        
         const visible = OPERATIONS.filter((op) => activeCategory === "all" || op.category === activeCategory);
+        
         visible.forEach((op) => {
+            // ১. লুকানো সিলেক্ট ট্যাগ আপডেট করা
             const opt = document.createElement("option");
             opt.value = op.id;
-            opt.dataset.lang = op.labelKey;
-            opt.textContent = t(op.labelKey);
-            operationSelect.appendChild(opt);
+            geoOperationSelect.appendChild(opt);
+
+            // ২. পপআপের লিস্ট বানানো (সাথে টিক চিহ্ন)
+            const li = document.createElement("li");
+            li.dataset.value = op.id;
+            li.innerHTML = `<span data-lang="${op.labelKey}">${window.t(op.labelKey)}</span> <i class="fa-solid fa-check"></i>`;
+            
+            li.addEventListener("click", () => {
+                geoOperationSelect.value = op.id;
+                geoModalOverlay.classList.add("hidden"); // ক্লিক করলেই পপআপ বন্ধ
+                onGeoOperationChange();
+            });
+            
+            geoModalList.appendChild(li);
         });
+        
         const stillVisible = visible.some((op) => op.id === previousId);
-        operationSelect.value = stillVisible ? previousId : visible[0].id;
-        onOperationChange();
+        geoOperationSelect.value = stillVisible ? previousId : visible[0].id;
+        
+        onGeoOperationChange();
     }
 
-    operationSelect.addEventListener("change", onOperationChange);
+    function onGeoOperationChange() {
+        currentOperation = OPERATIONS.find((op) => op.id === geoOperationSelect.value) || OPERATIONS[0];
+        
+        // বাটনের লেখা আপডেট করা
+        if(geoCustomSelectText) {
+            geoCustomSelectText.textContent = window.t(currentOperation.labelKey);
+            geoCustomSelectText.dataset.lang = currentOperation.labelKey;
+        }
 
-    function onOperationChange() {
-        currentOperation = OPERATIONS.find((op) => op.id === operationSelect.value) || OPERATIONS[0];
-        renderFields(currentOperation);
-        hideResult();
+        // লিস্টের মধ্যে টিক চিহ্ন (selected ক্লাস) আপডেট করা
+        document.querySelectorAll("#geo-modal-list li").forEach(li => {
+            if (li.dataset.value === currentOperation.id) {
+                li.classList.add("selected");
+            } else {
+                li.classList.remove("selected");
+            }
+        });
+
+        renderGeoFields(currentOperation);
+        hideGeoResult();
     }
 
-    // ---------- Dynamic field rendering ----------
-    const dynamicFields = document.getElementById("dynamic-fields");
 
-    function makeFieldItem(key, labelKey, placeholder) {
+    const geoDynamicFields = document.getElementById("geo-dynamic-fields");
+
+    function makeGeoFieldItem(key, labelKey, placeholder) {
         const item = document.createElement("div");
         item.className = "field-item";
         item.dataset.key = key;
         const label = document.createElement("label");
         label.dataset.lang = labelKey;
-        label.textContent = t(labelKey);
+        label.textContent = window.t(labelKey);
         label.setAttribute("for", `f_${key}`);
         const input = document.createElement("input");
         input.type = "text";
@@ -268,20 +280,20 @@ document.addEventListener("DOMContentLoaded", () => {
         return item;
     }
 
-    function makeSelectItem(key, labelKey, options) {
+    function makeGeoSelectItem(key, labelKey, options) {
         const item = document.createElement("div");
         item.className = "field-item";
         item.dataset.key = key;
         const label = document.createElement("label");
         label.dataset.lang = labelKey;
-        label.textContent = t(labelKey);
+        label.textContent = window.t(labelKey);
         const select = document.createElement("select");
         select.id = `f_${key}`;
         options.forEach(([value, optLabelKey]) => {
             const opt = document.createElement("option");
             opt.value = value;
             opt.dataset.lang = optLabelKey;
-            opt.textContent = t(optLabelKey);
+            opt.textContent = window.t(optLabelKey);
             select.appendChild(opt);
         });
         item.appendChild(label);
@@ -289,22 +301,22 @@ document.addEventListener("DOMContentLoaded", () => {
         return item;
     }
 
-    function makePill(mode, labelKey, isActive) {
+    function makeGeoPill(mode, labelKey, isActive) {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "toggle-pill" + (isActive ? " active" : "");
         btn.dataset.mode = mode;
         btn.dataset.lang = labelKey;
-        btn.textContent = t(labelKey);
+        btn.textContent = window.t(labelKey);
         return btn;
     }
 
-    function setActivePill(active, inactive) {
+    function setGeoActivePill(active, inactive) {
         active.classList.add("active");
         inactive.classList.remove("active");
     }
 
-    function renderPlaneGroup(field) {
+    function renderGeoPlaneGroup(field) {
         const wrap = document.createElement("div");
         wrap.className = "composite-group";
         wrap.dataset.groupType = "plane";
@@ -313,39 +325,39 @@ document.addEventListener("DOMContentLoaded", () => {
         const title = document.createElement("div");
         title.className = "composite-group-title";
         title.dataset.lang = field.labelKey || "groupPlane";
-        title.textContent = t(field.labelKey || "groupPlane");
+        title.textContent = window.t(field.labelKey || "groupPlane");
         wrap.appendChild(title);
 
         const toggles = document.createElement("div");
         toggles.className = "toggle-pills";
-        const pillA = makePill("point_normal", "pointNormalMode", true);
-        const pillB = makePill("three_points", "threePointsMode", false);
+        const pillA = makeGeoPill("point_normal", "pointNormalMode", true);
+        const pillB = makeGeoPill("three_points", "threePointsMode", false);
         toggles.appendChild(pillA);
         toggles.appendChild(pillB);
         wrap.appendChild(toggles);
 
         const subA = document.createElement("div");
         subA.className = "field-row";
-        subA.appendChild(makeFieldItem("plane_point", "fieldPoint", "1,1,1"));
-        subA.appendChild(makeFieldItem("plane_normal", "fieldNormal", "1,-1,2"));
+        subA.appendChild(makeGeoFieldItem("plane_point", "fieldPoint", "1,1,1"));
+        subA.appendChild(makeGeoFieldItem("plane_normal", "fieldNormal", "1,-1,2"));
 
         const subB = document.createElement("div");
         subB.className = "field-row hidden";
-        subB.appendChild(makeFieldItem("plane_point1", "fieldPoint1", "1,1,1"));
-        subB.appendChild(makeFieldItem("plane_point2", "fieldPoint2", "2,3,1"));
-        subB.appendChild(makeFieldItem("plane_point3", "fieldPoint3", "4,1,2"));
+        subB.appendChild(makeGeoFieldItem("plane_point1", "fieldPoint1", "1,1,1"));
+        subB.appendChild(makeGeoFieldItem("plane_point2", "fieldPoint2", "2,3,1"));
+        subB.appendChild(makeGeoFieldItem("plane_point3", "fieldPoint3", "4,1,2"));
 
         wrap.appendChild(subA);
         wrap.appendChild(subB);
 
         pillA.addEventListener("click", () => {
-            setActivePill(pillA, pillB);
+            setGeoActivePill(pillA, pillB);
             subA.classList.remove("hidden");
             subB.classList.add("hidden");
             wrap.dataset.mode = "point_normal";
         });
         pillB.addEventListener("click", () => {
-            setActivePill(pillB, pillA);
+            setGeoActivePill(pillB, pillA);
             subB.classList.remove("hidden");
             subA.classList.add("hidden");
             wrap.dataset.mode = "three_points";
@@ -354,7 +366,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return wrap;
     }
 
-    function renderLineGroup(field) {
+    function renderGeoLineGroup(field) {
         const suffix = field.suffix || "";
         const wrap = document.createElement("div");
         wrap.className = "composite-group";
@@ -365,42 +377,41 @@ document.addEventListener("DOMContentLoaded", () => {
         const title = document.createElement("div");
         title.className = "composite-group-title";
         title.dataset.lang = field.labelKey || "groupLine";
-        title.textContent = t(field.labelKey || "groupLine");
+        title.textContent = window.t(field.labelKey || "groupLine");
         wrap.appendChild(title);
 
         const toggles = document.createElement("div");
         toggles.className = "toggle-pills";
-        const pillA = makePill("point_direction", "pointDirectionMode", true);
-        const pillB = makePill("two_points", "twoPointsMode", false);
+        const pillA = makeGeoPill("point_direction", "pointDirectionMode", true);
+        const pillB = makeGeoPill("two_points", "twoPointsMode", false);
         toggles.appendChild(pillA);
         toggles.appendChild(pillB);
         wrap.appendChild(toggles);
 
-        // Point A is common to both modes
         const rowA = document.createElement("div");
         rowA.className = "field-row";
-        rowA.appendChild(makeFieldItem(`line_point${suffix}`, "fieldPointA", "1,0,0"));
+        rowA.appendChild(makeGeoFieldItem(`line_point${suffix}`, "fieldPointA", "1,0,0"));
         wrap.appendChild(rowA);
 
         const subDirection = document.createElement("div");
         subDirection.className = "field-row";
-        subDirection.appendChild(makeFieldItem(`line_direction${suffix}`, "fieldDirection", "1,1,1"));
+        subDirection.appendChild(makeGeoFieldItem(`line_direction${suffix}`, "fieldDirection", "1,1,1"));
 
         const subTwoPoints = document.createElement("div");
         subTwoPoints.className = "field-row hidden";
-        subTwoPoints.appendChild(makeFieldItem(`line_point2${suffix}`, "fieldPointB", "4,5,6"));
+        subTwoPoints.appendChild(makeGeoFieldItem(`line_point2${suffix}`, "fieldPointB", "4,5,6"));
 
         wrap.appendChild(subDirection);
         wrap.appendChild(subTwoPoints);
 
         pillA.addEventListener("click", () => {
-            setActivePill(pillA, pillB);
+            setGeoActivePill(pillA, pillB);
             subDirection.classList.remove("hidden");
             subTwoPoints.classList.add("hidden");
             wrap.dataset.mode = "point_direction";
         });
         pillB.addEventListener("click", () => {
-            setActivePill(pillB, pillA);
+            setGeoActivePill(pillB, pillA);
             subTwoPoints.classList.remove("hidden");
             subDirection.classList.add("hidden");
             wrap.dataset.mode = "two_points";
@@ -409,24 +420,25 @@ document.addEventListener("DOMContentLoaded", () => {
         return wrap;
     }
 
-    function renderFields(operation) {
-        dynamicFields.innerHTML = "";
+    function renderGeoFields(operation) {
+        if(!geoDynamicFields) return;
+        geoDynamicFields.innerHTML = "";
         let rowBuffer = null;
 
         function flushRow() {
-            if (rowBuffer && rowBuffer.children.length) dynamicFields.appendChild(rowBuffer);
+            if (rowBuffer && rowBuffer.children.length) geoDynamicFields.appendChild(rowBuffer);
             rowBuffer = null;
         }
 
         operation.fields.forEach((field) => {
             if (field.type === "planeGroup") {
                 flushRow();
-                dynamicFields.appendChild(renderPlaneGroup(field));
+                geoDynamicFields.appendChild(renderGeoPlaneGroup(field));
                 return;
             }
             if (field.type === "lineGroup") {
                 flushRow();
-                dynamicFields.appendChild(renderLineGroup(field));
+                geoDynamicFields.appendChild(renderGeoLineGroup(field));
                 return;
             }
             if (!rowBuffer) {
@@ -434,68 +446,72 @@ document.addEventListener("DOMContentLoaded", () => {
                 rowBuffer.className = "field-row";
             }
             if (field.type === "select") {
-                rowBuffer.appendChild(makeSelectItem(field.key, field.labelKey, field.options));
+                rowBuffer.appendChild(makeGeoSelectItem(field.key, field.labelKey, field.options));
             } else {
-                rowBuffer.appendChild(makeFieldItem(field.key, field.labelKey, field.placeholder));
+                rowBuffer.appendChild(makeGeoFieldItem(field.key, field.labelKey, field.placeholder));
             }
         });
         flushRow();
     }
 
-    // ---------- Example fill / clear ----------
-    document.getElementById("fill-example-btn").addEventListener("click", () => {
-        const example = currentOperation.example || {};
+    const geoFillExampleBtn = document.getElementById("geo-fill-example-btn");
+    const geoClearFieldsBtn = document.getElementById("geo-clear-fields-btn");
 
-        // First switch any composite groups to the mode the example expects
-        dynamicFields.querySelectorAll(".composite-group").forEach((group) => {
-            const type = group.dataset.groupType;
-            const suffix = group.dataset.suffix || "";
-            const modeKey = type === "plane" ? "plane_mode" : `line_mode${suffix}`;
-            const desiredMode = example[modeKey];
-            if (desiredMode && desiredMode !== group.dataset.mode) {
-                const pill = group.querySelector(`.toggle-pill[data-mode="${desiredMode}"]`);
-                if (pill) pill.click();
-            }
+    if(geoFillExampleBtn) {
+        geoFillExampleBtn.addEventListener("click", () => {
+            const example = currentOperation.example || {};
+            geoDynamicFields.querySelectorAll(".composite-group").forEach((group) => {
+                const type = group.dataset.groupType;
+                const suffix = group.dataset.suffix || "";
+                const modeKey = type === "plane" ? "plane_mode" : `line_mode${suffix}`;
+                const desiredMode = example[modeKey];
+                if (desiredMode && desiredMode !== group.dataset.mode) {
+                    const pill = group.querySelector(`.toggle-pill[data-mode="${desiredMode}"]`);
+                    if (pill) pill.click();
+                }
+            });
+
+            geoDynamicFields.querySelectorAll(".field-item").forEach((item) => {
+                const key = item.dataset.key;
+                if (key in example) {
+                    item.querySelector("input, select").value = example[key];
+                }
+            });
         });
-
-        // Then fill in every field this example specifies
-        dynamicFields.querySelectorAll(".field-item").forEach((item) => {
-            const key = item.dataset.key;
-            if (key in example) {
-                item.querySelector("input, select").value = example[key];
-            }
-        });
-    });
-
-    document.getElementById("clear-fields-btn").addEventListener("click", () => {
-        dynamicFields.querySelectorAll("input[type='text']").forEach((input) => { input.value = ""; });
-        hideResult();
-    });
-
-    // ---------- Solve ----------
-    const solveBtn = document.getElementById("solve-btn");
-    const solveBtnSpinner = document.getElementById("solve-btn-spinner");
-    const solveBtnText = document.getElementById("solve-btn-text");
-    const resultCard = document.getElementById("result-card");
-    const resultHead = document.getElementById("result-head");
-    const resultText = document.getElementById("result-text");
-    const resultExtra = document.getElementById("result-extra");
-    const stepsToggle = document.getElementById("steps-toggle");
-    const stepsList = document.getElementById("steps-list");
-    const resultActions = document.getElementById("result-actions");
-    const copyResultBtn = document.getElementById("copy-result-btn");
-
-    function hideResult() {
-        resultCard.classList.add("hidden");
-        resultCard.classList.remove("error");
     }
 
-    function collectParams() {
+    if(geoClearFieldsBtn) {
+        geoClearFieldsBtn.addEventListener("click", () => {
+            geoDynamicFields.querySelectorAll("input[type='text']").forEach((input) => { input.value = ""; });
+            hideGeoResult();
+        });
+    }
+
+    const geoSolveBtn = document.getElementById("geo-solve-btn");
+    const geoSolveBtnSpinner = document.getElementById("geo-solve-btn-spinner");
+    const geoSolveBtnText = document.getElementById("geo-solve-btn-text");
+    const geoResultCard = document.getElementById("geo-result-card");
+    const geoResultHead = document.getElementById("geo-result-head");
+    const geoResultText = document.getElementById("geo-result-text");
+    const geoResultExtra = document.getElementById("geo-result-extra");
+    const geoStepsToggle = document.getElementById("geo-steps-toggle");
+    const geoStepsList = document.getElementById("geo-steps-list");
+    const geoResultActions = document.getElementById("geo-result-actions");
+    const geoCopyResultBtn = document.getElementById("geo-copy-result-btn");
+
+    function hideGeoResult() {
+        if(geoResultCard) {
+            geoResultCard.classList.add("hidden");
+            geoResultCard.classList.remove("error");
+        }
+    }
+
+    function collectGeoParams() {
         const params = {};
-        dynamicFields.querySelectorAll(".field-item").forEach((item) => {
+        geoDynamicFields.querySelectorAll(".field-item").forEach((item) => {
             params[item.dataset.key] = item.querySelector("input, select").value.trim();
         });
-        dynamicFields.querySelectorAll(".composite-group").forEach((group) => {
+        geoDynamicFields.querySelectorAll(".composite-group").forEach((group) => {
             const type = group.dataset.groupType;
             const suffix = group.dataset.suffix || "";
             if (type === "plane") {
@@ -507,94 +523,113 @@ document.addEventListener("DOMContentLoaded", () => {
         return params;
     }
 
-    function setLoading(isLoading) {
-        solveBtn.disabled = isLoading;
-        solveBtnSpinner.classList.toggle("hidden", !isLoading);
-        solveBtnText.textContent = isLoading ? t("solvingBtn") : t("solveBtn");
+    function setGeoLoading(isLoading) {
+        if(!geoSolveBtn) return;
+        geoSolveBtn.disabled = isLoading;
+        geoSolveBtnSpinner.classList.toggle("hidden", !isLoading);
+        geoSolveBtnText.textContent = isLoading ? window.t("solvingBtn") : window.t("solveBtn");
     }
 
-    stepsToggle.addEventListener("click", () => {
-        const open = stepsList.classList.toggle("hidden");
-        stepsToggle.classList.toggle("open", !open);
-        stepsToggle.querySelector("span").textContent = open ? t("showSteps") : t("hideSteps");
-    });
-
-    copyResultBtn.addEventListener("click", () => {
-        navigator.clipboard.writeText(resultText.textContent).then(() => {
-            const original = copyResultBtn.textContent;
-            copyResultBtn.textContent = t("copiedBtn");
-            setTimeout(() => { copyResultBtn.textContent = original; }, 1500);
+    if(geoStepsToggle) {
+        geoStepsToggle.addEventListener("click", () => {
+            const open = geoStepsList.classList.toggle("hidden");
+            geoStepsToggle.classList.toggle("open", !open);
+            geoStepsToggle.querySelector("span").textContent = open ? window.t("showSteps") : window.t("hideSteps");
         });
-    });
+    }
 
-    function showSuccess(data) {
-        resultCard.classList.remove("hidden", "error");
-        resultHead.textContent = t("resultHead");
-        resultHead.classList.remove("hidden");
-        resultText.textContent = data.result;
+    if(geoCopyResultBtn) {
+        geoCopyResultBtn.addEventListener("click", () => {
+            navigator.clipboard.writeText(geoResultText.dataset.plainText || geoResultText.textContent).then(() => {
+                const original = geoCopyResultBtn.textContent;
+                geoCopyResultBtn.textContent = window.t("copiedBtn");
+                setTimeout(() => { geoCopyResultBtn.textContent = original; }, 1500);
+            });
+        });
+    }
+
+    function showGeoSuccess(data) {
+        geoResultCard.classList.remove("hidden", "error");
+        geoResultHead.textContent = window.t("resultHead");
+        geoResultHead.classList.remove("hidden");
+
+        // LaTeX Rendering for Geometry Output
+        geoResultText.dataset.plainText = data.result;
+        try {
+            katex.render(data.latex || data.result, geoResultText, { throwOnError: false, displayMode: true });
+        } catch (e) {
+            geoResultText.textContent = data.result;
+        }
 
         if (data.extra) {
-            resultExtra.textContent = data.extra;
-            resultExtra.classList.remove("hidden");
+            geoResultExtra.textContent = data.extra;
+            geoResultExtra.classList.remove("hidden");
         } else {
-            resultExtra.classList.add("hidden");
+            geoResultExtra.classList.add("hidden");
         }
 
+        // LaTeX Rendering for Geometry Steps
         if (Array.isArray(data.steps) && data.steps.length) {
-            stepsList.innerHTML = "";
+            geoStepsList.innerHTML = "";
             data.steps.forEach((step) => {
                 const li = document.createElement("li");
-                li.textContent = step;
-                stepsList.appendChild(li);
+                li.dataset.plainText = step;
+                try {
+                    katex.render(step, li, { throwOnError: false, displayMode: false });
+                } catch(e) {
+                    li.textContent = step;
+                }
+                geoStepsList.appendChild(li);
             });
-            stepsToggle.classList.remove("hidden");
-            stepsList.classList.add("hidden");
-            stepsToggle.classList.remove("open");
-            stepsToggle.querySelector("span").textContent = t("showSteps");
+            geoStepsToggle.classList.remove("hidden");
+            geoStepsList.classList.add("hidden");
+            geoStepsToggle.classList.remove("open");
+            geoStepsToggle.querySelector("span").textContent = window.t("showSteps");
         } else {
-            stepsToggle.classList.add("hidden");
-            stepsList.classList.add("hidden");
+            geoStepsToggle.classList.add("hidden");
+            geoStepsList.classList.add("hidden");
         }
 
-        resultActions.classList.remove("hidden");
+        geoResultActions.classList.remove("hidden");
     }
 
-    function showError(message) {
-        resultCard.classList.remove("hidden");
-        resultCard.classList.add("error");
-        resultHead.classList.add("hidden");
-        resultText.textContent = message;
-        resultExtra.classList.add("hidden");
-        stepsToggle.classList.add("hidden");
-        stepsList.classList.add("hidden");
-        resultActions.classList.add("hidden");
+    function showGeoError(message) {
+        geoResultCard.classList.remove("hidden");
+        geoResultCard.classList.add("error");
+        geoResultHead.classList.add("hidden");
+        geoResultText.textContent = message;
+        geoResultExtra.classList.add("hidden");
+        geoStepsToggle.classList.add("hidden");
+        geoStepsList.classList.add("hidden");
+        geoResultActions.classList.add("hidden");
     }
 
-    solveBtn.addEventListener("click", async () => {
-        const params = collectParams();
-        setLoading(true);
+    if(geoSolveBtn) {
+        geoSolveBtn.addEventListener("click", async () => {
+            const params = collectGeoParams();
+            setGeoLoading(true);
 
-        try {
-            const response = await fetch(`${getApiBase()}/api/geometry3d/solve`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ operation: currentOperation.id, params }),
-            });
-            const data = await response.json();
-            if (data.success) {
-                showSuccess(data);
-            } else {
-                showError(data.error);
+            try {
+                const response = await fetch(`${window.getApiBase()}/api/geometry3d/solve`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ operation: currentOperation.id, params }),
+                });
+                const data = await response.json();
+                if (data.success) {
+                    showGeoSuccess(data);
+                } else {
+                    showGeoError(data.error);
+                }
+            } catch (err) {
+                console.error(err);
+                showGeoError(window.t("serverErrMsg"));
+            } finally {
+                setGeoLoading(false);
             }
-        } catch (err) {
-            console.error(err);
-            showError(t("serverErrMsg"));
-        } finally {
-            setLoading(false);
-        }
-    });
+        });
+    }
 
-    // ---------- Init ----------
-    populateOperationSelect();
-    updateStaticTexts();
+    // Initialize Geometry
+    populateGeoOperationSelect();
 });

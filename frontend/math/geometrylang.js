@@ -1,10 +1,24 @@
-const dictionary = {
-    title: { en: "3D Geometry Solver", bn: "থ্রিডি জ্যামিতি সমাধান" },
-    heroTitle: { en: "Three-Dimensional Geometry Solver", bn: "থ্রি-ডাইমেনশনাল জ্যামিতি সমাধান" },
-    heroSub: {
-        en: "Points, lines, planes, angles, distances — pick a problem type and plug in your numbers.",
-        bn: "বিন্দু, রেখা, তল, কোণ, দূরত্ব — যে ধরনের অংক তোমার, সেটা বেছে নিয়ে সংখ্যাগুলো বসিয়ে দাও।"
+// ---------- Geometry dictionary ----------
+// title/heroTitle/heroSub intentionally omitted — the merged page has one
+// shared nav/hero, and math.js's lang.js already owns those keys.
+window.dictionary = Object.assign(window.dictionary || {}, {
+      "tabCalc": {
+        "en": "Calculus",
+        "bn": "ক্যালকুলাস"
     },
+    "tabGeo": {
+        "en": "3D Geometry",
+        "bn": "থ্রিডি জিওমেট্রি"
+    },
+    "geoHeroTitle": {
+        "en": "3D Geometry Problem Solver",
+        "bn": "থ্রিডি জিওমেট্রি সমস্যা সমাধানকারী"
+    },
+    "geoHeroSub": {
+        "en": "Select a category and solve complex problems instantly.",
+        "bn": "একটি বিভাগ বেছে নিন এবং জটিল সমস্যাগুলি মুহূর্তেই সমাধান করুন।"
+    },
+
     categoryLabel: { en: "Category", bn: "বিভাগ" },
     operationLabel: { en: "Problem type", bn: "কোন ধরনের অংক" },
     fillExample: { en: "Fill example values", bn: "উদাহরণ বসাও" },
@@ -75,4 +89,4 @@ const dictionary = {
     opImagePlane: { en: "Image (reflection) of a point in a plane", bn: "তলে একটা বিন্দুর প্রতিবিম্ব" },
     opCoplanarity: { en: "Check if four points are coplanar", bn: "চারটে বিন্দু একই তলে আছে কিনা" },
     opIntersection: { en: "Intersection of a line and a plane", bn: "একটা রেখা ও তলের ছেদবিন্দু" }
-};
+});

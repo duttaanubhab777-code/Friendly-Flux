@@ -1,4 +1,5 @@
-const dictionary = {
+// ---------- Math dictionary ----------
+window.dictionary = Object.assign(window.dictionary || {}, {
     title: { en: "Math Solver", bn: "গণিত সমাধান" },
     heroTitle: { en: "Integration & Differentiation & Graph problem Solver", bn: "ইন্টিগ্রেশন ও ডিফারেনশিয়েশন ও গ্রাফ সমস্যা সমাধানকারী" },
     heroSub: { en: "Type any expression — as hard as you like — and get the worked-out answer.", bn: "যত কঠিন অংকই হোক, লিখে দাও — উত্তর বের করে দেবে।" },
@@ -43,4 +44,4 @@ const dictionary = {
     ocrBtn: { en: "Scan from photo", bn: "ছবি থেকে স্ক্যান করো" },
     ocrReading: { en: "Reading the photo...", bn: "ছবি পড়া হচ্ছে..." },
     ocrDone: { en: "Filled in from photo ✓", bn: "ছবি থেকে বসানো হয়েছে ✓" }
-};
+});
