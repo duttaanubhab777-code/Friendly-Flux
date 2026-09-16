@@ -242,65 +242,100 @@ document.addEventListener("DOMContentLoaded", () => {
         return -1;
     }
 
-    function readTermForward(text, start) {
-        let i = start;
-        if (text[i] === "(") {
-            const close = findMatchingParen(text, i);
-            if (close === -1) return { term: text.slice(i), end: text.length };
-            return { term: text.slice(i + 1, close), end: close + 1 };
+    // math.js - replace existing readTermForward
+function readTermForward(text, start) {
+    let i = start;
+    let endIdx = i;
+    let isPureParen = false;
+
+    if (text[i] === "(") {
+        const close = findMatchingParen(text, i);
+        if (close !== -1) { endIdx = close + 1; isPureParen = true; } 
+        else endIdx = text.length;
+    } else if (text[i] === "\\") {
+        let j = i + 1;
+        while (j < text.length && /[a-zA-Z]/.test(text[j])) j++;
+        while (text[j] === "{") {
+            const close = findMatchingBrace(text, j);
+            if (close !== -1) j = close + 1; else break;
         }
-        if (text[i] === "\\") {
-            let j = i + 1;
-            while (j < text.length && /[a-zA-Z]/.test(text[j])) j++;
-            while (text[j] === "{") {
-                const close = findMatchingBrace(text, j);
-                if (close === -1) break;
-                j = close + 1;
-            }
-            while (text[j] === "(") {
-                const close = findMatchingParen(text, j);
-                if (close === -1) break;
-                j = close + 1;
-            }
-            return { term: text.slice(i, j), end: j };
-        }
-        let j = i;
-        while (j < text.length && /[a-zA-Z0-9_.]/.test(text[j])) j++;
         while (text[j] === "(") {
             const close = findMatchingParen(text, j);
-            if (close === -1) break;
-            j = close + 1;
+            if (close !== -1) j = close + 1; else break;
         }
-        if (text[j] === "^") {
-            j++;
-            if (text[j] === "{") {
-                const close = findMatchingBrace(text, j);
-                if (close !== -1) j = close + 1;
-            } else if (j < text.length) {
-                j++;
-            }
+        endIdx = j;
+    } else {
+        let j = i;
+        while (j < text.length && /[a-zA-Z0-9_.]/.test(text[j])) j++;
+        while (j < text.length && text[j] === "(") {
+            const close = findMatchingParen(text, j);
+            if (close !== -1) j = close + 1; else break;
         }
-        return { term: text.slice(i, j), end: j };
+        endIdx = j;
     }
 
-    function readTermBackward(text, end) {
-        if (text[end - 1] === ")") {
-            let depth = 1, j = end - 2;
-            while (j >= 0 && depth > 0) {
-                if (text[j] === ")") depth++;
-                else if (text[j] === "(") depth--;
-                if (depth === 0) break;
-                j--;
-            }
-            if (j < 0) return { term: text.slice(0, end), start: 0 };
-            let k = j;
-            while (k > 0 && /[a-zA-Z0-9_.]/.test(text[k - 1])) k--;
-            return { term: text.slice(k, end), start: k };
+    // Power check - পাওয়ার থাকলে ব্র্যাকেট রিমুভ করা যাবে না
+    if (endIdx < text.length && text[endIdx] === "^") {
+        isPureParen = false; 
+        let j = endIdx + 1;
+        if (j < text.length && text[j] === "{") {
+            const close = findMatchingBrace(text, j);
+            if (close !== -1) j = close + 1; else j = text.length;
+        } else if (j < text.length && text[j] === "(") {
+            const close = findMatchingParen(text, j);
+            if (close !== -1) j = close + 1; else j = text.length;
+        } else {
+            while (j < text.length && /[a-zA-Z0-9_.]/.test(text[j])) j++;
         }
-        let j = end;
-        while (j > 0 && /[a-zA-Z0-9_.]/.test(text[j - 1])) j--;
-        return { term: text.slice(j, end), start: j };
+        endIdx = j;
     }
+
+    if (isPureParen) return { term: text.slice(i + 1, endIdx - 1), end: endIdx };
+    return { term: text.slice(i, endIdx), end: endIdx };
+}
+
+// math.js - replace existing readTermBackward
+function readTermBackward(text, end) {
+    let j = end;
+    let hasPower = false;
+    
+    function stepBack(idx) {
+        if (idx > 0 && (text[idx - 1] === ")" || text[idx - 1] === "}")) {
+            let closeChar = text[idx - 1];
+            let openChar = closeChar === ")" ? "(" : "{";
+            let depth = 1, k = idx - 1;
+            while (k > 0 && depth > 0) {
+                k--;
+                if (text[k] === closeChar) depth++;
+                else if (text[k] === openChar) depth--;
+            }
+            while (k > 0 && /[a-zA-Z0-9_.]/.test(text[k - 1])) k--;
+            return k;
+        }
+        let k = idx;
+        while (k > 0 && /[a-zA-Z0-9_.]/.test(text[k - 1])) k--;
+        return k;
+    }
+
+    j = stepBack(j);
+    if (j > 0 && text[j - 1] === "^") {
+        hasPower = true;
+        j = stepBack(j - 1);
+    }
+
+    let termStr = text.slice(j, end);
+    if (!hasPower && termStr.startsWith("(") && termStr.endsWith(")")) {
+        let depth = 0, valid = true;
+        for (let k = 0; k < termStr.length - 1; k++) {
+            if (termStr[k] === "(") depth++;
+            else if (termStr[k] === ")") depth--;
+            if (depth === 0) { valid = false; break; }
+        }
+        if (valid) return { term: termStr.slice(1, -1), start: j };
+    }
+    return { term: termStr, start: j };
+}
+
 
     function convertDivision(text) {
         let idx = text.indexOf("/");
@@ -342,31 +377,59 @@ document.addEventListener("DOMContentLoaded", () => {
         return text;
     }
 
-    function toLatexPreview(raw) {
-        let s = raw;
-        s = convertSqrt(s);
-        s = convertAbs(s);
-        s = convertDivision(s);
-        s = s.replace(/\*/g, " \\cdot ");
-        s = s.replace(/\bpi\b/g, "\\pi");
-
-        const nativeFuncs = ["sin", "cos", "tan", "cot", "sec", "csc",
-                            "sinh", "cosh", "tanh", "ln", "log", "exp"];
-        nativeFuncs.forEach((f) => {
-            s = s.replace(new RegExp("\\b" + f + "\\(", "g"), "\\" + f + "(");
-        });
-
-        s = s.replace(/\basin\(/g, "\\arcsin(");
-        s = s.replace(/\bacos\(/g, "\\arccos(");
-        s = s.replace(/\batan\(/g, "\\arctan(");
-
-        const customFuncs = ["asinh", "acosh", "atanh", "acsch", "asech", "acoth",
-                            "csch", "sech", "coth", "floor", "ceil", "sign", "gamma"];
-        customFuncs.forEach((f) => {
-            s = s.replace(new RegExp("\\b" + f + "\\(", "g"), "\\operatorname{" + f + "}(");
-        });
-        return s;
+  // convertSqrt/convertAbs-এর মতোই depth-aware — নেস্টেড bracket-সহ exponent ঠিকভাবে ধরে
+function convertPower(text) {
+    let idx = text.indexOf("^");
+    let guard = 0;
+    while (idx !== -1 && guard < 100) {
+        guard++;
+        const afterIdx = idx + 1;
+        if (text[afterIdx] === "(") {
+            const close = findMatchingParen(text, afterIdx);
+            if (close === -1) break;
+            const inner = text.slice(afterIdx + 1, close);
+            text = text.slice(0, idx) + "^{" + inner + "}" + text.slice(close + 1);
+        } else {
+            const m = text.slice(afterIdx).match(/^[a-zA-Z0-9.-]+/);
+            if (!m) { idx = text.indexOf("^", idx + 1); continue; }
+            const end = afterIdx + m[0].length;
+            text = text.slice(0, idx) + "^{" + m[0] + "}" + text.slice(end);
+        }
+        idx = text.indexOf("^", idx + 1);
     }
+    return text;
+}
+
+    function toLatexPreview(raw) {
+    let s = raw;
+    
+    s = convertPower(s);
+    // -----------------------------------------------------------
+
+    s = convertSqrt(s);
+    s = convertAbs(s);
+    s = convertDivision(s);
+    s = s.replace(/\*/g, " \\cdot ");
+    s = s.replace(/\bpi\b/g, "\\pi");
+
+    const nativeFuncs = ["sin", "cos", "tan", "cot", "sec", "csc",
+                        "sinh", "cosh", "tanh", "ln", "log", "exp"];
+    nativeFuncs.forEach((f) => {
+        s = s.replace(new RegExp("\\b" + f + "\\(", "g"), "\\" + f + "(");
+    });
+
+    s = s.replace(/\basin\(/g, "\\arcsin(");
+    s = s.replace(/\bacos\(/g, "\\arccos(");
+    s = s.replace(/\batan\(/g, "\\arctan(");
+
+    const customFuncs = ["asinh", "acosh", "atanh", "acsch", "asech", "acoth",
+                        "csch", "sech", "coth", "floor", "ceil", "sign", "gamma"];
+    customFuncs.forEach((f) => {
+        s = s.replace(new RegExp("\\b" + f + "\\(", "g"), "\\operatorname{" + f + "}(");
+    });
+    return s;
+}
+
 
     function updateLiveStatus() {
         if(!exprInput) return;
@@ -374,7 +437,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const previewEl = document.getElementById("expr-preview");
         
         if (text) {
-            katex.render(toLatexPreview(text), previewEl, { throwOnError: false });
+            katex.render("\\displaystyle " + toLatexPreview(text), previewEl, { throwOnError: false });
+
         } else {
             previewEl.innerHTML = "";
         }

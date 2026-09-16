@@ -1,24 +1,6 @@
 """
 Calculus Engine — ইউজার যা টাইপ করে (যেমন "sin(x)^2 * x") সেটাকে sympy দিয়ে
-পার্স করে ডিফারেনশিয়েট বা ইন্টিগ্রেট করে। যত কঠিন এক্সপ্রেশনই হোক
-(একাধিক চলরাশি, sin/cos/e/ln মেশানো থাকুক), sympy নিজেই বের করে।
-
-এই ভার্সনে যেসব দুর্বলতা ঠিক করা হয়েছে:
-  1. আগে signal.alarm() দিয়ে timeout করা হতো, যেটা শুধু main thread-এ কাজ করে।
-     Flask যদি threaded/gunicorn মোডে চলে (production-এ সাধারণত চলে), তখন
-     signal.alarm() ValueError ছুঁড়ে পুরো request crash করিয়ে দিতে পারত।
-     এখন ThreadPoolExecutor দিয়ে timeout করা হচ্ছে — যেকোনো thread থেকে কাজ করে।
-  2. Inverse hyperbolic (asinh/acosh/atanh) ও reciprocal hyperbolic
-     (csch/sech/coth) ফাংশন আগে একদমই সাপোর্ট ছিল না — টাইপ করলে চুপচাপ
-     ভুল উত্তর (unevaluated derivative) দিয়ে দিত, এরর দিত না। এখন যোগ করা হলো।
-  3. factorial, floor, ceiling, sign, gamma, max/min যোগ করা হলো।
-  4. Variable-এর নাম যদি কোনো ফাংশন/কনস্ট্যান্টের নামের সাথে মিলে যায়
-     (যেমন কেউ "sin" বা "e" কে ভ্যারিয়েবল বানাতে চাইলে) — এখন স্পষ্ট এরর দেয়।
-  5. Bracket mismatch হলে (যেমন "(" বেশি বা কম) নির্দিষ্ট করে বলে দেয়।
-  6. খুব বেশি জটিল/nested এক্সপ্রেশন (server hang এড়াতে) আগেভাগেই আটকে দেয়।
-  7. Mixed partial derivative সাপোর্ট — "x,y" এর মতো কমা দিয়ে একাধিক
-     ভ্যারিয়েবল দিলে ∂²/∂x∂y বের করে দেয়।
-  8. Complex/non-real ফলাফল হলে সেটা স্পষ্ট করে জানায়, ভুলভাবে round করে না।
+পার্স করে ডিফারেনশিয়েট বা ইন্টিগ্রেট করে।
 """
 import re
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
@@ -30,7 +12,10 @@ from sympy import (
     asinh, acosh, atanh, acsch, asech, acoth,
     log, exp, sqrt, pi, E, oo, I,
     factorial, floor, ceiling, sign, gamma, Max, Min,
-    Integral, diff, integrate, simplify, Abs, nsimplify, latex
+    Integral, diff, integrate, simplify, Abs, nsimplify, latex,
+    Poly, Pow, expand, preorder_traversal, Piecewise,
+    hyper, meijerg, uppergamma, lowergamma, elliptic_e, elliptic_f, elliptic_k, elliptic_pi,
+    gammasimp
 )
 from sympy.parsing.sympy_parser import (
     parse_expr, standard_transformations,
@@ -39,10 +24,8 @@ from sympy.parsing.sympy_parser import (
 
 _TRANSFORMS = standard_transformations + (implicit_multiplication_application, convert_xor)
 
-# একটা shared thread pool — request-ভিত্তিক নতুন thread না বানিয়ে পুনরায় ব্যবহার করা হয়
 _EXECUTOR = ThreadPoolExecutor(max_workers=4, thread_name_prefix="calc-engine")
 
-# ফাংশন/ধ্রুবকের নাম — এগুলো ছাড়া বাকি যেকোনো অক্ষর একেকটা ভ্যারিয়েবল ধরে নেওয়া হয়
 _LOCAL_DICT = {
     "e": E, "pi": pi, "oo": oo, "infinity": oo, "inf": oo, "i": I,
     "sin": sin, "cos": cos, "tan": tan, "cot": cot, "sec": sec, "csc": csc,
@@ -57,24 +40,16 @@ _LOCAL_DICT = {
     "sign": sign, "gamma": gamma, "max": Max, "min": Min,
 }
 
-# ইউজারের ইনপুটে শুধু এই ক্যারেক্টারগুলোই থাকতে পারবে — নিরাপত্তার জন্য
 _ALLOWED_CHARS = re.compile(r"^[0-9a-zA-Z_+\-*/^!(){}.,\s]*$")
 _MAX_LEN = 250
-# sympy expression-এর জটিলতার (operation count) সীমা — এর বেশি হলে টাইমআউটের
-# আগেই আটকে দেওয়া হয়, যাতে সার্ভার আটকে না থাকে
 _MAX_OP_COUNT = 400
 _TIMEOUT_SECONDS = 8
-
 
 class CalculusError(ValueError):
     pass
 
-
-# math_ocr.py এই দুটো reuse করে (OCR থেকে আসা টেক্সট একই নিয়মে যাচাই করার জন্য),
-# তাই একই রেগেক্স/লিমিট দুবার না লিখে public alias করে রাখা হলো
 ALLOWED_CHARS = _ALLOWED_CHARS
 MAX_EXPRESSION_LENGTH = _MAX_LEN
-
 
 def _check_balanced_brackets(text: str) -> None:
     depth = 0
@@ -88,10 +63,7 @@ def _check_balanced_brackets(text: str) -> None:
     if depth > 0:
         raise CalculusError("A '(' is missing its matching ')' — check your brackets")
 
-
-# math_ocr.py এর জন্য public নাম
 check_balanced_brackets = _check_balanced_brackets
-
 
 def _validate_and_preprocess(raw: str) -> str:
     text = (raw or "").strip()
@@ -103,7 +75,6 @@ def _validate_and_preprocess(raw: str) -> str:
         raise CalculusError("Expression contains characters that are not allowed")
     _check_balanced_brackets(text)
     return text
-
 
 def _parse(text: str):
     try:
@@ -119,21 +90,12 @@ def _parse(text: str):
         raise CalculusError("This expression is too complex to process — try breaking it into smaller parts")
     return expr
 
-
 def _run_with_timeout(func, seconds=_TIMEOUT_SECONDS):
-    """
-    কঠিন এক্সপ্রেশনে sympy কখনো কখনো অনেকক্ষণ আটকে থাকতে পারে। কয়েক সেকেন্ড
-    পর জোর করে থামিয়ে দেওয়া হয় — ThreadPoolExecutor ব্যবহার করা হয়েছে বলে
-    এটা main thread ছাড়াও (threaded Flask / gunicorn worker-এর ভেতরেও) কাজ
-    করে। ব্যাকগ্রাউন্ড থ্রেডটা টাইমআউটের পরও কিছুক্ষণ চলতে পারে, কিন্তু
-    ইউজারের request আটকে থাকে না।
-    """
     future = _EXECUTOR.submit(func)
     try:
         return future.result(timeout=seconds)
     except FutureTimeoutError:
         raise TimeoutError("calculation took too long")
-
 
 def _format_numeric(value) -> str:
     try:
@@ -148,6 +110,14 @@ def _format_numeric(value) -> str:
     except Exception:
         return str(value)
 
+def _pick_principal_branch(expr, var):
+    if not isinstance(expr, Piecewise):
+        return expr
+    real_candidates = [val for val, cond in expr.args if not val.has(I)]
+    if len(real_candidates) == 1:
+        return real_candidates[0]
+    return expr
+
 def _format_result(expr) -> str:
     text = str(simplify(expr))
     text = text.replace("**", "^")
@@ -159,10 +129,6 @@ def _format_latex(expr) -> str:
     return latex(simplify(expr))
 
 def _resolve_variables(variable: str):
-    """
-    'x' -> single-variable mode
-    'x,y' -> mixed-partial mode (ordered list of variables)
-    """
     var_name = (variable or "x").strip() or "x"
     raw_names = [v.strip() for v in var_name.split(",") if v.strip()]
     if not raw_names:
@@ -180,31 +146,196 @@ def _resolve_variables(variable: str):
         resolved.append(symbols(name))
     return resolved
 
+def _try_quadratic_shift(expr, var, seconds):
+    quadratics = set()
+    try:
+        for node in preorder_traversal(expr):
+            if isinstance(node, Pow):
+                base = node.base
+                if var in base.free_symbols and not base.free_symbols - {var}:
+                    try:
+                        p = Poly(base, var)
+                        if p.degree() == 2:
+                            quadratics.add(base)
+                    except Exception:
+                        continue
+    except Exception:
+        return None
+
+    for quad in quadratics:
+        try:
+            p = Poly(quad, var)
+            a, b, c = p.all_coeffs()
+        except Exception:
+            continue
+        if a == 0:
+            continue
+        h = -b / (2 * a)
+        if h == 0:
+            continue
+
+        try:
+            shifted = expr.subs(var, var + h)
+            shifted = shifted.replace(
+                lambda e: isinstance(e, Pow),
+                lambda e: Pow(expand(e.base), e.exp),
+            )
+            result = _run_with_timeout(lambda: integrate(shifted, var), seconds=seconds)
+        except Exception:
+            continue
+
+        if result is not None and not result.has(Integral):
+            back = result.subs(var, var - h)
+            back = _pick_principal_branch(simplify(back), var)
+            if not back.has(I):
+                return back
+    return None
+
+def _try_binomial_differential(expr, var, seconds):
+    from sympy import Pow, simplify, preorder_traversal, Dummy, S
+    try:
+        binomials = []
+        for node in preorder_traversal(expr):
+            if isinstance(node, Pow):
+                base = node.base
+                p = node.exp
+                if not p.is_Rational or p.is_Integer:
+                    continue
+                c, addends = base.as_coeff_add(var)
+                if len(addends) == 1:
+                    term = addends[0]
+                    coeff, factors = term.as_coeff_mul(var)
+                    if len(factors) == 1 and isinstance(factors[0], Pow) and factors[0].base == var:
+                        binomials.append((c, coeff, factors[0].exp, p, base))
+                    elif len(factors) == 1 and factors[0] == var:
+                        binomials.append((c, coeff, 1, p, base))
+
+        for a_, b_, n, p, base in binomials:
+            remainder = simplify(expr / (base**p))
+            c_rem, factors_rem = remainder.as_coeff_mul(var)
+            m = 0
+            if len(factors_rem) == 0:
+                m = 0
+            elif len(factors_rem) == 1 and isinstance(factors_rem[0], Pow) and factors_rem[0].base == var:
+                m = factors_rem[0].exp
+            elif len(factors_rem) == 1 and factors_rem[0] == var:
+                m = 1
+            else:
+                continue
+
+            k1 = S(m + 1) / n
+            
+            # Case 1: (m+1)/n is integer
+            if getattr(k1, 'is_Integer', False) and b_ != 0:
+                u = Dummy('u')
+                integrand_u = (1 / (b_ * n)) * (((u - a_) / b_)**(k1 - 1)) * (u**p)
+                res_u = _run_with_timeout(lambda: integrate(simplify(integrand_u), u), seconds=seconds)
+                if res_u is not None and not res_u.has(Integral):
+                    return res_u.subs(u, a_ + b_ * var**n)
+
+            k2 = k1 + p
+            
+            # Case 2: (m+1)/n + p is integer
+            if getattr(k2, 'is_Integer', False) and a_ != 0:
+                u = Dummy('u')
+                integrand_u = (-1 / (a_ * n)) * (((u - b_) / a_)**(-k2 - 1)) * (u**p)
+                res_u = _run_with_timeout(lambda: integrate(simplify(integrand_u), u), seconds=seconds)
+                if res_u is not None and not res_u.has(Integral):
+                    return res_u.subs(u, a_ * var**(-n) + b_)
+    except Exception:
+        pass
+    return None
+
+def _integrate_indefinite(expr, var):
+    result_expr = Integral(expr, var)
+
+    # 1. Fast mode
+    try:
+        res1 = _run_with_timeout(lambda: integrate(expr, var, meijerg=False), seconds=4)
+        if not res1.has(Integral):
+            result_expr = res1
+    except Exception:
+        pass
+
+    # 2. Manual mode
+    if result_expr.has(Integral):
+        try:
+            res2 = _run_with_timeout(lambda: integrate(simplify(expr), var, manual=True), seconds=4)
+            if not res2.has(Integral):
+                result_expr = res2
+        except Exception:
+            pass
+
+    # 3. Heurisch mode
+    if result_expr.has(Integral):
+        try:
+            res3 = _run_with_timeout(lambda: integrate(expr, var, heurisch=True), seconds=4)
+            if not res3.has(Integral):
+                result_expr = res3
+        except Exception:
+            pass
+
+    # 4. Quadratic Shift (Completed square)
+    if result_expr.has(Integral):
+        try:
+            res4 = _try_quadratic_shift(expr, var, seconds=4)
+            if res4 is not None:
+                result_expr = res4
+        except Exception:
+            pass
+
+    # 5. Binomial Differential (Chebyshev)
+    if result_expr.has(Integral):
+        try:
+            res_cheb = _try_binomial_differential(expr, var, seconds=4)
+            if res_cheb is not None:
+                result_expr = res_cheb
+        except Exception:
+            pass
+
+    # 6. Default fallback & Gamma Cleanup
+    if result_expr.has(Integral):
+        try:
+            res5 = _run_with_timeout(lambda: integrate(expr, var), seconds=6)
+            if res5 is not None and not res5.has(Integral):
+                clean_res5 = gammasimp(res5)
+                result_expr = nsimplify(clean_res5, rational=True)
+        except Exception:
+            pass
+
+    if isinstance(result_expr, Piecewise):
+        result_expr = _pick_principal_branch(result_expr, var)
+
+    return result_expr
+
+_SPECIAL_FUNCS = (hyper, meijerg, uppergamma, lowergamma,
+                   elliptic_e, elliptic_f, elliptic_k, elliptic_pi)
+
+def _is_non_elementary(expr) -> bool:
+    try:
+        return any(expr.has(f) for f in _SPECIAL_FUNCS)
+    except Exception:
+        return False
 
 def solve_calculus(operation: str, expression: str, variable: str = "x", order: int = 1,
                     lower=None, upper=None):
-    """
-    operation: "differentiate" | "integrate"
-    variable:  কোন চলরাশির সাপেক্ষে (একাধিক চলরাশি থাকলে বাকিগুলো ধ্রুবক ধরা হয়)।
-               কমা দিয়ে একাধিক ভ্যারিয়েবল দিলে (যেমন "x,y") mixed partial ধরা হবে।
-    order:     ডিফারেনশিয়েশনের ক্ষেত্রে কততম ডেরিভেটিভ (1, 2, 3...) — single-variable
-               মোডেই কার্যকর; mixed-partial মোডে প্রতিটা ভ্যারিয়েবলে ঠিক একবার করে
-               ডিফারেনশিয়েট করা হয়।
-    lower/upper: ইন্টিগ্রেশনের ক্ষেত্রে দেওয়া থাকলে definite integral (যেমন "0", "pi")
-    রিটার্ন করে dict: {result, is_numeric, is_definite, note}
-    """
     expr_text = _validate_and_preprocess(expression)
     expr = _run_with_timeout(lambda: _parse(expr_text))
 
+    expr = nsimplify(expr, rational=True)
 
     variables = _resolve_variables(variable)
+    real_subs = {s: symbols(s.name, real=True) for s in expr.free_symbols}
+    expr = expr.subs(real_subs)
+    variables = [symbols(v.name, real=True) for v in variables]
+
     is_mixed = len(variables) > 1
 
     try:
         order = int(order)
     except (TypeError, ValueError):
         order = 1
-    order = max(1, min(order, 6))  # অযৌক্তিক বড় order (server-hang এড়াতে) সীমাবদ্ধ রাখা হলো
+    order = max(1, min(order, 6))
 
     if operation == "differentiate":
         missing = [str(v) for v in variables if v not in expr.free_symbols]
@@ -218,7 +349,7 @@ def solve_calculus(operation: str, expression: str, variable: str = "x", order: 
             names = "".join(str(v) for v in variables)
             return {
                 "result": _format_result(result_expr),
-              "latex": _format_latex(result_expr),
+                "latex": _format_latex(result_expr),
                 "is_numeric": False,
                 "is_definite": False,
                 "note": f"Mixed partial derivative ∂{len(variables)}/∂{names} "
@@ -228,7 +359,7 @@ def solve_calculus(operation: str, expression: str, variable: str = "x", order: 
         result_expr = _run_with_timeout(lambda: diff(expr, variables[0], order))
         return {
             "result": _format_result(result_expr),
-          "latex": _format_latex(result_expr),
+            "latex": _format_latex(result_expr),
             "is_numeric": False,
             "is_definite": False,
             "note": None,
@@ -238,12 +369,31 @@ def solve_calculus(operation: str, expression: str, variable: str = "x", order: 
         if is_mixed:
             raise CalculusError("Integration currently supports one variable at a time")
         var = variables[0]
-        is_definite = lower is not None and upper is not None and str(lower).strip() != "" and str(upper).strip() != ""
+        is_definite = (
+            lower is not None and upper is not None
+            and str(lower).strip() != "" and str(upper).strip() != ""
+        )
 
         if is_definite:
             lower_expr = _parse(_validate_and_preprocess(str(lower)))
             upper_expr = _parse(_validate_and_preprocess(str(upper)))
+            
+            # প্রথমে SymPy-কে সরাসরি চেষ্টা করতে দিই
             result_expr = _run_with_timeout(lambda: integrate(expr, (var, lower_expr, upper_expr)))
+
+            # যদি সে না পারে বা gamma/hyper হাবিজাবি দেয়, তখন আমাদের স্পেশাল ইঞ্জিন নামবে!
+            if result_expr.has(Integral) or _is_non_elementary(result_expr):
+                try:
+                    # ১. অ্যান্টিডেরিভেটিভ বের করো (আমাদের সুপার ইঞ্জিন দিয়ে)
+                    antideriv = _integrate_indefinite(expr, var)
+                    
+                    if not antideriv.has(Integral) and not _is_non_elementary(antideriv):
+                        # ২. F(upper) - F(lower) ফর্মুলা প্রয়োগ করো
+                        val_upper = antideriv.subs(var, upper_expr)
+                        val_lower = antideriv.subs(var, lower_expr)
+                        result_expr = simplify(val_upper - val_lower)
+                except Exception:
+                    pass
 
             if result_expr.has(Integral):
                 raise CalculusError("Couldn't evaluate this definite integral")
@@ -251,26 +401,33 @@ def solve_calculus(operation: str, expression: str, variable: str = "x", order: 
             numeric_val = _run_with_timeout(lambda: result_expr.evalf())
             return {
                 "result": _format_result(result_expr),
-              "latex": _format_latex(result_expr),
+                "latex": _format_latex(result_expr),
                 "numeric_result": _format_numeric(numeric_val),
                 "is_numeric": True,
                 "is_definite": True,
                 "note": None,
             }
 
-        result_expr = _run_with_timeout(lambda: integrate(expr, var))
+        result_expr = _integrate_indefinite(expr, var)
+
         if result_expr.has(Integral):
             raise CalculusError(
                 "No elementary (closed-form) antiderivative was found for this expression"
             )
 
         note = None
-        if var not in expr.free_symbols:
+        if _is_non_elementary(result_expr):
+            note = (
+                "This integral has no elementary (algebraic/trig/exp/log) antiderivative. "
+                "The result below uses a special function (hypergeometric/elliptic/gamma), "
+                "which is mathematically correct but not standard for a textbook."
+            )
+        elif var not in expr.free_symbols:
             note = f"'{var}' does not appear in the expression, so it's treated as a constant multiplier."
 
         return {
             "result": _format_result(result_expr) + " + C",
-          "latex": _format_latex(result_expr) + " + C",
+            "latex": _format_latex(result_expr) + " + C",
             "is_numeric": False,
             "is_definite": False,
             "note": note,
