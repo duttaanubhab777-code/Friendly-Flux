@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const definiteToggle = document.getElementById("definite-toggle");
     const resultCard = document.getElementById("result-card");
     const graphCard = document.getElementById("graph-card");
-    let chartInstance = null;
+    
 
     function hideResult() {
         if(resultCard) {
@@ -101,10 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
             resultCard.classList.remove("error");
         }
         if(graphCard) graphCard.classList.add("hidden");
-        if (chartInstance) {
-            chartInstance.destroy();
-            chartInstance = null;
-        }
+        if (window.clearCalcGraph) window.clearCalcGraph();
     }
 
     modeButtons.forEach((btn) => {
@@ -418,12 +415,21 @@ function convertPower(text) {
         s = s.replace(new RegExp("\\b" + f + "\\(", "g"), "\\" + f + "(");
     });
 
-    s = s.replace(/\basin\(/g, "\\arcsin(");
-    s = s.replace(/\bacos\(/g, "\\arccos(");
-    s = s.replace(/\batan\(/g, "\\arctan(");
+s = s.replace(/\basin\(/g, "\\sin^{-1}(");
+s = s.replace(/\bacos\(/g, "\\cos^{-1}(");
+s = s.replace(/\batan\(/g, "\\tan^{-1}(");
+s = s.replace(/\bacot\(/g, "\\cot^{-1}(");
+s = s.replace(/\basec\(/g, "\\sec^{-1}(");
+s = s.replace(/\bacsc\(/g, "\\csc^{-1}(");
 
-    const customFuncs = ["asinh", "acosh", "atanh", "acsch", "asech", "acoth",
-                        "csch", "sech", "coth", "floor", "ceil", "sign", "gamma"];
+s = s.replace(/\basinh\(/g, "\\sinh^{-1}(");
+s = s.replace(/\bacosh\(/g, "\\cosh^{-1}(");
+s = s.replace(/\batanh\(/g, "\\tanh^{-1}(");
+s = s.replace(/\bacoth\(/g, "\\coth^{-1}(");
+s = s.replace(/\basech\(/g, "\\operatorname{sech}^{-1}(");
+s = s.replace(/\bacsch\(/g, "\\operatorname{csch}^{-1}(");
+
+    const customFuncs = ["csch", "sech", "coth", "floor", "ceil", "sign", "gamma"];
     customFuncs.forEach((f) => {
         s = s.replace(new RegExp("\\b" + f + "\\(", "g"), "\\operatorname{" + f + "}(");
     });
@@ -539,6 +545,8 @@ function convertPower(text) {
     const resultNote = document.getElementById("result-note");
     const resultActions = document.getElementById("result-actions");
     const copyResultBtn = document.getElementById("copy-result-btn");
+  const graphResultBtn = document.getElementById("graph-result-btn");
+const resultGraphContainer = document.getElementById("result-graph-container");
 
     function setLoading(isLoading) {
         if(!solveBtn) return;
@@ -553,19 +561,26 @@ function convertPower(text) {
 
     function showResult({ text, latex, numericResult, note, isError }) {
         graphCard.classList.add("hidden");
+      if (resultGraphContainer) {
+        resultGraphContainer.classList.add("hidden");
+        if (window.clearCalcGraph) window.clearCalcGraph("result-graph-container");
+      }
         resultCard.classList.remove("hidden");
         resultCard.classList.toggle("error", !!isError);
 
         resultText.dataset.plainText = text; 
 
         if (latex && !isError) {
-            let toRender = latex;
-            if (numericResult) toRender += ` \\approx ${numericResult}`;
-            try {
-                katex.render(toRender, resultText, { throwOnError: false, displayMode: true });
-            } catch (e) {
-                resultText.innerText = text;
-            }
+    let toRender = latex;
+    if (numericResult) toRender += ` \\approx ${numericResult}`;
+    resultText.innerHTML = `\\[ ${toRender} \\]`;
+    if (window.MathJax && window.MathJax.typesetPromise) {
+        MathJax.typesetPromise([resultText]).catch(() => {
+            resultText.innerText = text;
+        });
+    } else {
+        resultText.innerText = text;
+    }
         } else {
             resultText.innerText = text;
         }
@@ -600,76 +615,54 @@ function convertPower(text) {
             noteEl.classList.add("hidden");
         }
 
-        if (chartInstance) {
-            chartInstance.destroy();
-            chartInstance = null;
-        }
-
-        const canvas = document.getElementById("graph-canvas");
-        const ctx = canvas.getContext("2d");
-        const isDark = document.documentElement.getAttribute("data-theme") === "dark";
-
-        const xs = points.map((p) => p.x);
-        const ys = points.map((p) => p.y);
-        const rootStyles = getComputedStyle(document.documentElement);
-        const primaryColor = rootStyles.getPropertyValue('--primary').trim();
-        const isMobile = window.innerWidth < 480;
-        chartInstance = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: xs,
-                datasets: [{
-                    label: expression,
-                    data: ys,
-                    borderColor: primaryColor,
-                    backgroundColor: primaryColor + "26",
-                    borderWidth: 2.5,
-                    pointRadius: 0,
-                    pointHoverRadius: 4,
-                    tension: 0.15,
-                    fill: true,
-                }],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                aspectRatio: isMobile ? 0.85 : 1.1,
-                interaction: { mode: "index", intersect: false },
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            title: (items) => `x = ${items[0].label}`,
-                            label: (item) => `y = ${item.formattedValue}`,
-                        },
-                    },
-                },
-                scales: {
-                    x: {
-                        type: "linear",
-                        title: { display: true, text: "x", color: isDark ? "#9ca3af" : "#6b7280" },
-                        ticks: { color: isDark ? "#9ca3af" : "#6b7280", maxTicksLimit: isMobile ? 6 : 10, font: { size: isMobile ? 10 : 12 } },
-                        grid: { color: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" },
-                    },
-                    y: {
-                        title: { display: true, text: "y", color: isDark ? "#9ca3af" : "#6b7280" },
-                        ticks: { color: isDark ? "#9ca3af" : "#6b7280", font: { size: isMobile ? 10 : 12 } },
-                        grid: { color: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)" },
-                    },
-                },
-            },
-        });
+        window.renderCalcGraph(points, expression);
     }
 
     if(copyResultBtn) {
-        copyResultBtn.addEventListener("click", () => {
-            navigator.clipboard.writeText(resultText.dataset.plainText || resultText.innerText).then(() => {
-                const original = copyResultBtn.innerText;
-                copyResultBtn.innerText = window.t("copiedBtn");
-                setTimeout(() => { copyResultBtn.innerText = original; }, 1500);
-            });
+    copyResultBtn.addEventListener("click", () => {
+        navigator.clipboard.writeText(resultText.dataset.plainText || resultText.innerText).then(() => {
+            const original = copyResultBtn.innerText;
+            copyResultBtn.innerText = window.t("copiedBtn");
+            setTimeout(() => { copyResultBtn.innerText = original; }, 1500);
         });
-    }
+    });
+}
+
+if (graphResultBtn) {
+    graphResultBtn.addEventListener("click", async () => {
+        const expression = resultText.dataset.rawResult;
+        const variable = resultText.dataset.rawVariable || "x";
+        if (!expression) return;
+
+        graphResultBtn.disabled = true;
+        const originalLabel = graphResultBtn.innerText;
+        graphResultBtn.innerText = window.t("graphingBtn");
+
+        try {
+            const response = await fetch(`${window.getApiBase()}/api/math/graph`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ expression, variable, xmin: -10, xmax: 10, num_points: 400 }),
+            });
+            const data = await response.json();
+
+            resultGraphContainer.classList.remove("hidden");
+            if (data.success && data.points && data.points.length > 0) {
+                window.renderCalcGraph(data.points, expression, "result-graph-container");
+            } else {
+                resultGraphContainer.innerText = data.error || window.t("noPointsMsg");
+            }
+        } catch (err) {
+            console.error(err);
+            resultGraphContainer.classList.remove("hidden");
+            resultGraphContainer.innerText = window.t("serverErrMsg");
+        } finally {
+            graphResultBtn.disabled = false;
+            graphResultBtn.innerText = originalLabel;
+        }
+    });
+}
+            
 
     if(solveBtn) {
         solveBtn.addEventListener("click", async () => {
@@ -679,6 +672,7 @@ function convertPower(text) {
             if (!expression) {
                 updateLiveStatus();
                 showResult({ text: window.t("emptyExprMsg"), isError: true });
+              
                 return;
             }
 
@@ -748,6 +742,12 @@ function convertPower(text) {
                         note: data.note,
                         isError: false,
                     });
+                  resultText.dataset.rawResult = data.result;
+resultText.dataset.rawVariable = variable;
+if (graphResultBtn) {
+    graphResultBtn.classList.toggle("hidden", variable.includes(","));
+}
+
                 } else {
                     showResult({ text: data.error, isError: true });
                 }

@@ -122,18 +122,36 @@
                 </div>
 
                 <div class="keypad keypad-panel hidden" id="panel-hyper">
-                    <button type="button" data-insert="asin(" data-close=")">asin</button>
-                    <button type="button" data-insert="acos(" data-close=")">acos</button>
-                    <button type="button" data-insert="atan(" data-close=")">atan</button>
-                    <button type="button" data-insert="sinh(" data-close=")">sinh</button>
-                    <button type="button" data-insert="cosh(" data-close=")">cosh</button>
-                    <button type="button" data-insert="tanh(" data-close=")">tanh</button>
-                    <button type="button" data-insert="asinh(" data-close=")">asinh</button>
-                    <button type="button" data-insert="acosh(" data-close=")">acosh</button>
-                    <button type="button" data-insert="atanh(" data-close=")">atanh</button>
-                    <button type="button" id="key-backspace-3"><i class="fa-solid fa-delete-left"></i></button>
-                    <button type="button" id="key-clear-3" data-lang="clearBtn">Clear</button>
-                </div>
+    <!-- ১. সাধারণ ত্রিকোণমিতিক ইনভার্স (৬টি) -->
+    <button type="button" data-insert="asin(" data-close=")">sin<sup>-1</sup></button>
+    <button type="button" data-insert="acos(" data-close=")">cos<sup>-1</sup></button>
+    <button type="button" data-insert="atan(" data-close=")">tan<sup>-1</sup></button>
+    <button type="button" data-insert="acot(" data-close=")">cot<sup>-1</sup></button>
+    <button type="button" data-insert="asec(" data-close=")">sec<sup>-1</sup></button>
+    <button type="button" data-insert="acsc(" data-close=")">csc<sup>-1</sup></button>
+
+    <!-- ২. সাধারণ হাইপারবোলিক (৬টি) -->
+    <button type="button" data-insert="sinh(" data-close=")">sinh</button>
+    <button type="button" data-insert="cosh(" data-close=")">cosh</button>
+    <button type="button" data-insert="tanh(" data-close=")">tanh</button>
+    <button type="button" data-insert="coth(" data-close=")">coth</button>
+    <button type="button" data-insert="sech(" data-close=")">sech</button>
+    <button type="button" data-insert="csch(" data-close=")">csch</button>
+
+    <!-- ৩. হাইপারবোলিক ইনভার্স (৬টি) -->
+    <button type="button" data-insert="asinh(" data-close=")">sinh<sup>-1</sup></button>
+    <button type="button" data-insert="acosh(" data-close=")">cosh<sup>-1</sup></button>
+    <button type="button" data-insert="atanh(" data-close=")">tanh<sup>-1</sup></button>
+    <button type="button" data-insert="acoth(" data-close=")">coth<sup>-1</sup></button>
+    <button type="button" data-insert="asech(" data-close=")">sech<sup>-1</sup></button>
+    <button type="button" data-insert="acsch(" data-close=")">csch<sup>-1</sup></button>
+
+    <!-- কন্ট্রোল বাটন -->
+    <button type="button" id="key-backspace-3"><i class="fa-solid fa-delete-left"></i></button>
+    <button type="button" id="key-clear-3" data-lang="clearBtn">Clear</button>
+</div>
+
+
 
                 <div class="keypad keypad-panel hidden" id="panel-other">
                     <button type="button" data-insert="exp(" data-close=")">exp</button>
@@ -207,7 +225,9 @@
                 <div class="result-card-note hidden" id="result-note"></div>
                 <div class="result-card-actions hidden" id="result-actions">
                     <button type="button" class="copy-btn" id="copy-result-btn" data-lang="copyBtn">Copy result</button>
+                  <button type="button" class="ghost-btn" id="graph-result-btn">Graph</button>
                 </div>
+              <div id="result-graph-container" class="hidden"></div>
             </div>
 
             <!-- Graph canvas (shown after a successful Graph request) -->
@@ -216,7 +236,7 @@
                     <span id="graph-title" data-lang="graphTitle">Graph</span>
                 </div>
                 <div class="graph-canvas-wrap">
-                    <canvas id="graph-canvas"></canvas>
+                    <div id="graph-canvas"></div>
                 </div>
                 <div class="graph-card-note hidden" id="graph-note"></div>
             </div>
@@ -289,8 +309,20 @@
 
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+
     <script src="lang.js"></script>
   <script src="geometrylang.js"></script>
+  <script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+    startup: { typeset: false }  // পুরো পেজ নিজে scan করবে না, আমরা যেখানে বলব শুধু সেখানেই রেন্ডার করবে
+  };
+</script>
+<script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="calculus-graph.js"></script>
+
     <script src="math.js?v=2"></script>
     <script src="geometry3d.js"></script>
     <script>

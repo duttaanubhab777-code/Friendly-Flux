@@ -126,7 +126,7 @@ def _format_result(expr) -> str:
     return text
 
 def _format_latex(expr) -> str:
-    return latex(simplify(expr))
+    return latex(simplify(expr), inv_trig_style="power", ln_notation=True)
 
 def _resolve_variables(variable: str):
     var_name = (variable or "x").strip() or "x"
