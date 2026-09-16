@@ -295,10 +295,28 @@
         <div class="result-card-extra hidden" id="geo-result-extra"></div>
         <button type="button" class="steps-toggle hidden" id="geo-steps-toggle"><span>Show working</span></button>
         <ol class="steps-list hidden" id="geo-steps-list"></ol>
+        
+        <!-- গ্রাফ বাটন এখানে যোগ করা হলো -->
         <div class="result-card-actions hidden" id="geo-result-actions">
             <button type="button" class="copy-btn" id="geo-copy-result-btn">Copy result</button>
+            <button type="button" id="geo-graph-btn" class="ghost-btn">
+                <span id="geo-graph-btn-spinner" class="spinner hidden"></span>
+                <span id="geo-graph-btn-text" data-lang="graphBtn">3D গ্রাফ দেখুন</span>
+            </button>
         </div>
     </div>
+
+    <!-- Geometry 3D Graph ক্যানভাস এখানে যোগ করা হলো -->
+    <div id="geo-graph-card" class="graph-card hidden">
+        <div class="graph-card-header">
+            <span id="geo-graph-title" data-lang="graphTitle">গ্রাফ</span>
+        </div>
+        <div class="graph-canvas-wrap">
+            <div id="geo-graph-canvas"></div>
+        </div>
+        <div class="graph-card-note hidden" id="geo-graph-note"></div>
+    </div>
+    
         </section>
     </main>
 
@@ -325,6 +343,9 @@
 
     <script src="math.js?v=2"></script>
     <script src="geometry3d.js"></script>
+    <!-- geometry3d-graph.js স্ক্রিপ্ট এখানে যোগ করা হলো -->
+    <script src="geometry3d-graph.js"></script>
+    
     <script>
         // Tab buttons are a scroll shortcut — both tool sections stay visible/scrollable.
         document.querySelectorAll(".tool-tab").forEach((btn) => {
