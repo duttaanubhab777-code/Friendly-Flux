@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const toInsert = separator + text + (closingText || "");
         exprInput.value = before + toInsert + after;
         const cursorPos = start + separator.length + text.length;
-        exprInput.focus();
+        //exprInput.focus();
         exprInput.setSelectionRange(cursorPos, cursorPos);
         updateLiveStatus();
     }
@@ -193,7 +193,7 @@ document.addEventListener("DOMContentLoaded", () => {
             exprInput.value = exprInput.value.slice(0, start) + exprInput.value.slice(end);
             exprInput.setSelectionRange(start, start);
         }
-        exprInput.focus();
+        //exprInput.focus();
         updateLiveStatus();
     }
 
@@ -727,7 +727,7 @@ if (graphResultBtn) {
                 body.upper = document.getElementById("upper-input").value.trim();
             }
 
-            showResult({ text: window.t("solvingBtn"), isError: false });
+            //showResult({ text: window.t("solvingBtn"), isError: false });
 
             try {
                 const response = await fetch(`${window.getApiBase()}/api/math/calculus`, {
