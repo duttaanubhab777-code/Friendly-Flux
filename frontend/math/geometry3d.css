@@ -1,256 +1,268 @@
 /* ==================================================================
-   3D Geometry Solver — "Warm Supernova" Theme
-   Fiery/warm gradients, glowing neon shadows, and sleek glassmorphism.
-   Designed strictly around the original JS DOM structure.
+   3D Geometry Solver — "Warm Supernova" Theme (ULTIMATE STABLE VERSION)
+   Zero Bugs, Absolute Contrast, No Layout Shifting.
+   Designed strictly around the Original JS structure.
 ================================================================== */
 
-/* ---------- Core Geometry Tool Variables & Container ---------- */
+/* ---------- Geometry Variables ---------- */
 .geo-tool {
-    /* Warm Gradient Palette */
     --geo-p1: #f97316; /* Bright Orange */
     --geo-p2: #e11d48; /* Rose/Red */
     --geo-p3: #f59e0b; /* Amber */
     --geo-grad: linear-gradient(135deg, var(--geo-p1), var(--geo-p2), var(--geo-p3));
     
     background: var(--card-bg);
-    backdrop-filter: blur(20px); 
-    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(24px); 
+    -webkit-backdrop-filter: blur(24px);
     border: 1.5px solid rgba(249, 115, 22, 0.3);
     border-radius: var(--radius);
-    padding: 24px;
+    padding: 30px;
     box-shadow: 0 16px 40px -10px rgba(249, 115, 22, 0.15);
     position: relative;
     isolation: isolate;
     margin-bottom: 40px;
-    animation: fadeSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: box-shadow 0.4s ease, border-color 0.4s ease;
 }
 
 /* Background Animated Glow */
 .geo-tool::before {
-    content: ""; position: absolute; inset: -35px; border-radius: 50%;
+    content: ""; position: absolute; inset: -30px; border-radius: 50%;
     background: conic-gradient(from 180deg, var(--geo-p1), var(--geo-p2), var(--geo-p3), var(--geo-p1));
-    filter: blur(80px); opacity: 0.18; z-index: -1;
+    filter: blur(70px); opacity: 0.15; z-index: -1;
     animation: spinGlow 20s linear infinite reverse;
 }
 [data-theme="dark"] .geo-tool::before { opacity: 0.35; }
 [data-theme="dark"] .geo-tool {
-    --geo-p1: #fb923c;
-    --geo-p2: #fb7185;
-    --geo-p3: #fbbf24;
+    --geo-p1: #fb923c; --geo-p2: #fb7185; --geo-p3: #fbbf24;
     border-color: rgba(251, 146, 60, 0.2);
 }
+.geo-tool:hover { border-color: rgba(249, 115, 22, 0.5); }
 
-/* ================= Category Row (.category-pill) ================= */
+/* ================= 1. Category Row Fix ================= */
 #geo-category-row {
-    display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 20px;
+    display: flex; gap: 10px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 24px;
     scrollbar-width: none; scroll-behavior: smooth;
 }
 #geo-category-row::-webkit-scrollbar { display: none; }
 
 .category-pill {
-    flex-shrink: 0; padding: 10px 22px; border-radius: 999px;
-    border: 1.5px solid var(--border); background: var(--card-bg-solid);
-    color: var(--text-muted); font-weight: 700; cursor: pointer; 
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 0.95rem;
+    flex-shrink: 0;
+    white-space: nowrap; /* STRICT FIX: Prevents text breaking into multiple lines */
+    padding: 10px 22px; border-radius: 999px;
+    border: 1.5px solid var(--border); 
+    background: var(--card-bg-solid);
+    color: var(--text-main); /* Explicit contrast color */
+    font-weight: 700; cursor: pointer; 
+    transition: var(--transition); font-size: 0.95rem;
 }
 .category-pill:hover { 
     border-color: var(--geo-p1); color: var(--geo-p1); 
-    box-shadow: 0 6px 15px -4px color-mix(in srgb, var(--geo-p1) 40%, transparent); 
-    transform: translateY(-2px);
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--geo-p1) 15%, transparent);
 }
-.category-pill:active { transform: scale(0.95); }
 .category-pill.active {
-    background: var(--geo-grad); background-size: 200% 200%; color: #fff;
-    border-color: transparent; animation: gradientShift 5s ease infinite;
+    background: var(--geo-grad); background-size: 200% 200%;
+    color: var(--text-inverse); /* Strict white text */
+    border-color: transparent;
     box-shadow: 0 8px 20px -6px color-mix(in srgb, var(--geo-p2) 70%, transparent);
+    animation: gradientShift 6s ease infinite;
 }
 
-/* ================= Problem Type Modal & Select ================= */
+/* ================= 2. Problem Type Select Button ================= */
 .custom-select-btn {
     width: 100%; display: flex; justify-content: space-between; align-items: center;
-    padding: 16px 20px; border-radius: var(--radius-sm); border: 1.5px solid var(--border);
-    background: var(--card-bg-solid); color: var(--text-main); font-size: 1.05rem;
-    font-weight: 700; cursor: pointer; transition: var(--transition); margin-bottom: 25px;
+    padding: 16px 20px; border-radius: var(--radius-sm); border: 2px solid var(--border);
+    background: var(--card-bg-solid); 
+    color: var(--text-main); /* Explicit contrast color */
+    font-size: 1.1rem; font-weight: 700; cursor: pointer; 
+    transition: var(--transition); margin-bottom: 30px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
 }
 .custom-select-btn:hover { 
     border-color: var(--geo-p1); 
     box-shadow: 0 0 0 4px color-mix(in srgb, var(--geo-p1) 15%, transparent); 
 }
-.custom-select-btn i { transition: transform 0.4s ease; color: var(--geo-p1); }
-.custom-select-btn:focus i { transform: rotate(180deg); }
+.custom-select-btn i { color: var(--geo-p1); transition: transform 0.4s ease; }
 
-.geo-modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px);
-    z-index: 1000; display: flex; align-items: flex-end; justify-content: center;
-    opacity: 1; transition: opacity 0.3s ease;
+/* ================= 3. Modal Fix (NO SHAKING) ================= */
+#geo-modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    z-index: 1000;
+    /* OVERRIDE display: none to stop screen layout jumps */
+    display: flex !important; 
+    align-items: flex-end; justify-content: center;
+    opacity: 1; visibility: visible;
+    transition: opacity 0.35s ease, visibility 0.35s ease;
 }
-.geo-modal-overlay.hidden { opacity: 0; pointer-events: none; }
+#geo-modal-overlay.hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
 .geo-modal-box {
     width: 100%; max-width: 600px; background: var(--card-bg-solid);
-    border-radius: 28px 28px 0 0; padding: 25px; border-top: 3px solid var(--geo-p1);
+    border-radius: 28px 28px 0 0; padding: 25px; border-top: 4px solid var(--geo-p1);
     transform: translateY(0); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1);
-    box-shadow: 0 -15px 50px rgba(225, 29, 72, 0.25);
+    box-shadow: 0 -15px 40px rgba(0,0,0,0.15);
+    display: flex; flex-direction: column;
 }
-.geo-modal-overlay.hidden .geo-modal-box { transform: translateY(100%); }
-.geo-modal-header { 
-    display: flex; justify-content: space-between; align-items: center; 
-    margin-bottom: 20px; font-size: 1.3rem; font-weight: 800; 
-    background: var(--geo-grad); -webkit-background-clip: text; color: transparent;
-}
-#geo-modal-close-btn { 
-    background: var(--chip-bg); border: none; width: 36px; height: 36px; 
-    border-radius: 50%; color: var(--text-muted); cursor: pointer; 
-    transition: 0.3s; font-size: 1.4rem; display: grid; place-items: center;
-}
-#geo-modal-close-btn:hover { background: var(--geo-p2); color: #fff; transform: rotate(90deg); }
+#geo-modal-overlay.hidden .geo-modal-box { transform: translateY(100%); }
 
-.geo-modal-list { list-style: none; max-height: 45vh; overflow-y: auto; padding-right: 8px; }
-.geo-modal-list::-webkit-scrollbar { width: 6px; }
-.geo-modal-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
+.geo-modal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 20px; font-size: 1.3rem; font-weight: 800; color: var(--geo-p1);
+}
+#geo-modal-close-btn {
+    background: var(--chip-bg); border: none; width: 40px; height: 40px;
+    border-radius: 50%; color: var(--text-main); cursor: pointer;
+    font-size: 1.5rem; display: grid; place-items: center; transition: 0.3s;
+}
+#geo-modal-close-btn:hover { background: var(--geo-p2); color: var(--text-inverse); transform: rotate(90deg); }
+
+.geo-modal-list { list-style: none; max-height: 50vh; overflow-y: auto; padding-right: 5px; }
 .geo-modal-list li {
     padding: 16px 20px; margin-bottom: 10px; border-radius: 14px; cursor: pointer;
-    font-weight: 600; transition: all 0.25s; background: var(--chip-bg); 
-    border: 1.5px solid transparent; color: var(--text-main); font-size: 1rem;
-    display: flex; justify-content: space-between; align-items: center;
+    font-weight: 700; background: var(--chip-bg); 
+    color: var(--text-main); /* Explicit color */
+    font-size: 1.05rem; display: flex; justify-content: space-between; align-items: center; transition: var(--transition);
+    border: 1.5px solid transparent;
 }
-.geo-modal-list li i { display: none; font-size: 1.1rem; } /* JS adds fa-check, hidden by default */
-
-/* Active state for Modal items (based on JS adding .selected class) */
-.geo-modal-list li.selected { 
-    background: color-mix(in srgb, var(--geo-p3) 12%, transparent); 
-    border-color: var(--geo-p3); color: var(--geo-p1); 
-    padding-left: 28px; 
-    box-shadow: 0 4px 12px color-mix(in srgb, var(--geo-p3) 20%, transparent);
+.geo-modal-list li:hover { 
+    background: color-mix(in srgb, var(--geo-p1) 8%, var(--chip-bg)); 
+    color: var(--geo-p1); padding-left: 24px; border-color: var(--border); 
 }
-.geo-modal-list li.selected i { display: block; color: var(--geo-p1); }
-.geo-modal-list li:hover:not(.selected) { border-color: var(--border); padding-left: 24px; }
+.geo-modal-list li i { display: none; }
 
-/* ================= Dynamic Input Fields (.field-row & .field-item) ================= */
+/* ================= 4. Dynamic Fields ================= */
 .field-row {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 18px; margin-bottom: 18px;
 }
-
-.field-item { 
-    display: flex; flex-direction: column; gap: 8px; 
-    animation: popIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; 
-}
-.field-item label { font-size: 0.95rem; font-weight: 700; color: var(--text-muted); }
-
+.field-item { display: flex; flex-direction: column; gap: 10px; animation: popIn 0.4s ease forwards; }
+.field-item label { font-size: 1rem; font-weight: 700; color: var(--text-main); }
 .field-item input, .field-item select {
-    width: 100%; padding: 15px; border-radius: var(--radius-sm); 
-    border: 1.5px solid var(--border); background: var(--card-bg-solid); 
-    color: var(--text-main); font-size: 1.05rem; font-family: 'Consolas', monospace; 
-    font-weight: 600; transition: all 0.3s; appearance: none; /* Removes default select arrow */
+    width: 100%; padding: 16px; border-radius: var(--radius-sm); border: 2px solid var(--border);
+    background: var(--card-bg-solid); 
+    color: var(--text-main); /* Explicit contrast color */
+    font-size: 1.1rem; font-family: 'Consolas', monospace; font-weight: 600; 
+    outline: none; transition: var(--transition); appearance: none;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.02);
 }
-/* Focus glow for inputs */
-.field-item input:focus, .field-item select:focus {
-    border-color: var(--geo-p1); outline: none; transform: translateY(-2px);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--geo-p1) 20%, transparent), 
-                0 6px 20px -6px color-mix(in srgb, var(--geo-p1) 30%, transparent);
+.field-item input:focus, .field-item select:focus { 
+    border-color: var(--geo-p1); 
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--geo-p1) 15%, transparent); 
 }
 
-/* ================= Composite Groups (Plane & Line) ================= */
+/* ================= 5. Composite Groups & Toggles ================= */
 .composite-group {
-    background: color-mix(in srgb, var(--geo-p1) 4%, transparent);
+    background: color-mix(in srgb, var(--geo-p1) 4%, var(--card-bg-solid));
     border: 1.5px dashed color-mix(in srgb, var(--geo-p1) 40%, transparent);
-    padding: 20px; border-radius: var(--radius-sm); margin-bottom: 20px;
-    animation: fadeSlideIn 0.4s ease;
+    padding: 24px; border-radius: var(--radius-sm); margin-bottom: 24px;
 }
-/* Make Lines slightly distinct from Planes */
 .composite-group[data-group-type="line"] {
-    background: color-mix(in srgb, var(--geo-p2) 4%, transparent);
+    background: color-mix(in srgb, var(--geo-p2) 4%, var(--card-bg-solid));
     border-color: color-mix(in srgb, var(--geo-p2) 40%, transparent);
 }
-
-.composite-group-title {
-    font-size: 1.05rem; font-weight: 800; color: var(--geo-p1); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;
-}
+.composite-group-title { font-size: 1.1rem; font-weight: 800; color: var(--geo-p1); margin-bottom: 18px; text-transform: uppercase; letter-spacing: 0.5px; }
 .composite-group[data-group-type="line"] .composite-group-title { color: var(--geo-p2); }
 
-.toggle-pills { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.toggle-pills { display: flex; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
 .toggle-pill {
-    padding: 8px 18px; border-radius: 999px; border: 1.5px solid var(--border); 
-    background: var(--card-bg-solid); color: var(--text-muted); font-size: 0.9rem;
-    font-weight: 700; cursor: pointer; transition: 0.3s;
+    padding: 10px 20px; border-radius: 999px; border: 1.5px solid var(--border);
+    background: var(--card-bg-solid); 
+    color: var(--text-main); 
+    font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: var(--transition);
 }
-.toggle-pill:hover { border-color: var(--geo-p1); color: var(--geo-p1); }
-.toggle-pill.active {
-    background: var(--geo-grad); color: #fff; border-color: transparent;
-    box-shadow: 0 6px 15px -4px rgba(225, 29, 72, 0.4);
+.toggle-pill:hover { border-color: var(--geo-p1); color: var(--geo-p1); transform: translateY(-2px); }
+.toggle-pill.active { 
+    background: var(--geo-grad); color: var(--text-inverse); border-color: transparent; 
+    box-shadow: 0 6px 15px -4px color-mix(in srgb, var(--geo-p1) 50%, transparent); 
 }
 
-/* ================= Form Actions ================= */
-.form-actions { display: flex; gap: 12px; margin-bottom: 25px; margin-top: 10px; flex-wrap: wrap; }
-.ghost-btn {
-    flex: 1; padding: 14px 16px; border-radius: var(--radius-sm); 
+/* ================= 6. Buttons ================= */
+.form-actions { display: flex; gap: 14px; margin-bottom: 30px; margin-top: 10px; flex-wrap: wrap; }
+.geo-tool .ghost-btn {
+    flex: 1; padding: 16px; border-radius: var(--radius-sm); text-align: center;
     border: 1.5px dashed var(--geo-p2); background: transparent; 
-    color: var(--geo-p2); font-weight: 700; cursor: pointer; transition: var(--transition);
+    color: var(--geo-p2); font-weight: 800; cursor: pointer; transition: var(--transition);
 }
-.ghost-btn:hover {
-    background: var(--geo-grad); color: #fff; border-style: solid; border-color: transparent;
-    box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--geo-p2) 70%, transparent);
-    transform: translateY(-3px);
-}
-.ghost-btn:active { transform: scale(0.96); }
-
-/* Primary Button Pulse Effect */
-.geo-tool .primary-btn {
-    background: var(--geo-grad); background-size: 200% 200%; border: none;
-    animation: gradientShift 5s ease infinite, pulseRingGeo 3.2s ease infinite;
-}
-.geo-tool .primary-btn:hover { box-shadow: 0 16px 30px -10px color-mix(in srgb, var(--geo-p2) 80%, transparent); }
-@keyframes pulseRingGeo {
-    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--geo-p1) 60%, transparent), var(--shadow); }
-    70% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--geo-p1) 0%, transparent), var(--shadow); }
-    100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--geo-p1) 0%, transparent), var(--shadow); }
+.geo-tool .ghost-btn:hover { 
+    background: var(--geo-p2); color: var(--text-inverse); border-style: solid; 
+    box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--geo-p2) 70%, transparent); transform: translateY(-2px); 
 }
 
-/* ================= Geometry Result Card ================= */
+.geo-tool .primary-btn { 
+    background: var(--geo-grad); background-size: 200% 200%; border: none; 
+    color: var(--text-inverse);
+    animation: gradientShift 5s ease infinite, pulseRingGeo 3.2s ease infinite; 
+}
+.geo-tool .primary-btn:hover { box-shadow: 0 16px 35px -10px color-mix(in srgb, var(--geo-p2) 80%, transparent); }
+@keyframes pulseRingGeo { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--geo-p1) 60%, transparent); } 70% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--geo-p1) 0%, transparent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+
+/* ================= 7. Result Card (MATHJAX STABILITY FIX) ================= */
 #geo-result-card {
-    margin-top: 25px; border: 2px solid transparent; 
-    background: linear-gradient(var(--card-bg-solid), var(--card-bg-solid)) padding-box, 
-                var(--geo-grad) border-box;
-    border-radius: var(--radius); padding: 22px; position: relative; overflow: hidden;
+    margin-top: 30px; border: 2px solid transparent;
+    background: linear-gradient(var(--card-bg-solid), var(--card-bg-solid)) padding-box, var(--geo-grad) border-box;
+    border-radius: var(--radius); padding: 24px; position: relative; overflow: hidden;
     box-shadow: 0 12px 35px -10px color-mix(in srgb, var(--geo-p1) 45%, transparent);
-    animation: fadeSlideIn 0.4s ease;
 }
-.result-card-head { font-size: 1.15rem; font-weight: 800; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; }
+.result-card-head { font-size: 1.2rem; font-weight: 800; color: var(--text-muted); margin-bottom: 15px; text-transform: uppercase; }
+
+/* STRICT SOLID COLOR FOR MATHJAX */
 #geo-result-text { 
-    font-size: 1.8rem; font-family: var(--font-display); 
-    background: var(--geo-grad); -webkit-background-clip: text; color: transparent; 
-    margin-bottom: 20px; word-break: break-word; text-align: left;
+    font-size: 1.6rem; font-family: var(--font-display); 
+    color: var(--geo-p1); /* Solid color, NOT transparent */
+    margin-bottom: 24px; word-break: break-word; line-height: 1.5;
 }
+
 .result-card-extra { 
     padding: 16px; background: color-mix(in srgb, var(--geo-p3) 8%, var(--chip-bg)); 
     border-radius: var(--radius-sm); font-size: 1rem; margin-bottom: 20px; 
-    color: var(--text-main); font-weight: 600; border-left: 4px solid var(--geo-p3);
+    color: var(--text-main); font-weight: 600; border-left: 4px solid var(--geo-p3); 
 }
 
-/* ================= Steps Toggle & List ================= */
-.steps-toggle {
+.steps-toggle { 
     width: 100%; padding: 14px; background: transparent; 
     border: 1.5px dashed var(--border); border-radius: var(--radius-sm); 
     color: var(--text-main); font-weight: 700; cursor: pointer; transition: 0.3s;
-    display: flex; justify-content: center; align-items: center; gap: 8px;
 }
-.steps-toggle:hover { 
-    border-style: solid; border-color: var(--geo-p1); color: var(--geo-p1); 
-    background: color-mix(in srgb, var(--geo-p1) 8%, transparent); 
-}
+.steps-toggle:hover { background: color-mix(in srgb, var(--geo-p1) 8%, transparent); border-color: var(--geo-p1); color: var(--geo-p1); }
+
 .steps-list { 
     list-style: decimal inside; margin-top: 20px; padding: 20px; 
     background: var(--chip-bg); border-radius: var(--radius-sm); 
     color: var(--text-main); font-size: 1.05rem; line-height: 1.8; 
-    animation: fadeSlideIn 0.4s ease;
 }
 .steps-list li { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
 .steps-list li:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 
-/* Desktop Centered Modal Fix */
+/* ================= 8. Graph Section (FIXED HEIGHT) ================= */
+#geo-graph-card {
+    margin-top: 30px; border-radius: var(--radius); border: 2px solid transparent;
+    background: linear-gradient(var(--card-bg-solid), var(--card-bg-solid)) padding-box, var(--geo-grad) border-box;
+    padding: 0; overflow: hidden; box-shadow: var(--shadow);
+}
+.graph-card-header { padding: 18px 20px 10px; font-size: 1.2rem; font-weight: 800; text-align: center; color: var(--geo-p1); }
+.graph-canvas-wrap {
+    position: relative; width: 100%; 
+    height: 400px; /* Fixed height stops layout shifts */
+    background-color: var(--card-bg-solid);
+    border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+}
+#geo-graph-canvas { position: absolute; top: 0; left: 0; width: 100% !important; height: 100% !important; }
+
+/* ================= 9. Mobile Optimization ================= */
 @media (min-width: 768px) {
-    .geo-modal-overlay { align-items: center; }
+    #geo-modal-overlay { align-items: center; }
     .geo-modal-box { border-radius: 24px; border: 2px solid var(--geo-p1); transform: scale(0.9); }
-    .geo-modal-overlay.hidden .geo-modal-box { transform: scale(0.9) translateY(50px); }
-    .geo-modal-overlay:not(.hidden) .geo-modal-box { transform: scale(1) translateY(0); }
+    #geo-modal-overlay.hidden .geo-modal-box { transform: scale(0.9) translateY(50px); }
+}
+@media (max-width: 600px) {
+    .geo-tool { padding: 20px; }
+    .field-row, .dynamic-fields { grid-template-columns: 1fr; gap: 15px; }
+    .category-pill { padding: 10px 18px; font-size: 0.9rem; }
+    .graph-canvas-wrap { height: 320px; }
+    #geo-result-text { font-size: 1.3rem; }
 }
