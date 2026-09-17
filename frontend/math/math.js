@@ -642,7 +642,7 @@ if (graphResultBtn) {
             const response = await fetch(`${window.getApiBase()}/api/math/graph`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ expression, variable, xmin: -10, xmax: 10, num_points: 400 }),
+                body: JSON.stringify({ expression, variable, xmin: -10, xmax: 10, num_points: 1000 }),
             });
             const data = await response.json();
 
@@ -681,13 +681,20 @@ if (graphResultBtn) {
             if (mode === "graph") {
                 const xminRaw = document.getElementById("xmin-input").value.trim();
                 const xmaxRaw = document.getElementById("xmax-input").value.trim();
+                
+                // pi, e, 2*pi ইত্যাদি গাণিতিক মান সাপোর্ট করার জন্য math.evaluate ব্যবহার
+                let xminVal = -10, xmaxVal = 10;
+                try { if(xminRaw) xminVal = math.evaluate(xminRaw); } catch(e) { xminVal = -10; }
+                try { if(xmaxRaw) xmaxVal = math.evaluate(xmaxRaw); } catch(e) { xmaxVal = 10; }
+
                 const body = {
                     expression,
                     variable,
-                    xmin: xminRaw === "" ? -10 : Number(xminRaw),
-                    xmax: xmaxRaw === "" ? 10 : Number(xmaxRaw),
-                    num_points: 400,
+                    xmin: xminVal, // আপডেট করা ভ্যালু
+                    xmax: xmaxVal, // আপডেট করা ভ্যালু
+                    num_points: 2000,
                 };
+          
 
                 try {
                     const response = await fetch(`${window.getApiBase()}/api/math/graph`, {

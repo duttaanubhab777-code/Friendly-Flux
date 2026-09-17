@@ -4,8 +4,17 @@ Graph Engine — কোনো এক-চলকীয় এক্সপ্রে
 
 পার্সিং, ভ্যালিডেশন ও টাইমআউট লজিক calculus_engine থেকে শেয়ার করা —
 যাতে একই নিয়মে এক্সপ্রেশন গ্রহণ/প্রত্যাখ্যান হয়।
+
+পারফরম্যান্স নোট: sympy-এর lambdify ব্যবহার করে expression-টাকে একটা
+vectorized numpy function-এ বদলে সব পয়েন্ট একসাথে (loop ছাড়া) হিসাব করা
+হয় — এটা প্রতি-পয়েন্টে subs()+evalf() করার চেয়ে বহুগুণ দ্রুত, বিশেষ করে
+num_points বড় হলে। কিছু বিরল sympy function numpy-তে lambdify না হলে
+পুরনো ধীর কিন্তু নির্ভরযোগ্য per-point পদ্ধতিতে (_sample_slow) fallback
+করা হয়।
 """
 import math
+import numpy as np
+import sympy as sp
 
 from formulas.calculus_engine import (
     CalculusError,
@@ -52,11 +61,14 @@ def generate_graph_data(expression: str, variable: str = "x",
         num_points = int(num_points)
     except (TypeError, ValueError):
         num_points = 300
-    num_points = max(20, min(num_points, 1000))
+    num_points = max(20, min(num_points, 2000))
 
     step = (xmax - xmin) / (num_points - 1)
 
-    def _sample():
+    def _sample_slow():
+        """পুরনো per-point পদ্ধতি — lambdify ব্যর্থ হলে fallback হিসেবে ব্যবহৃত।
+        প্রতিটা পয়েন্টের জন্য আলাদা subs()+evalf() করে, তাই ধীর, কিন্তু
+        যেকোনো sympy expression-এর জন্য নির্ভরযোগ্যভাবে কাজ করে।"""
         local_points = []
         for i in range(num_points):
             x_val = xmin + i * step
@@ -67,6 +79,34 @@ def generate_graph_data(expression: str, variable: str = "x",
                     local_points.append({"x": round(x_val, 8), "y": round(y_num.real, 8)})
             except Exception:
                 continue
+        return local_points
+
+    def _sample():
+        x_vals = [xmin + i * step for i in range(num_points)]
+
+        try:
+            f = sp.lambdify(var, expr, modules=["numpy"])
+            x_arr = np.array(x_vals, dtype=np.float64)
+            with np.errstate(all="ignore"):  # log(negative), 1/0 ইত্যাদির warning চাপা দেওয়া
+                y_raw = f(x_arr)
+            y_arr = np.asarray(y_raw, dtype=np.complex128)
+            # কিছু expression (যেমন শুধু ধ্রুবক) স্কেলার রিটার্ন করতে পারে —
+            # তখন পুরো x_arr-এর জন্য একই মান broadcast করে দেওয়া হচ্ছে
+            if y_arr.shape == ():
+                y_arr = np.full(x_arr.shape, y_arr, dtype=np.complex128)
+        except Exception:
+            return _sample_slow()
+
+        local_points = []
+        for x_val, y_val in zip(x_vals, y_arr):
+            if np.isfinite(y_val.real) and abs(y_val.imag) < 1e-9:
+                local_points.append({"x": round(float(x_val), 8), "y": round(float(y_val.real), 8)})
+
+        if not local_points:
+            # lambdify কারিগরিভাবে সফল হলেও কোনো ভ্যালিড পয়েন্ট না দিলে
+            # (edge-case sympy/numpy semantics mismatch) নির্ভরযোগ্য
+            # পদ্ধতিতে আবার চেষ্টা করা হচ্ছে, যাতে false negative না হয়
+            return _sample_slow()
         return local_points
 
     points = _run_with_timeout(_sample, seconds=6)
