@@ -1,221 +1,256 @@
 /* ==================================================================
-   Geometry tool — extra classes only.
-   Everything shared with math.css (navbar, container, hero, hidden,
-   primary-btn, spinner, result-card*, copy-btn, footer) is NOT
-   redefined here, so it inherits math.css's "Board" theme as-is.
-   ================================================================== */
+   3D Geometry Solver — "Warm Supernova" Theme
+   Fiery/warm gradients, glowing neon shadows, and sleek glassmorphism.
+   Designed strictly around the original JS DOM structure.
+================================================================== */
 
+/* ---------- Core Geometry Tool Variables & Container ---------- */
 .geo-tool {
+    /* Warm Gradient Palette */
+    --geo-p1: #f97316; /* Bright Orange */
+    --geo-p2: #e11d48; /* Rose/Red */
+    --geo-p3: #f59e0b; /* Amber */
+    --geo-grad: linear-gradient(135deg, var(--geo-p1), var(--geo-p2), var(--geo-p3));
+    
     background: var(--card-bg);
-    border: 1.5px solid var(--border);
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: var(--shadow);
-    margin-top: 24px;
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px);
+    border: 1.5px solid rgba(249, 115, 22, 0.3);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: 0 16px 40px -10px rgba(249, 115, 22, 0.15);
+    position: relative;
+    isolation: isolate;
+    margin-bottom: 40px;
+    animation: fadeSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Category pills */
-.category-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
+/* Background Animated Glow */
+.geo-tool::before {
+    content: ""; position: absolute; inset: -35px; border-radius: 50%;
+    background: conic-gradient(from 180deg, var(--geo-p1), var(--geo-p2), var(--geo-p3), var(--geo-p1));
+    filter: blur(80px); opacity: 0.18; z-index: -1;
+    animation: spinGlow 20s linear infinite reverse;
+}
+[data-theme="dark"] .geo-tool::before { opacity: 0.35; }
+[data-theme="dark"] .geo-tool {
+    --geo-p1: #fb923c;
+    --geo-p2: #fb7185;
+    --geo-p3: #fbbf24;
+    border-color: rgba(251, 146, 60, 0.2);
+}
+
+/* ================= Category Row (.category-pill) ================= */
+#geo-category-row {
+    display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 20px;
+    scrollbar-width: none; scroll-behavior: smooth;
+}
+#geo-category-row::-webkit-scrollbar { display: none; }
+
 .category-pill {
-    padding: 7px 14px;
-    border-radius: 999px;
-    border: 1.5px solid var(--border);
-    background: var(--bg-color);
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
+    flex-shrink: 0; padding: 10px 22px; border-radius: 999px;
+    border: 1.5px solid var(--border); background: var(--card-bg-solid);
+    color: var(--text-muted); font-weight: 700; cursor: pointer; 
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); font-size: 0.95rem;
 }
-.category-pill.active { background: var(--primary); border-color: var(--primary); color: var(--bg-color); }
-
-.op-select {
-    width: 100%;
-    padding: 12px 14px;
-    font-size: 1rem;
-    border-radius: 10px;
-    border: 1.5px solid var(--border);
-    background: var(--bg-color);
-    color: var(--text-main);
-    outline: none;
-    margin-bottom: 6px;
+.category-pill:hover { 
+    border-color: var(--geo-p1); color: var(--geo-p1); 
+    box-shadow: 0 6px 15px -4px color-mix(in srgb, var(--geo-p1) 40%, transparent); 
+    transform: translateY(-2px);
 }
-.op-select:focus { border-color: var(--primary); }
-
-/* Dynamic field area */
-.dynamic-fields { display: flex; flex-direction: column; gap: 16px; }
-
-.field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
-.field-item label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
-.field-item input[type="text"], .field-item select {
-    width: 100%;
-    padding: 11px 12px;
-    border-radius: 8px;
-    border: 1.5px solid var(--border);
-    background: var(--bg-color);
-    color: var(--text-main);
-    font-family: 'Consolas', monospace;
-    font-size: 0.98rem;
-    outline: none;
-    transition: var(--transition);
+.category-pill:active { transform: scale(0.95); }
+.category-pill.active {
+    background: var(--geo-grad); background-size: 200% 200%; color: #fff;
+    border-color: transparent; animation: gradientShift 5s ease infinite;
+    box-shadow: 0 8px 20px -6px color-mix(in srgb, var(--geo-p2) 70%, transparent);
 }
-.field-item input[type="text"]:focus, .field-item select:focus { border-color: var(--primary); }
 
-/* Composite group (a plane or a line definition) */
-.composite-group {
-    border: 1.5px dashed var(--border);
-    border-radius: 10px;
-    padding: 14px;
-    background: var(--bg-color);
-}
-.composite-group-title { font-weight: 700; margin-bottom: 10px; font-size: 0.92rem; color: var(--primary); }
-
-.toggle-pills { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-.toggle-pill {
-    padding: 5px 12px;
-    border-radius: 999px;
-    border: 1.5px solid var(--border);
-    background: var(--card-bg);
-    color: var(--text-muted);
-    font-size: 0.78rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-}
-.toggle-pill.active { background: var(--primary); border-color: var(--primary); color: var(--bg-color); }
-
-.form-actions { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
-.ghost-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 9px 14px;
-    border-radius: 8px;
-    border: 1.5px solid var(--border);
-    background: var(--bg-color);
-    color: var(--text-main);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-}
-.ghost-btn:hover { border-color: var(--primary); color: var(--primary); }
-
-/* Extra result-card parts geometry needs that math.css doesn't define */
-.result-card-head { padding: 12px 18px 0; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
-.result-card-extra { text-align: center; padding: 0 18px 10px; font-size: 0.92rem; color: var(--text-muted); }
-
-.steps-toggle {
-    display: flex; align-items: center; gap: 6px; justify-content: center;
-    width: 100%; padding: 8px; background: none; border: none; border-top: 1px dashed var(--border);
-    color: var(--primary); font-size: 0.85rem; font-weight: 600; cursor: pointer;
-}
-.steps-toggle i { transition: transform 0.2s ease; }
-.steps-toggle.open i { transform: rotate(180deg); }
-.steps-list { list-style: decimal; padding: 4px 18px 16px 36px; font-size: 0.88rem; color: var(--text-main); line-height: 1.6; }
-.steps-list li { margin-bottom: 4px; }
-
-/* Custom Select Button */
+/* ================= Problem Type Modal & Select ================= */
 .custom-select-btn {
-    width: 100%;
-    padding: 12px 16px;
-    background: var(--bg-card, #ffffff);
-    border: 1px solid var(--border-color, #d1d5db);
-    border-radius: 8px;
-    font-size: 15px;
-    text-align: left;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    cursor: pointer;
-    color: var(--text-color, #1f2937);
-    font-family: inherit;
-    margin-bottom: 20px;
+    width: 100%; display: flex; justify-content: space-between; align-items: center;
+    padding: 16px 20px; border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+    background: var(--card-bg-solid); color: var(--text-main); font-size: 1.05rem;
+    font-weight: 700; cursor: pointer; transition: var(--transition); margin-bottom: 25px;
 }
-[data-theme="dark"] .custom-select-btn { background: #374151; color: #f3f4f6; border-color: #4b5563; }
+.custom-select-btn:hover { 
+    border-color: var(--geo-p1); 
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--geo-p1) 15%, transparent); 
+}
+.custom-select-btn i { transition: transform 0.4s ease; color: var(--geo-p1); }
+.custom-select-btn:focus i { transform: rotate(180deg); }
 
-/* Modal Overlay (Background) */
 .geo-modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0, 0, 0, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    backdrop-filter: blur(3px);
-    opacity: 1;
-    transition: opacity 0.2s ease;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(12px);
+    z-index: 1000; display: flex; align-items: flex-end; justify-content: center;
+    opacity: 1; transition: opacity 0.3s ease;
 }
-.geo-modal-overlay.hidden {
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* Popup Box */
+.geo-modal-overlay.hidden { opacity: 0; pointer-events: none; }
 .geo-modal-box {
-    background: var(--bg-main, #ffffff);
-    width: 90%;
-    max-width: 450px;
-    max-height: 80vh;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    overflow: hidden;
+    width: 100%; max-width: 600px; background: var(--card-bg-solid);
+    border-radius: 28px 28px 0 0; padding: 25px; border-top: 3px solid var(--geo-p1);
+    transform: translateY(0); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1.1);
+    box-shadow: 0 -15px 50px rgba(225, 29, 72, 0.25);
 }
-[data-theme="dark"] .geo-modal-box { background: #1f2937; }
+.geo-modal-overlay.hidden .geo-modal-box { transform: translateY(100%); }
+.geo-modal-header { 
+    display: flex; justify-content: space-between; align-items: center; 
+    margin-bottom: 20px; font-size: 1.3rem; font-weight: 800; 
+    background: var(--geo-grad); -webkit-background-clip: text; color: transparent;
+}
+#geo-modal-close-btn { 
+    background: var(--chip-bg); border: none; width: 36px; height: 36px; 
+    border-radius: 50%; color: var(--text-muted); cursor: pointer; 
+    transition: 0.3s; font-size: 1.4rem; display: grid; place-items: center;
+}
+#geo-modal-close-btn:hover { background: var(--geo-p2); color: #fff; transform: rotate(90deg); }
 
-.geo-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--border-color, #e5e7eb);
-    font-weight: bold;
-    font-size: 18px;
-    color: var(--text-color, #1f2937);
-}
-[data-theme="dark"] .geo-modal-header { border-bottom-color: #374151; color: #f3f4f6; }
-.geo-modal-header button {
-    background: none; border: none; font-size: 24px; cursor: pointer; color: inherit;
-}
-
-.geo-modal-body {
-    overflow-y: auto;
-    padding: 8px 0;
-}
-
-/* List Items */
-.geo-modal-list {
-    list-style: none;
-    padding: 0; margin: 0;
-}
+.geo-modal-list { list-style: none; max-height: 45vh; overflow-y: auto; padding-right: 8px; }
+.geo-modal-list::-webkit-scrollbar { width: 6px; }
+.geo-modal-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 10px; }
 .geo-modal-list li {
-    padding: 14px 20px;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border-color, #f3f4f6);
-    color: var(--text-color, #374151);
-    font-size: 15px;
-    transition: background 0.2s;
+    padding: 16px 20px; margin-bottom: 10px; border-radius: 14px; cursor: pointer;
+    font-weight: 600; transition: all 0.25s; background: var(--chip-bg); 
+    border: 1.5px solid transparent; color: var(--text-main); font-size: 1rem;
+    display: flex; justify-content: space-between; align-items: center;
 }
-[data-theme="dark"] .geo-modal-list li { border-bottom-color: #374151; color: #d1d5db; }
-.geo-modal-list li:last-child { border-bottom: none; }
-.geo-modal-list li:hover { background: var(--bg-card, #f9fafb); }
-[data-theme="dark"] .geo-modal-list li:hover { background: #4b5563; }
+.geo-modal-list li i { display: none; font-size: 1.1rem; } /* JS adds fa-check, hidden by default */
 
-/* Tick Mark Style */
-.geo-modal-list li i.fa-check {
-    color: var(--primary, #2563eb);
-    display: none; /* প্রথমে লুকানো থাকবে */
-    font-size: 18px;
+/* Active state for Modal items (based on JS adding .selected class) */
+.geo-modal-list li.selected { 
+    background: color-mix(in srgb, var(--geo-p3) 12%, transparent); 
+    border-color: var(--geo-p3); color: var(--geo-p1); 
+    padding-left: 28px; 
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--geo-p3) 20%, transparent);
 }
-.geo-modal-list li.selected i.fa-check {
-    display: inline-block; /* সিলেক্ট হলে দেখাবে */
-}
-.geo-modal-list li.selected {
-    font-weight: bold;
-    color: var(--primary, #2563eb);
+.geo-modal-list li.selected i { display: block; color: var(--geo-p1); }
+.geo-modal-list li:hover:not(.selected) { border-color: var(--border); padding-left: 24px; }
+
+/* ================= Dynamic Input Fields (.field-row & .field-item) ================= */
+.field-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 18px; margin-bottom: 18px;
 }
 
+.field-item { 
+    display: flex; flex-direction: column; gap: 8px; 
+    animation: popIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards; 
+}
+.field-item label { font-size: 0.95rem; font-weight: 700; color: var(--text-muted); }
+
+.field-item input, .field-item select {
+    width: 100%; padding: 15px; border-radius: var(--radius-sm); 
+    border: 1.5px solid var(--border); background: var(--card-bg-solid); 
+    color: var(--text-main); font-size: 1.05rem; font-family: 'Consolas', monospace; 
+    font-weight: 600; transition: all 0.3s; appearance: none; /* Removes default select arrow */
+}
+/* Focus glow for inputs */
+.field-item input:focus, .field-item select:focus {
+    border-color: var(--geo-p1); outline: none; transform: translateY(-2px);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--geo-p1) 20%, transparent), 
+                0 6px 20px -6px color-mix(in srgb, var(--geo-p1) 30%, transparent);
+}
+
+/* ================= Composite Groups (Plane & Line) ================= */
+.composite-group {
+    background: color-mix(in srgb, var(--geo-p1) 4%, transparent);
+    border: 1.5px dashed color-mix(in srgb, var(--geo-p1) 40%, transparent);
+    padding: 20px; border-radius: var(--radius-sm); margin-bottom: 20px;
+    animation: fadeSlideIn 0.4s ease;
+}
+/* Make Lines slightly distinct from Planes */
+.composite-group[data-group-type="line"] {
+    background: color-mix(in srgb, var(--geo-p2) 4%, transparent);
+    border-color: color-mix(in srgb, var(--geo-p2) 40%, transparent);
+}
+
+.composite-group-title {
+    font-size: 1.05rem; font-weight: 800; color: var(--geo-p1); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.composite-group[data-group-type="line"] .composite-group-title { color: var(--geo-p2); }
+
+.toggle-pills { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+.toggle-pill {
+    padding: 8px 18px; border-radius: 999px; border: 1.5px solid var(--border); 
+    background: var(--card-bg-solid); color: var(--text-muted); font-size: 0.9rem;
+    font-weight: 700; cursor: pointer; transition: 0.3s;
+}
+.toggle-pill:hover { border-color: var(--geo-p1); color: var(--geo-p1); }
+.toggle-pill.active {
+    background: var(--geo-grad); color: #fff; border-color: transparent;
+    box-shadow: 0 6px 15px -4px rgba(225, 29, 72, 0.4);
+}
+
+/* ================= Form Actions ================= */
+.form-actions { display: flex; gap: 12px; margin-bottom: 25px; margin-top: 10px; flex-wrap: wrap; }
+.ghost-btn {
+    flex: 1; padding: 14px 16px; border-radius: var(--radius-sm); 
+    border: 1.5px dashed var(--geo-p2); background: transparent; 
+    color: var(--geo-p2); font-weight: 700; cursor: pointer; transition: var(--transition);
+}
+.ghost-btn:hover {
+    background: var(--geo-grad); color: #fff; border-style: solid; border-color: transparent;
+    box-shadow: 0 8px 20px -8px color-mix(in srgb, var(--geo-p2) 70%, transparent);
+    transform: translateY(-3px);
+}
+.ghost-btn:active { transform: scale(0.96); }
+
+/* Primary Button Pulse Effect */
+.geo-tool .primary-btn {
+    background: var(--geo-grad); background-size: 200% 200%; border: none;
+    animation: gradientShift 5s ease infinite, pulseRingGeo 3.2s ease infinite;
+}
+.geo-tool .primary-btn:hover { box-shadow: 0 16px 30px -10px color-mix(in srgb, var(--geo-p2) 80%, transparent); }
+@keyframes pulseRingGeo {
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--geo-p1) 60%, transparent), var(--shadow); }
+    70% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--geo-p1) 0%, transparent), var(--shadow); }
+    100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--geo-p1) 0%, transparent), var(--shadow); }
+}
+
+/* ================= Geometry Result Card ================= */
+#geo-result-card {
+    margin-top: 25px; border: 2px solid transparent; 
+    background: linear-gradient(var(--card-bg-solid), var(--card-bg-solid)) padding-box, 
+                var(--geo-grad) border-box;
+    border-radius: var(--radius); padding: 22px; position: relative; overflow: hidden;
+    box-shadow: 0 12px 35px -10px color-mix(in srgb, var(--geo-p1) 45%, transparent);
+    animation: fadeSlideIn 0.4s ease;
+}
+.result-card-head { font-size: 1.15rem; font-weight: 800; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; }
+#geo-result-text { 
+    font-size: 1.8rem; font-family: var(--font-display); 
+    background: var(--geo-grad); -webkit-background-clip: text; color: transparent; 
+    margin-bottom: 20px; word-break: break-word; text-align: left;
+}
+.result-card-extra { 
+    padding: 16px; background: color-mix(in srgb, var(--geo-p3) 8%, var(--chip-bg)); 
+    border-radius: var(--radius-sm); font-size: 1rem; margin-bottom: 20px; 
+    color: var(--text-main); font-weight: 600; border-left: 4px solid var(--geo-p3);
+}
+
+/* ================= Steps Toggle & List ================= */
+.steps-toggle {
+    width: 100%; padding: 14px; background: transparent; 
+    border: 1.5px dashed var(--border); border-radius: var(--radius-sm); 
+    color: var(--text-main); font-weight: 700; cursor: pointer; transition: 0.3s;
+    display: flex; justify-content: center; align-items: center; gap: 8px;
+}
+.steps-toggle:hover { 
+    border-style: solid; border-color: var(--geo-p1); color: var(--geo-p1); 
+    background: color-mix(in srgb, var(--geo-p1) 8%, transparent); 
+}
+.steps-list { 
+    list-style: decimal inside; margin-top: 20px; padding: 20px; 
+    background: var(--chip-bg); border-radius: var(--radius-sm); 
+    color: var(--text-main); font-size: 1.05rem; line-height: 1.8; 
+    animation: fadeSlideIn 0.4s ease;
+}
+.steps-list li { margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px dashed var(--border); }
+.steps-list li:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+/* Desktop Centered Modal Fix */
+@media (min-width: 768px) {
+    .geo-modal-overlay { align-items: center; }
+    .geo-modal-box { border-radius: 24px; border: 2px solid var(--geo-p1); transform: scale(0.9); }
+    .geo-modal-overlay.hidden .geo-modal-box { transform: scale(0.9) translateY(50px); }
+    .geo-modal-overlay:not(.hidden) .geo-modal-box { transform: scale(1) translateY(0); }
+}
