@@ -4,10 +4,12 @@ const dictionary = {
     heroSub: { en: "Search and calculate complex formulas instantly.", bn: "যেকোনো রাসায়নিক সূত্র খুঁজুন এবং নিমেষে হিসাব করুন।" },
     searchPlaceholder: { en: "Search formulas...", bn: "সূত্র খুঁজুন (যেমন: Moles)..." },
     availableFormulas: { en: "Available Formulas", bn: "সকল সূত্র" },
+    formulaCountBadge: { en: "55+ ready-to-solve formulas", bn: "৫৫+ সমাধানযোগ্য সূত্র" },
     calcBtn: { en: "Calculate Result", bn: "ফলাফল নির্ণয় করুন" },
     targetLabel: { en: "What do you want to find?", bn: "কী বের করতে চান?" },
     targetDefault: { en: "-- Select Target --", bn: "-- নির্বাচন করুন --" },
-    scientistTitle: { en: "Legendary Chemists", bn: "মহান রসায়নবিদগণ" }
+    scientistTitle: { en: "Legendary Chemists", bn: "মহান রসায়নবিদগণ" },
+    footerNote: { en: "Crafted with curiosity — powered by Friendly Flux", bn: "কৌতূহল দিয়ে গড়া — Friendly Flux দ্বারা চালিত" }
 };
 
 const chemistryFormulas = {
