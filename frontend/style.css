@@ -9,6 +9,7 @@
     --light-bg: #f8fafc;
     --text-dark: #334155;
     --text-light: #f1f5f9;
+    --glow: 0 0 40px rgba(37, 99, 235, 0.35);
 }
 
 * {
@@ -32,9 +33,11 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 5%;
-    background-color: white;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 1.1rem 5%;
+    background-color: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 2px 16px rgba(15, 23, 42, 0.08);
     position: sticky;
     top: 0;
     z-index: 100;
@@ -43,11 +46,16 @@ body {
 .logo {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--primary-color);
+    background: linear-gradient(135deg, var(--primary-color), #06b6d4);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
     display: flex;
     align-items: center;
     gap: 10px;
 }
+
+.logo i { color: var(--primary-color); -webkit-text-fill-color: var(--primary-color); }
 
 .nav-links {
     list-style: none;
@@ -69,18 +77,30 @@ body {
 /* Hero Section */
 .hero {
     height: 80vh;
-    background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1507413245164-6160d8298b31?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
+    background: linear-gradient(rgba(10, 14, 30, 0.82), rgba(10, 14, 30, 0.88)), url('https://images.unsplash.com/photo-1507413245164-6160d8298b31?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') center/cover;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
     color: white;
     padding: 0 20px;
+    position: relative;
+    overflow: hidden;
 }
 
 .hero h1 {
     font-size: 3.5rem;
     margin-bottom: 20px;
+    background: linear-gradient(135deg, #ffffff, #93c5fd 60%, #38bdf8);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: heroGlow 6s ease-in-out infinite alternate;
+}
+
+@keyframes heroGlow {
+    from { filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.25)); }
+    to   { filter: drop-shadow(0 0 22px rgba(56, 189, 248, 0.55)); }
 }
 
 .hero p {
@@ -92,17 +112,20 @@ body {
 }
 
 .cta-btn {
-    padding: 15px 30px;
-    background-color: var(--primary-color);
+    padding: 15px 34px;
+    background: linear-gradient(135deg, var(--primary-color), #0ea5e9);
     color: white;
     text-decoration: none;
     font-weight: 600;
-    border-radius: 8px;
-    transition: background 0.3s;
+    border-radius: 999px;
+    transition: transform 0.3s, box-shadow 0.3s;
+    box-shadow: 0 10px 30px -10px rgba(37, 99, 235, 0.6);
+    display: inline-block;
 }
 
 .cta-btn:hover {
-    background-color: var(--secondary-color);
+    transform: translateY(-3px);
+    box-shadow: 0 16px 36px -10px rgba(14, 165, 233, 0.7);
 }
 
 /* Common Section Styles */
@@ -137,31 +160,55 @@ body {
 
 /* Subject Cards */
 .subject-card {
-    background: white;
-    padding: 40px 20px;
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(6px);
+    padding: 44px 24px;
+    border-radius: 16px;
     text-decoration: none;
     color: var(--text-dark);
     box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    transition: transform 0.3s, box-shadow 0.3s;
+    transition: transform 0.35s, box-shadow 0.35s;
     border-top: 5px solid transparent;
+    position: relative;
+    overflow: hidden;
 }
+
+.subject-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 0%, currentColor, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.35s;
+    pointer-events: none;
+}
+
+.subject-card:hover::after { opacity: 0.06; }
 
 .subject-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 25px rgba(0,0,0,0.1);
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 34px rgba(0,0,0,0.12);
 }
 
-.math-card { border-top-color: #eab308; }
-.physics-card { border-top-color: #ef4444; }
-.chemistry-card { border-top-color: #22c55e; }
-.geometry-card { border-top-color: #6366f1; }
+.math-card { border-top-color: #eab308; color: #b45309; }
+.physics-card { border-top-color: #ef4444; color: #b91c1c; }
+.chemistry-card { border-top-color: #22c55e; color: #15803d; }
+.geometry-card { border-top-color: #6366f1; color: #4338ca; }
+
+.subject-card h3, .subject-card p { color: var(--text-dark); }
 
 .icon {
     font-size: 3rem;
     margin-bottom: 20px;
     color: var(--primary-color);
+    transition: transform 0.35s;
 }
+
+.subject-card:hover .icon { transform: scale(1.15) rotate(-4deg); }
+
+.math-card .icon { color: #eab308; }
+.physics-card .icon { color: #ef4444; }
+.chemistry-card .icon { color: #22c55e; }
 
 .subject-card h3 {
     font-size: 1.8rem;

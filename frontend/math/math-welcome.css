@@ -1,0 +1,149 @@
+/* ==========================================================================
+   Math Welcome — cosmic intro splash shown before entering the Math Solver.
+   Deliberately distinct from the Physics/Chemistry palettes: deep indigo
+   night sky + violet/gold glow, vs. their blue-teal / teal-violet labs.
+   ========================================================================== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+    height: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    min-height: 100vh;
+    background: radial-gradient(1200px 800px at 20% -10%, rgba(129, 140, 248, 0.25), transparent 60%),
+                radial-gradient(900px 700px at 100% 100%, rgba(244, 114, 182, 0.16), transparent 55%),
+                linear-gradient(160deg, #0b0a1f 0%, #150f30 55%, #1a1140 100%);
+    color: #f4f2ff;
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+}
+
+.mw-home-link {
+    position: fixed;
+    top: 22px;
+    left: 24px;
+    color: #cbd5f5;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.8;
+    transition: opacity 0.25s;
+    z-index: 5;
+}
+.mw-home-link:hover { opacity: 1; }
+
+.mw-stage {
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 22px;
+    z-index: 2;
+}
+
+.mw-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #d8b4fe;
+    backdrop-filter: blur(6px);
+}
+
+.mw-title {
+    font-family: 'Baloo 2', cursive;
+    font-weight: 800;
+    font-size: clamp(2.2rem, 6vw, 3.6rem);
+    line-height: 1.15;
+    color: #fdfcff;
+}
+
+.mw-title span {
+    background: linear-gradient(120deg, #a78bfa, #f472b6 45%, #fbbf24 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    background-size: 200% auto;
+    animation: mwShimmer 5s ease-in-out infinite alternate;
+}
+
+@keyframes mwShimmer {
+    from { background-position: 0% center; filter: drop-shadow(0 0 10px rgba(167, 139, 250, 0.25)); }
+    to   { background-position: 100% center; filter: drop-shadow(0 0 22px rgba(244, 114, 182, 0.4)); }
+}
+
+.mw-subtitle {
+    max-width: 520px;
+    font-size: 1.08rem;
+    line-height: 1.65;
+    color: #c9c5e8;
+}
+
+.mw-enter-btn {
+    margin-top: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 38px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #7c3aed, #a855f7 45%, #f472b6);
+    color: white;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.05rem;
+    box-shadow: 0 18px 40px -14px rgba(124, 58, 237, 0.65);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.mw-enter-btn:hover {
+    transform: translateY(-4px) scale(1.03);
+    box-shadow: 0 22px 46px -12px rgba(244, 114, 182, 0.65);
+}
+
+.mw-enter-btn i {
+    transition: transform 0.3s;
+}
+.mw-enter-btn:hover i { transform: translateX(4px); }
+
+.mw-symbols {
+    margin-top: 18px;
+    display: flex;
+    gap: 22px;
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.6rem;
+    color: rgba(255, 255, 255, 0.28);
+}
+
+.mw-symbols span {
+    animation: mwFloat 4s ease-in-out infinite;
+}
+.mw-symbols span:nth-child(2) { animation-delay: 0.4s; }
+.mw-symbols span:nth-child(3) { animation-delay: 0.8s; }
+.mw-symbols span:nth-child(4) { animation-delay: 1.2s; }
+.mw-symbols span:nth-child(5) { animation-delay: 1.6s; }
+.mw-symbols span:nth-child(6) { animation-delay: 2s; }
+
+@keyframes mwFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+@media (max-width: 560px) {
+    .mw-symbols { font-size: 1.2rem; gap: 14px; }
+}

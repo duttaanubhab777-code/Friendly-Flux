@@ -1,0 +1,20 @@
+/* ==========================================================================
+   Friendly Flux — Ambient Science Background (shared layer)
+   Keeps the canvas behind existing content without altering any layout
+   logic: every existing top-level section is simply lifted into its own
+   stacking context above the canvas.
+   ========================================================================== */
+#science-bg-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    display: block;
+}
+
+body > *:not(#science-bg-canvas) {
+    position: relative;
+    z-index: 1;
+}
