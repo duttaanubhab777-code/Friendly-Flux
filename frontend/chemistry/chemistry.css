@@ -106,13 +106,31 @@ a { color: var(--primary); }
 .container { max-width: 1040px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
 
 /* ---------- Hero ---------- */
-.hero { text-align: center; margin-bottom: 3.5rem; position: relative; }
+.hero { text-align: center; margin-bottom: 3.5rem; position: relative; isolation: isolate; }
 .hero h1 {
     font-family: var(--font-heading); font-weight: 700; font-size: clamp(2rem, 6vw, 3.1rem);
     line-height: 1.15; margin-bottom: 14px;
     background: var(--gradient); -webkit-background-clip: text; background-clip: text; color: transparent;
 }
 .hero p { color: var(--text-muted); font-size: 1.05rem; margin-bottom: 28px; }
+
+/* Rising-bubble motif on the left, mirroring the orbiting atom on the right —
+   reads as "reaction in progress" without competing with the atom-decor. */
+.bubble-decor { position: absolute; left: -8px; bottom: -10px; width: 90px; height: 140px; pointer-events: none; z-index: 0; opacity: 0.5; }
+.bubble-decor span {
+    position: absolute; bottom: -20px; border-radius: 50%;
+    border: 1.5px solid var(--primary); background: rgba(13, 148, 136, 0.08);
+    animation: bubbleRise 6s ease-in infinite;
+}
+.bubble-decor span:nth-child(1) { left: 4px; width: 10px; height: 10px; animation-delay: 0s; }
+.bubble-decor span:nth-child(2) { left: 26px; width: 16px; height: 16px; animation-delay: 1.4s; border-color: var(--secondary); }
+.bubble-decor span:nth-child(3) { left: 12px; width: 7px; height: 7px; animation-delay: 2.6s; }
+.bubble-decor span:nth-child(4) { left: 40px; width: 12px; height: 12px; animation-delay: 3.8s; border-color: var(--secondary); }
+@keyframes bubbleRise {
+    0% { transform: translateY(0) scale(0.6); opacity: 0; }
+    15% { opacity: 0.85; }
+    100% { transform: translateY(-150px) scale(1.1); opacity: 0; }
+}
 
 /* Orbiting-atom motif: one deliberate hero animation, not repeated elsewhere */
 .atom-decor { position: absolute; width: 160px; height: 160px; top: -18px; right: -6px; opacity: 0.55; pointer-events: none; z-index: 0; }
@@ -159,7 +177,7 @@ a { color: var(--primary); }
     padding: 22px 20px; cursor: pointer; transition: var(--transition); text-align: left;
     box-shadow: var(--shadow); backdrop-filter: blur(10px);
 }
-.formula-card:hover { border-color: var(--primary); background: var(--bg-alt); }
+.formula-card:hover { border-color: var(--primary); background: var(--bg-alt); transform: translateY(-5px); box-shadow: var(--shadow), 0 0 24px -6px rgba(13, 148, 136, 0.4); }
 .formula-card h3 { font-family: var(--font-heading); font-size: 1.02rem; color: var(--text-main); margin-bottom: 10px; }
 .formula-card p { font-family: var(--font-mono); font-size: 0.92rem; color: var(--primary); font-weight: 500; }
 

@@ -141,6 +141,22 @@ body {
 .hero::before { top: -50px; left: -30px; }
 .hero::after { top: 10px; right: -40px; animation-delay: -4s; }
 [data-theme="dark"] .hero::before, [data-theme="dark"] .hero::after { opacity: .45; }
+
+/* One deliberate math-only hero motif: a spinning compass plus a few ghost
+   symbols — distinct from physics' oscilloscope wave and chemistry's bubbles. */
+.math-decor { position: absolute; top: -14px; right: 6px; width: 120px; height: 90px; pointer-events: none; z-index: 0; opacity: 0.55; }
+.math-decor .compass-spin {
+    position: absolute; top: 4px; right: 10px; font-size: 1.7rem; color: var(--primary-2);
+    animation: spinGlow 12s linear infinite;
+}
+.math-decor .ghost-symbol {
+    position: absolute; font-family: var(--font-display); font-weight: 700; color: var(--primary-3);
+    opacity: 0.55; animation: floatBlob 6s ease-in-out infinite;
+}
+.math-decor .gs1 { top: 44px; right: 68px; font-size: 1.1rem; animation-delay: -1s; }
+.math-decor .gs2 { top: 8px; right: 92px; font-size: 0.95rem; animation-delay: -3s; }
+.math-decor .gs3 { top: 58px; right: 22px; font-size: 1.3rem; animation-delay: -5s; }
+
 .hero h1 {
     font-family: var(--font-display); font-size: 2.3rem; font-weight: 700;
     margin-bottom: 10px; letter-spacing: 0.2px;
@@ -451,6 +467,7 @@ footer.ff-footer {
     .keypad { grid-template-columns: repeat(4, 1fr); }
     .hero h1 { font-size: 1.9rem; }
     .hero::before, .hero::after { width: 140px; height: 140px; filter: blur(40px); }
+    .math-decor { display: none; }
     .container { padding: 0.8rem; }
     .calc-tool { padding: 14px; }
     .calc-tool::before { inset: -20px; filter: blur(40px); }

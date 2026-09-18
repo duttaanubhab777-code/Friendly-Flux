@@ -147,3 +147,11 @@ body {
 @media (max-width: 560px) {
     .mw-symbols { font-size: 1.2rem; gap: 14px; }
 }
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
