@@ -1,0 +1,56 @@
+/* =====================================================================
+   Algebra Tool — small, self-contained stylesheet.
+   Reuses the CSS variables already defined by math.css / geometry3d.css
+   (--primary, --border, --chip-bg, --radius, --text-muted, ...) so it
+   automatically matches the current theme (including dark mode) without
+   duplicating any of their rules.
+   ===================================================================== */
+
+#algebra-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 1.05rem;
+    font-family: var(--font-mono, monospace);
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm, 10px);
+    background: var(--card-bg-solid, #fff);
+    color: var(--text-main);
+    resize: vertical;
+    min-height: 56px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#algebra-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 18%, transparent);
+}
+
+#algebra-var-input {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 0.95rem;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-sm, 10px);
+    background: var(--card-bg-solid, #fff);
+    color: var(--text-main);
+}
+
+#algebra-var-input:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+.algebra-tool .extra-row {
+    line-height: 1.6;
+}
+
+.algebra-tool .extra-row strong {
+    color: var(--primary);
+    margin-right: 4px;
+}
+
+.algebra-tool #algebra-solve-btn {
+    margin-top: 16px;
+    margin-bottom: 22px;
+}

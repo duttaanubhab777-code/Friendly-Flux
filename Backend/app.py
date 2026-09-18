@@ -17,6 +17,7 @@ from formulas.graph_engine import generate_graph_data
 from formulas.math_ocr import extract_expression_from_image, OcrError
 from formulas.geometry3d_engine import solve_geometry3d, Geometry3DError
 from formulas.geometry3d_graph_engine import generate_3d_plot_data, Geometry3DGraphError
+from formulas.algebra_engine import solve_algebra, AlgebraError
 
 app = Flask(__name__)
 
@@ -157,6 +158,26 @@ def math_graph():
         return jsonify({"success": False, "error": str(e)}), 400
     except TimeoutError:
         return jsonify({"success": False, "error": "This expression is too complex and timed out"}), 400
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+
+
+# ---------------------------------------------------------------------------
+# ALGEBRA — independent symbolic Algebra Engine (formulas/algebra_engine.py)
+# ---------------------------------------------------------------------------
+@app.route("/api/algebra/solve", methods=["POST"])
+def algebra_solve():
+    data = request.get_json(silent=True) or {}
+    problem = data.get("input", data.get("expression", ""))
+    variable = data.get("variable")
+
+    try:
+        outcome = solve_algebra(problem, variable)
+        return jsonify({"success": True, **outcome})
+    except AlgebraError as e:
+        return jsonify({"success": False, "error": str(e)}), 400
+    except TimeoutError as e:
+        return jsonify({"success": False, "error": str(e) or "This problem is too complex and timed out"}), 400
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 400
 
