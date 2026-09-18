@@ -15,7 +15,8 @@ from sympy import (
     Integral, diff, integrate, simplify, Abs, nsimplify, latex,
     Poly, Pow, expand, preorder_traversal, Piecewise,
     hyper, meijerg, uppergamma, lowergamma, elliptic_e, elliptic_f, elliptic_k, elliptic_pi,
-    gammasimp
+    gammasimp, count_ops, trigsimp, factor, cancel, radsimp,
+    erf, erfc, Si, Ci, Ei, li, polylog
 )
 from sympy.parsing.sympy_parser import (
     parse_expr, standard_transformations,
@@ -43,7 +44,7 @@ _LOCAL_DICT = {
 _ALLOWED_CHARS = re.compile(r"^[0-9a-zA-Z_+\-*/^!(){}.,\s]*$")
 _MAX_LEN = 250
 _MAX_OP_COUNT = 400
-_TIMEOUT_SECONDS = 8
+_TIMEOUT_SECONDS = 20
 
 class CalculusError(ValueError):
     pass
@@ -118,15 +119,45 @@ def _pick_principal_branch(expr, var):
         return real_candidates[0]
     return expr
 
+def _textbook_form(expr):
+    """
+    একাধিক সরলীকরণ candidate বানিয়ে, যেটায় operation সংখ্যা সবচেয়ে কম সেটা বেছে নেয়।
+    কেন blindly সব সময় cancel()+factor() না বসিয়ে candidate-ভিত্তিক পদ্ধতি —
+    যাচাই করে দেখা গেছে এগুলো মাঝেমধ্যে উল্টো জটিল ফলাফল দেয় (যেমন x/(x+1)^2 এর
+    ইন্টিগ্রালে log(x+1) + 1/(x+1) কে একটামাত্র বড় ভগ্নাংশে জুড়ে দেয়), তাই সবচেয়ে
+    "ছোট" ফর্মটাই রাখা হয়। trigsimp সাধারণত নিরাপদ ও উপকারী (যেমন sin(x)^4 এর
+    ইন্টিগ্রালকে double/quadruple-angle ফর্মে আনে) — কিন্তু দুটো mathematically-সমান
+    antiderivative যেগুলো শুধু ধ্রুবকে (constant of integration) আলাদা
+    (যেমন sin^2(x)/2 বনাম -cos^2(x)/2), সেটা কোনো simplification দিয়েই একরকম করা
+    যায় না — কারণ ওটা ভুল না, শুধু ভিন্ন একটা বৈধ প্রতিনিধি।
+    """
+    candidates = [expr]
+    try:
+        candidates.append(simplify(expr))
+    except Exception:
+        pass
+    try:
+        candidates.append(trigsimp(expr))
+    except Exception:
+        pass
+    try:
+        candidates.append(cancel(factor(radsimp(trigsimp(simplify(expr))))))
+    except Exception:
+        pass
+    try:
+        return min(candidates, key=lambda e: count_ops(e))
+    except Exception:
+        return expr
+
 def _format_result(expr) -> str:
-    text = str(simplify(expr))
+    text = str(_textbook_form(expr))
     text = text.replace("**", "^")
     text = text.replace("exp(", "e^(")
     text = text.replace("log(", "ln(")
     return text
 
 def _format_latex(expr) -> str:
-    return latex(simplify(expr), inv_trig_style="power", ln_notation=True)
+    return latex(_textbook_form(expr), inv_trig_style="power", ln_notation=True)
 
 def _resolve_variables(variable: str):
     var_name = (variable or "x").strip() or "x"
@@ -145,6 +176,36 @@ def _resolve_variables(variable: str):
             )
         resolved.append(symbols(name))
     return resolved
+
+def _try_weierstrass(expr, var, seconds):
+    """
+    t = tan(var/2) বসিয়ে sin/cos-এর rational fraction-কে t-এর rational fraction
+    বানিয়ে দেয় (sin = 2t/(1+t^2), cos = (1-t^2)/(1+t^2), dx = 2/(1+t^2) dt)।
+    শুধু তখনই কাজ করে যখন expr-এ var শুধু sin(var)/cos(var)-এর ভেতর দিয়েই আসে
+    (var আলাদাভাবে খোলা অবস্থায় থাকলে substitution-এর পর var রয়ে যাবে, তখন None রিটার্ন করে)।
+    ইচ্ছাকৃতভাবে periodicity-এর branch-jump (floor()) correction বাদ দেওয়া হয়েছে,
+    যাতে ফলাফল বইয়ের মতো সহজ দেখায় — তাই এটা indefinite integral-এর "+C" ফর্মের
+    জন্য উপযুক্ত, কিন্তু সব ডোমেইনে ১০০% globally rigorous না। সব ত্রিকোণমিতিক
+    ভগ্নাংশে কাজ করবে না (যেমন 1/(sin(x)+tan(x)) এটাতেও ফেইল করে)।
+    """
+    from sympy import Dummy
+    try:
+        if not (expr.has(sin(var)) or expr.has(cos(var))):
+            return None
+        t = Dummy('t', real=True)
+        substituted = expr.subs({sin(var): 2 * t / (1 + t**2), cos(var): (1 - t**2) / (1 + t**2)})
+        if substituted.has(var):
+            return None
+        integrand_t = substituted * (2 / (1 + t**2))
+        result_t = _run_with_timeout(lambda: integrate(integrand_t, t), seconds=seconds)
+    except Exception:
+        return None
+    if result_t is None or result_t.has(Integral):
+        return None
+    try:
+        return result_t.subs(t, tan(var / 2))
+    except Exception:
+        return None
 
 def _try_quadratic_shift(expr, var, seconds):
     quadratics = set()
@@ -251,7 +312,7 @@ def _integrate_indefinite(expr, var):
 
     # 1. Fast mode
     try:
-        res1 = _run_with_timeout(lambda: integrate(expr, var, meijerg=False), seconds=4)
+        res1 = _run_with_timeout(lambda: integrate(expr, var, meijerg=False), seconds=6)
         if not res1.has(Integral):
             result_expr = res1
     except Exception:
@@ -260,7 +321,7 @@ def _integrate_indefinite(expr, var):
     # 2. Manual mode
     if result_expr.has(Integral):
         try:
-            res2 = _run_with_timeout(lambda: integrate(simplify(expr), var, manual=True), seconds=4)
+            res2 = _run_with_timeout(lambda: integrate(simplify(expr), var, manual=True), seconds=6)
             if not res2.has(Integral):
                 result_expr = res2
         except Exception:
@@ -269,16 +330,25 @@ def _integrate_indefinite(expr, var):
     # 3. Heurisch mode
     if result_expr.has(Integral):
         try:
-            res3 = _run_with_timeout(lambda: integrate(expr, var, heurisch=True), seconds=4)
+            res3 = _run_with_timeout(lambda: integrate(expr, var, heurisch=True), seconds=6)
             if not res3.has(Integral):
                 result_expr = res3
+        except Exception:
+            pass
+
+    # 3.5. Weierstrass Substitution (t = tan(x/2)) — ত্রিকোণমিতিক ভগ্নাংশের জন্য
+    if result_expr.has(Integral):
+        try:
+            res_w = _try_weierstrass(expr, var, seconds=6)
+            if res_w is not None:
+                result_expr = res_w
         except Exception:
             pass
 
     # 4. Quadratic Shift (Completed square)
     if result_expr.has(Integral):
         try:
-            res4 = _try_quadratic_shift(expr, var, seconds=4)
+            res4 = _try_quadratic_shift(expr, var, seconds=6)
             if res4 is not None:
                 result_expr = res4
         except Exception:
@@ -287,7 +357,7 @@ def _integrate_indefinite(expr, var):
     # 5. Binomial Differential (Chebyshev)
     if result_expr.has(Integral):
         try:
-            res_cheb = _try_binomial_differential(expr, var, seconds=4)
+            res_cheb = _try_binomial_differential(expr, var, seconds=6)
             if res_cheb is not None:
                 result_expr = res_cheb
         except Exception:
@@ -296,10 +366,23 @@ def _integrate_indefinite(expr, var):
     # 6. Default fallback & Gamma Cleanup
     if result_expr.has(Integral):
         try:
-            res5 = _run_with_timeout(lambda: integrate(expr, var), seconds=6)
+            res5 = _run_with_timeout(lambda: integrate(expr, var), seconds=10)
             if res5 is not None and not res5.has(Integral):
                 clean_res5 = gammasimp(res5)
                 result_expr = nsimplify(clean_res5, rational=True)
+        except Exception:
+            pass
+
+    # 6.5. floor() (branch-jump correction) থেকে গেলে — বইয়ের মতো সহজ ফর্ম পাওয়া যায় কিনা
+    #      Weierstrass দিয়ে আরেকবার চেষ্টা করি (stage 1-3 প্রায়ই floor()-সহ উত্তর দিয়ে আগেই
+    #      থামিয়ে দেয়, তাই stage 3.5 পর্যন্ত পৌঁছায়ই না)
+    if result_expr.has(floor):
+        try:
+            res_w2 = _try_weierstrass(expr, var, seconds=6)
+            if (res_w2 is not None and not res_w2.has(floor)
+                    and not res_w2.has(Integral)
+                    and count_ops(res_w2) <= count_ops(result_expr)):
+                result_expr = res_w2
         except Exception:
             pass
 
@@ -309,13 +392,32 @@ def _integrate_indefinite(expr, var):
     return result_expr
 
 _SPECIAL_FUNCS = (hyper, meijerg, uppergamma, lowergamma,
-                   elliptic_e, elliptic_f, elliptic_k, elliptic_pi)
+                   elliptic_e, elliptic_f, elliptic_k, elliptic_pi,
+                   erf, erfc, Si, Ci, Ei, li, polylog)
 
 def _is_non_elementary(expr) -> bool:
     try:
         return any(expr.has(f) for f in _SPECIAL_FUNCS)
     except Exception:
         return False
+
+def _series_fallback(expr, var, order=8, point=0):
+    """
+    যখন উত্তরে special function (erf, hyper, gamma...) চলে আসে — মানে কোনো elementary
+    closed-form নেই — তখন x=point-এর কাছাকাছি integrand-কে টেইলর সিরিজে ভেঙে
+    term-by-term ইন্টিগ্রেট করে একটা approximate পলিনমিয়াল দেয়।
+    এটা exact antiderivative না, শুধু point-এর কাছাকাছি বৈধ একটা আসন্ন মান —
+    তাই কখনোই মূল "result" হিসেবে ব্যবহার করা উচিত না, আলাদা field হিসেবে
+    স্পষ্ট লেবেল দিয়ে দেখানো উচিত।
+    """
+    try:
+        series_expr = expr.series(var, point, order).removeO()
+        result = integrate(series_expr, var)
+        if result is None or result.has(Integral):
+            return None
+        return result
+    except Exception:
+        return None
 
 def solve_calculus(operation: str, expression: str, variable: str = "x", order: int = 1,
                     lower=None, upper=None):
@@ -396,6 +498,30 @@ def solve_calculus(operation: str, expression: str, variable: str = "x", order: 
                     pass
 
             if result_expr.has(Integral):
+                # ৩. ক্লোজড-ফর্ম কিছুতেই না পাওয়া গেলে Numeric Quadrature দিয়ে
+                #    সরাসরি সংখ্যাসূচক আসন্ন মান বের করার চেষ্টা করি
+                numeric_only = None
+                try:
+                    numeric_only = _run_with_timeout(
+                        lambda: Integral(expr, (var, lower_expr, upper_expr)).evalf(),
+                        seconds=10,
+                    )
+                except Exception:
+                    numeric_only = None
+
+                if numeric_only is not None and numeric_only.is_number:
+                    return {
+                        "result": _format_numeric(numeric_only),
+                        "latex": _format_latex(Integral(expr, (var, lower_expr, upper_expr))),
+                        "numeric_result": _format_numeric(numeric_only),
+                        "is_numeric": True,
+                        "is_definite": True,
+                        "note": (
+                            "এই ইন্টিগ্রালের কোনো ক্লোজড-ফর্ম (elementary) উত্তর পাওয়া যায়নি, "
+                            "তাই Numeric Quadrature (সংখ্যাসূচক পদ্ধতি) দিয়ে আসন্ন মান দেওয়া হলো।"
+                        ),
+                    }
+
                 raise CalculusError("Couldn't evaluate this definite integral")
 
             numeric_val = _run_with_timeout(lambda: result_expr.evalf())
@@ -416,12 +542,20 @@ def solve_calculus(operation: str, expression: str, variable: str = "x", order: 
             )
 
         note = None
+        series_approx = None
         if _is_non_elementary(result_expr):
             note = (
                 "This integral has no elementary (algebraic/trig/exp/log) antiderivative. "
                 "The result below uses a special function (hypergeometric/elliptic/gamma), "
                 "which is mathematically correct but not standard for a textbook."
             )
+            approx = _series_fallback(expr, var)
+            if approx is not None:
+                series_approx = {
+                    "result": _format_result(approx),
+                    "latex": _format_latex(approx),
+                    "info": "x=0-এর কাছাকাছি ৮ পদের টেইলর সিরিজ থেকে পাওয়া আসন্ন মান — এটা exact উত্তর না।",
+                }
         elif var not in expr.free_symbols:
             note = f"'{var}' does not appear in the expression, so it's treated as a constant multiplier."
 
@@ -430,6 +564,7 @@ def solve_calculus(operation: str, expression: str, variable: str = "x", order: 
             "latex": _format_latex(result_expr) + " + C",
             "is_numeric": False,
             "is_definite": False,
+            "series_approx": series_approx,
             "note": note,
         }
 
