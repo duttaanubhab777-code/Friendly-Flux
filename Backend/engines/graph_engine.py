@@ -16,7 +16,7 @@ import math
 import numpy as np
 import sympy as sp
 
-from formulas.calculus_engine import (
+from engines.calculus_engine import (
     CalculusError,
     _validate_and_preprocess,
     _parse,
