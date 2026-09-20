@@ -1,0 +1,8 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment or sensitive files (যদি থাকে)
+.env
