@@ -1201,7 +1201,7 @@ def _solve_system(parts, var_hint):
             break
 
     if is_linear:
-        steps.append("This is a linear system — solving by elimination / Gaussian elimination.")
+        steps.append(step("This is a linear system — solving by elimination / Gaussian elimination."))
         extras_from_matrix = {}
         try:
             # linear_eq_to_matrix(exprs, vars) returns (A, b) for  A·x = b  with exprs = 0
@@ -1215,7 +1215,7 @@ def _solve_system(parts, var_hint):
         except Exception:
             sol = None
         if not sol:
-            steps.append("The equations contradict each other, so there is no solution.")
+            steps.append(step("The equations contradict each other, so there is no solution."))
             return {
                 "category": "linear_system", "method": "Gaussian elimination (linsolve)",
                 "steps": steps, "result": "No solution — the system is inconsistent",
@@ -1254,8 +1254,8 @@ def _solve_system(parts, var_hint):
             except Exception:
                 verification.append(None)
         steps.append(step("Solution: ", join_math(pairs)))
-        steps.append("Check: substitute the solution into every original equation → "
-                     + ("all true ✓" if all(v is True for v in verification) else "could not be fully confirmed"))
+        steps.append(step("Check: substitute the solution into every original equation → "
+                     + ("all true ✓" if all(v is True for v in verification) else "could not be fully confirmed")))
         out = {
             "category": "linear_system", "method": "Gaussian elimination (linsolve)",
             "steps": steps, "result": result_text, "result_latex": result_tex,
@@ -1268,7 +1268,7 @@ def _solve_system(parts, var_hint):
         add_extra(out, "unknowns", str(len(variables)), str(len(variables)))
         return out
 
-    steps.append("This system is nonlinear — solving symbolically.")
+    steps.append(step("This system is nonlinear — solving symbolically."))
     try:
         sols = _timed(lambda: solve(eqs, variables, dict=True))
     except Exception:
@@ -1348,7 +1348,7 @@ def _finish(result, raw_input, clean_text):
     return result
 
 
-def solve_algebra(raw_input: str, variable: str = None) -> dict:
+def solve_algebra(raw_input: str, variable:   None) -> dict:
     """Main entry point. See the module docstring for the return shape."""
     clean = preprocess(raw_input)
     ctx = Ctx()

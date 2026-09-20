@@ -18,7 +18,7 @@ Inside equations a determinant is just a number, so this also works:
 import re
 
 from sympy import (
-    Matrix, MatrixBase, Symbol, S, Rational, eye, simplify, expand, factor,
+    Matrix, MatrixBase, Symbol, S, Rational, eye, simplify, expand, factor,Float,
     nsimplify, Poly, roots as sym_roots,
 )
 
@@ -81,10 +81,10 @@ def _strip_nested(text):
 
 
 def _clean_entry(value):
-    if hasattr(value, "has") and value.has(S.Float.__class__) is False:
+    if hasattr(value, "has") and value.has(Float.__class__) is False:
         pass
     try:
-        if value.atoms(S.Float.__class__ if False else __import__("sympy").Float):
+        if value.atoms(Float.__class__ if False else __import__("sympy").Float):
             return nsimplify(value, rational=True)
     except Exception:
         pass

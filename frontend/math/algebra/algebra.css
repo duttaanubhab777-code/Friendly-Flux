@@ -1,0 +1,148 @@
+/* ==================================================================
+   Algebra Solver — "Cosmic Nebula" Theme
+   Matching the Geometry 3D structure but with Violet/Pink/Cyan
+================================================================== */
+
+.algebra-tool {
+    --alg-p1: #8b5cf6; /* Violet */
+    --alg-p2: #ec4899; /* Pink */
+    --alg-p3: #0ea5e9; /* Cyan */
+    --alg-grad: linear-gradient(135deg, var(--alg-p1), var(--alg-p2), var(--alg-p3));
+    
+    background: var(--card-bg);
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px);
+    border: 1.5px solid rgba(139, 92, 246, 0.3);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: 0 16px 40px -10px rgba(139, 92, 246, 0.15);
+    position: relative;
+    isolation: isolate;
+    overflow: visible;
+    margin-bottom: 40px;
+    animation: fadeSlideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.algebra-tool::before {
+    content: ""; 
+    position: absolute; 
+    inset: -35px; 
+    border-radius: 50%;
+    background: conic-gradient(from 90deg, var(--alg-p1), var(--alg-p2), var(--alg-p3), var(--alg-p1));
+    filter: blur(80px); 
+    opacity: 0.18; 
+    z-index: -1;
+    animation: spinGlow 25s linear infinite;
+}
+
+[data-theme="dark"] .algebra-tool::before { opacity: 0.35; }
+[data-theme="dark"] .algebra-tool {
+    --alg-p1: #a78bfa; --alg-p2: #f472b6; --alg-p3: #38bdf8;
+    border-color: rgba(167, 139, 250, 0.2);
+}
+
+/* ================= Category Tabs (Like Geometry Pills) ================= */
+.alg-category-row {
+    display: flex; gap: 12px; overflow-x: auto; padding-bottom: 12px; margin-bottom: 20px;
+    scrollbar-width: none; scroll-behavior: smooth;
+}
+.alg-category-row::-webkit-scrollbar { display: none; }
+
+.alg-cat-btn {
+    flex-shrink: 0; white-space: nowrap; padding: 10px 22px; 
+    border-radius: 999px; border: 1.5px solid var(--border); 
+    background: var(--card-bg-solid); color: var(--text-main); 
+    font-weight: 700; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+    font-size: 0.95rem;
+}
+
+.alg-cat-btn:hover {
+    border-color: var(--alg-p1); color: var(--alg-p1); 
+    box-shadow: 0 6px 15px -4px color-mix(in srgb, var(--alg-p1) 40%, transparent); 
+    transform: translateY(-2px);
+}
+
+.alg-cat-btn:active { transform: scale(0.95); }
+
+.alg-cat-btn.active {
+    background: var(--alg-grad); background-size: 200% 200%; color: #ffffff;
+    border-color: transparent; animation: gradientShift 5s ease infinite;
+    box-shadow: 0 8px 20px -6px color-mix(in srgb, var(--alg-p2) 70%, transparent);
+}
+
+/* ================= Inputs & Selects ================= */
+.alg-select, .alg-num-input, #algebra-input, #algebra-var-input {
+    padding: 15px; border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+    background: var(--card-bg-solid); color: var(--text-main); font-size: 1.05rem;
+    font-family: 'Consolas', monospace; font-weight: 600; transition: all 0.3s;
+    appearance: none; width: 100%;
+}
+
+.alg-select:focus, .alg-num-input:focus, #algebra-input:focus, #algebra-var-input:focus {
+    border-color: var(--alg-p1); outline: none; transform: translateY(-2px);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--alg-p1) 20%, transparent), 
+                0 6px 20px -6px color-mix(in srgb, var(--alg-p1) 30%, transparent);
+}
+#algebra-input { resize: vertical; margin-bottom: 15px; }
+
+/* ================= Panels (Like Composite Group) ================= */
+.alg-panel {
+    background: color-mix(in srgb, var(--alg-p1) 4%, transparent);
+    border: 1.5px dashed color-mix(in srgb, var(--alg-p1) 40%, transparent);
+    padding: 20px; border-radius: var(--radius-sm); margin-bottom: 20px;
+    animation: popIn 0.4s ease;
+}
+
+.alg-panel-header { display: flex; gap: 15px; align-items: center; margin-bottom: 20px; flex-wrap: wrap; }
+.alg-panel-header label { font-size: 1.05rem; font-weight: 800; color: var(--alg-p1); text-transform: uppercase; }
+
+/* ================= Matrices ================= */
+.matrix-container-wrapper { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+.matrix-box { text-align: center; width: 100%; max-width: 250px; }
+.matrix-header { margin-bottom: 15px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.matrix-title { font-size: 1.05rem; font-weight: 800; color: var(--alg-p1); text-transform: uppercase; letter-spacing: 1px; }
+
+.alg-mat-stepper { display: flex; gap: 10px; align-items: center; }
+.alg-mat-stepper .alg-num-input { padding: 8px; text-align: center; }
+.mat-size-cross { font-weight: bold; color: var(--text-muted); font-size: 1.2rem; }
+
+.mat-grid { display: grid; gap: 10px; justify-content: center; margin-top: 15px; }
+.mat-grid input { padding: 15px 5px; text-align: center; }
+
+/* ================= Linear Systems ================= */
+.linsys-grid { display: flex; flex-direction: column; gap: 15px; width: 100%; }
+
+/* ================= Action Button & Live Preview ================= */
+.algebra-tool .primary-btn {
+    background: var(--alg-grad); background-size: 200% 200%; border: none; width: 100%;
+    animation: gradientShift 5s ease infinite, pulseRingAlg 3.2s ease infinite; margin-top: 25px;
+}
+.algebra-tool .primary-btn:hover {
+    box-shadow: 0 16px 30px -10px color-mix(in srgb, var(--alg-p1) 85%, transparent); transform: translateY(-2px);
+}
+
+@keyframes pulseRingAlg {
+    0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--alg-p1) 60%, transparent), var(--shadow); }
+    70% { box-shadow: 0 0 0 16px color-mix(in srgb, var(--alg-p1) 0%, transparent), var(--shadow); }
+    100% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--alg-p1) 0%, transparent), var(--shadow); }
+}
+
+.alg-live-preview {
+    min-height: 60px; display: flex; align-items: center; justify-content: center;
+    margin-top: 15px; padding: 15px; font-size: 1.3rem; color: var(--alg-p1);
+    background: color-mix(in srgb, var(--alg-p1) 5%, transparent);
+    border: 1px dashed var(--alg-p1); border-radius: var(--radius-sm); overflow-x: auto;
+}
+[data-theme="dark"] .alg-live-preview { color: var(--alg-p3); }
+
+/* ================= Result Card ================= */
+.algebra-tool #algebra-result-card {
+    margin-top: 25px; border: 2px solid transparent;
+    background: linear-gradient(var(--card-bg-solid), var(--card-bg-solid)) padding-box, var(--alg-grad) border-box;
+    border-radius: var(--radius); padding: 22px; position: relative;
+    box-shadow: 0 12px 35px -10px color-mix(in srgb, var(--alg-p1) 40%, transparent);
+    animation: fadeSlideIn 0.4s ease;
+}
+.algebra-tool .result-card-head { font-size: 1.15rem; font-weight: 800; color: var(--text-muted); margin-bottom: 12px; text-transform: uppercase; }
+.algebra-tool #algebra-result-text { font-size: 1.8rem; font-family: var(--font-display); color: var(--alg-p1); margin-bottom: 20px; word-break: break-word; text-align: left; }
+[data-theme="dark"] .algebra-tool #algebra-result-text { color: var(--alg-p3); }
