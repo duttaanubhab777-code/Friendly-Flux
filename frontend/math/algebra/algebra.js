@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     // =====================================================================
-    // ১. DOM Elements Selection (Safe check)
+    // ১. DOM Elements Selection
     // =====================================================================
     const catBtns = document.querySelectorAll(".alg-cat-btn");
     const inputModes = document.querySelectorAll(".alg-input-mode");
@@ -20,35 +20,28 @@ document.addEventListener("DOMContentLoaded", () => {
     const copyResultBtn = document.getElementById("algebra-copy-result-btn");
     const resultActions = document.getElementById("algebra-result-actions");
 
-    let currentCat = "general"; // ডিফল্ট মোড
+    let currentCat = "general";
 
     // =====================================================================
-    // ২. Category Tab Switching (UI Fix)
+    // ২. Category Tab Switching
     // =====================================================================
     function switchCategory(targetCat) {
         currentCat = targetCat;
-        
-        // সব বাটন থেকে active ক্লাস সরানো
         catBtns.forEach(b => b.classList.remove("active"));
         const targetBtn = document.querySelector(`.alg-cat-btn[data-cat="${targetCat}"]`);
         if(targetBtn) targetBtn.classList.add("active");
 
-        // সব ইনপুট প্যানেল লুকানো
         inputModes.forEach(mode => mode.classList.add("hidden"));
-        
-        // শুধু টার্গেট প্যানেল দেখানো
         const activePanel = document.getElementById(`alg-mode-${targetCat}`);
         if(activePanel) activePanel.classList.remove("hidden");
     }
 
-    // বাটনে ক্লিক ইভেন্ট অ্যাড করা
     catBtns.forEach(btn => {
         btn.addEventListener("click", () => {
             switchCategory(btn.dataset.cat);
         });
     });
 
-    // শুরুতে শুধু general ট্যাব ওপেন রাখা (যাতে UI ওভারল্যাপ না করে)
     switchCategory("general");
 
     // =====================================================================
@@ -95,7 +88,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     }
-    buildMatrices(); // Initial Render
+    buildMatrices();
 
     function getMatrixString(gridId, rowsId, colsId) {
         const grid = document.getElementById(gridId);
@@ -123,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const linsysSize = document.getElementById("linsys-size");
     const linsysGrid = document.getElementById("linsys-grid");
 
-        function buildLinsys() {
+    function buildLinsys() {
         if(!linsysSize || !linsysGrid) return;
         const size = parseInt(linsysSize.value) || 2;
         linsysGrid.innerHTML = "";
@@ -136,7 +129,6 @@ document.addEventListener("DOMContentLoaded", () => {
             wrapper.style.width = "100%";
             
             const lbl = document.createElement("span");
-            // ভাষা অনুযায়ী Eq বা সমীকরণ দেখাবে
             lbl.innerText = (window.currentLang === "bn" ? `সমীকরণ ${i}:` : `Eq ${i}:`);
             lbl.style.color = "var(--text-color)";
             lbl.style.fontWeight = "bold";
@@ -146,7 +138,6 @@ document.addEventListener("DOMContentLoaded", () => {
             inp.className = "alg-select";
             inp.style.flex = "1";
             
-            // ভাষা অনুযায়ী Placeholder দেখাবে
             if (i === 1) {
                 inp.placeholder = window.currentLang === "bn" ? "যেমন: 2x + 3y = 7" : "e.g. 2x + 3y = 7";
             } else {
@@ -202,7 +193,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             previewTimeout = setTimeout(() => {
                 genPreview.classList.remove("hidden");
-                // MathJax বা KaTeX দিয়ে রেন্ডার
                 try {
                     katex.render(`\\displaystyle ${val.replace(/;/g, '\\quad ; \\quad')}`, genPreview, { throwOnError: false });
                 } catch(e) {
@@ -213,16 +203,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =====================================================================
-    // ৭. Translation Helper (গণিত সুরক্ষিত রেখে অনুবাদ)
+    // ৭. Translation & Status Helper (যেটা হারিয়ে গেছিল)
     // =====================================================================
     function t(text) {
         if (!window.algTranslate) return text;
         if (!text) return "";
-        
-        // নতুন কন্ডিশন: ভাষা ইংরেজি থাকলে কোনো অনুবাদ হবে না, সরাসরি আসল লেখাটাই দেখাবে
-        if (window.currentLang === "en") {
-            return text;
-        }
+        if (window.currentLang === "en") return text;
         
         const mathBlocks = [];
         let processed = text.replace(/(\\\(.*?\\\)|\\\[.*?\\\]|\$\$.*?\$\$)/g, (match) => {
@@ -239,20 +225,24 @@ document.addEventListener("DOMContentLoaded", () => {
         return processed;
     }
 
-    
+    // এই ফাংশনটি ডিলিট হয়ে গেছিল! এটি ছাড়া কোড এরর দেবে।
+    function showStatus(msg, isError) {
+        if(!statusDiv) return;
+        statusDiv.innerHTML = `<span style="color: ${isError ? 'var(--error-color, #ef4444)' : 'inherit'}">${msg}</span>`;
+    }
+
 
     // =====================================================================
-    // ৮. Main API Call & Render
+    // ৮. Main API Call & Render (বাটন হ্যাং ফিক্স সহ)
     // =====================================================================
     if(btnSolve) {
         btnSolve.addEventListener("click", async () => {
             let finalInput = "";
             let varTarget = document.getElementById("algebra-var-input") ? document.getElementById("algebra-var-input").value.trim() : "";
 
-            // ইনপুট ফরম্যাট তৈরি
             if (currentCat === "general") {
                 finalInput = genInput.value.trim();
-                if(!finalInput) return showStatus("Please enter an expression.", true);
+                if(!finalInput) return showStatus(window.currentLang === "bn" ? "দয়া করে একটি গাণিতিক সমস্যা লিখুন।" : "Please enter an expression.", true);
             } 
             else if (currentCat === "matrix") {
                 const op = matOp.value;
@@ -269,7 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const inps = linsysGrid.querySelectorAll("input");
                 let eqs = [];
                 inps.forEach(i => { if(i.value.trim()) eqs.push(i.value.trim()); });
-                if(eqs.length === 0) return showStatus("Please enter at least one equation.", true);
+                if(eqs.length === 0) return showStatus(window.currentLang === "bn" ? "অন্তত একটি সমীকরণ লিখুন।" : "Please enter at least one equation.", true);
                 finalInput = eqs.join(" ; ");
             }
             else if (currentCat === "combinatorics") {
@@ -289,10 +279,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            // Loading state
+            // Loading state (Language Aware)
             btnSolve.disabled = true;
             spinner.classList.remove("hidden");
-            btnText.innerText = "Solving...";
+            btnText.innerText = window.currentLang === "bn" ? "সমাধান হচ্ছে..." : "Solving..."; 
             showStatus("", false);
             resultCard.classList.add("hidden");
             stepsList.classList.add("hidden");
@@ -300,13 +290,17 @@ document.addEventListener("DOMContentLoaded", () => {
             resultActions.classList.add("hidden");
             
             try {
-                // API Call (geometry3d.js এবং math.js এর মতো window.getApiBase() ব্যবহার করা হলো)
                 const apiBase = (typeof window.getApiBase === 'function') ? window.getApiBase() : "";
                 const res = await fetch(`${apiBase}/api/algebra/solve`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ input: finalInput, variable: varTarget })
                 });
+                
+                // সার্ভার এরর হলে বাটন যেন আটকে না থাকে
+                if (!res.ok) {
+                    throw new Error(`Server Error: ${res.status}`);
+                }
                 
                 const data = await res.json();
                 
@@ -315,13 +309,29 @@ document.addEventListener("DOMContentLoaded", () => {
                     return;
                 }
 
+                // ==========================================
+                // FIX: পাইথন থেকে আসা LaTeX এররগুলো ক্লিন করা
+                // ==========================================
+                function fixLatex(str) {
+                    if (!str || typeof str !== "string") return str;
+                    // \text ভুল করে Tab (\t) হয়ে গেলে তা ঠিক করা এবং \quad এর পর স্পেস দেওয়া
+                    return str.replace(/\text/g, "\\text").replace(/\\quad([a-zA-Z])/g, "\\quad $1");
+                }
+                
+                data.raw_latex = fixLatex(data.raw_latex);
+                data.result_latex = fixLatex(data.result_latex);
+                if (data.steps_latex) data.steps_latex = data.steps_latex.map(fixLatex);
+                if (data.steps) data.steps = data.steps.map(fixLatex);
+                // ==========================================
+
                 // ১. Problem/Input Render
-                resultHead.innerHTML = `<h4>Problem:</h4> <div class="math-result-large">\\( ${data.raw_latex || data.clean_input || finalInput} \\)</div>`;
+
+                resultHead.innerHTML = `<h4>${window.currentLang === "bn" ? "সমস্যা:" : "Problem:"}</h4> <div class="math-result-large">\\( ${data.raw_latex || data.clean_input || finalInput} \\)</div>`;
                 
                 // ২. Result Render
                 let resStr = data.result_latex ? `\\( ${data.result_latex} \\)` : (data.result || "");
-                resultText.innerHTML = `<h4>Result:</h4> <div class="math-result-large">${resStr}</div>`;
-                resultText.dataset.plainText = data.result; // Copy করার জন্য
+                resultText.innerHTML = `<h4>${window.currentLang === "bn" ? "ফলাফল:" : "Result:"}</h4> <div class="math-result-large">${resStr}</div>`;
+                resultText.dataset.plainText = data.result;
                 
                 // ৩. Extra Text Render
                 if (data.text) {
@@ -343,7 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const stepsArr = data.steps_latex || data.steps || [];
                 if (stepsArr.length > 0) {
                     stepsToggle.classList.remove("hidden");
-                    stepsToggle.querySelector("span").innerText = "Show working";
+                    stepsToggle.querySelector("span").innerText = window.currentLang === "bn" ? "ধাপগুলো দেখুন" : "Show working";
                     stepsList.innerHTML = "";
                     stepsArr.forEach(step => {
                         const li = document.createElement("li");
@@ -357,7 +367,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 resultCard.classList.remove("hidden");
                 resultActions.classList.remove("hidden");
                 
-                // Math রেন্ডার করা (KaTeX / MathJax)
                 if (window.renderMathInElement) {
                     renderMathInElement(resultCard, {
                         delimiters: [
@@ -368,28 +377,32 @@ document.addEventListener("DOMContentLoaded", () => {
                     });
                 }
                 
-                // Smooth scroll
                 resultCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
             } catch (err) {
                 console.error(err);
-                showStatus("Network error: Could not reach the server.", true);
+                showStatus(window.currentLang === "bn" ? "নেটওয়ার্ক এরর: সার্ভারের সাথে যোগাযোগ করা যাচ্ছে না।" : "Network error: Could not reach the server.", true);
             } finally {
                 btnSolve.disabled = false;
                 spinner.classList.add("hidden");
-                btnText.innerText = "Solve";
+                btnText.innerText = window.currentLang === "bn" ? "সমাধান করো" : "Solve";
             }
         });
     }
 
     // =====================================================================
-    // ৯. Steps & Copy Buttons
+    // ৯. Steps & Copy Buttons (Language Aware)
     // =====================================================================
     if(stepsToggle) {
         stepsToggle.addEventListener("click", () => {
             stepsList.classList.toggle("hidden");
             const span = stepsToggle.querySelector("span");
-            span.innerText = stepsList.classList.contains("hidden") ? "Show working" : "Hide working";
+            const isHidden = stepsList.classList.contains("hidden");
+            if (window.currentLang === "bn") {
+                span.innerText = isHidden ? "ধাপগুলো দেখুন" : "ধাপগুলো লুকান";
+            } else {
+                span.innerText = isHidden ? "Show working" : "Hide working";
+            }
         });
     }
 
@@ -398,7 +411,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const txt = resultText.dataset.plainText || resultText.innerText;
             navigator.clipboard.writeText(txt).then(() => {
                 const original = copyResultBtn.innerText;
-                copyResultBtn.innerText = "Copied!";
+                copyResultBtn.innerText = window.currentLang === "bn" ? "কপি হয়েছে!" : "Copied!";
                 setTimeout(() => { copyResultBtn.innerText = original; }, 1500);
             });
         });
