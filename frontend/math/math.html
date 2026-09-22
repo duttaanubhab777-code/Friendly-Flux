@@ -332,44 +332,39 @@
     
         </section>
 
-        <!-- ================= Algebra Tool ================= -->
-        <div style="text-align: center; margin: 60px 0 30px 0; padding-top: 40px; border-top: 2px dashed var(--border-color, #d1d5db);">
-            <h2 style="font-family: 'Kalam', cursive; font-size: 2.2rem; color: var(--text-color);">Algebra Problem Solver</h2>
-            <p style="color: var(--text-muted);">Simplify expressions, solve equations, inequalities and systems — with full steps.</p>
-        </div>
+                   <!-- ================= Algebra Tool ================= -->
+<div class="alg-section-header" style="text-align: center; margin: 60px 0 30px 0; padding-top: 40px; border-top: 2px dashed var(--border-color, #d1d5db);">
+            <h2 class="alg-main-title" style="font-family: 'Kalam', cursive; font-size: 2.2rem; color: var(--text-color);" data-lang="algHeroTitle">Algebra Problem Solver</h2>
+            <p class="alg-subtitle" style="color: var(--text-muted);" data-lang="algHeroSub">Select a category and solve equations, matrices, systems, and more — with full steps.</p>
+</div>
 
-              <!-- ================= Algebra Tool ================= -->
+
+      
         
 
-        <!-- এই অত্যন্ত জরুরি লাইনটি আপনার কোডে মিসিং ছিল! -->
         <section class="algebra-tool" id="tool-algebra">
-   
-        
-
-        
             
             <!-- Category Selector -->
-            <label class="field-label">Problem Category</label>
+            <label class="field-label" data-lang="algCategoryLabel">Problem Category</label>
             <div class="alg-category-row" id="alg-category-row">
-                <button type="button" class="tool-tab alg-cat-btn active" data-cat="general">Equations & Expr</button>
-                <button type="button" class="tool-tab alg-cat-btn" data-cat="matrix">Matrices</button>
-                <button type="button" class="tool-tab alg-cat-btn" data-cat="linsys">Linear Systems</button>
-                <button type="button" class="tool-tab alg-cat-btn" data-cat="combinatorics">Combinatorics</button>
+                <button type="button" class="tool-tab alg-cat-btn active" data-cat="general" data-lang="algTabGeneral">Equations & Expr</button>
+                <button type="button" class="tool-tab alg-cat-btn" data-cat="matrix" data-lang="algTabMatrix">Matrices</button>
+                <button type="button" class="tool-tab alg-cat-btn" data-cat="linsys" data-lang="algTabLinsys">Linear Systems</button>
+                <button type="button" class="tool-tab alg-cat-btn" data-cat="combinatorics" data-lang="algTabComb">Combinatorics</button>
             </div>
 
             <!-- ================= 1. General Equations & Expressions ================= -->
             <div id="alg-mode-general" class="alg-input-mode">
                 <div class="example-row" id="algebra-example-row"></div>
-                <label class="field-label" for="algebra-input">Write your problem here</label>
-                <textarea id="algebra-input" rows="2" placeholder="e.g. x^2-5x+6=0   or   |x-3|<5"></textarea>
+                <label class="field-label" for="algebra-input" data-lang="algInputLabel">Write your problem here</label>
+                <textarea id="algebra-input" rows="2" data-lang="algInputPlaceholder" placeholder="e.g. x^2-5x+6=0   or   |x-3|<5"></textarea>
                 
-                <!-- Live Preview -->
                 <div id="algebra-expr-preview" class="expr-preview alg-live-preview hidden"></div>
 
                 <div class="field-row alg-var-row">
                     <div class="field-item alg-var-item">
-                        <label class="field-label alg-var-label" for="algebra-var-input">Solve for (optional)</label>
-                        <input type="text" id="algebra-var-input" placeholder="auto">
+                        <label class="field-label alg-var-label" for="algebra-var-input" data-lang="algVarLabel">Solve for (optional)</label>
+                        <input type="text" id="algebra-var-input" data-lang="algVarPlaceholder" placeholder="auto">
                     </div>
                 </div>
             </div>
@@ -377,24 +372,23 @@
             <!-- ================= 2. Matrices & Determinants ================= -->
             <div id="alg-mode-matrix" class="alg-input-mode alg-panel hidden">
                 <div class="alg-panel-header">
-                    <label class="field-label alg-m-0">Operation:</label>
+                    <label class="field-label alg-m-0" data-lang="algMatrixOp">Operation:</label>
                     <select id="alg-matrix-op" class="alg-select">
-                        <option value="det">Determinant</option>
-                        <option value="inv">Inverse</option>
-                        <option value="transpose">Transpose</option>
-                        <option value="rank">Rank</option>
-                        <option value="trace">Trace</option>
-                        <option value="eigen">Eigenvalues & Vectors</option>
-                        <option value="add">A + B</option>
-                        <option value="multiply">A × B</option>
+                        <option value="det" data-lang="algOpDet">Determinant</option>
+                        <option value="inv" data-lang="algOpInv">Inverse</option>
+                        <option value="transpose" data-lang="algOpTrans">Transpose</option>
+                        <option value="rank" data-lang="algOpRank">Rank</option>
+                        <option value="trace" data-lang="algOpTrace">Trace</option>
+                        <option value="eigen" data-lang="algOpEigen">Eigenvalues & Vectors</option>
+                        <option value="add" data-lang="algOpAdd">A + B</option>
+                        <option value="multiply" data-lang="algOpMul">A × B</option>
                     </select>
                 </div>
                 
                 <div id="matrix-container-wrapper" class="matrix-container-wrapper">
-                    <!-- Matrix A -->
                     <div class="matrix-box" id="matrix-a-box">
                         <div class="matrix-header">
-                            <span class="matrix-title">Matrix A</span>
+                            <span class="matrix-title" data-lang="algMatrixA">Matrix A</span>
                             <div class="stepper alg-mat-stepper">
                                 <input type="number" id="mat-a-rows" class="alg-num-input" value="2" min="1" max="4">
                                 <span class="mat-size-cross">×</span>
@@ -404,10 +398,9 @@
                         <div id="mat-a-grid" class="mat-grid"></div>
                     </div>
 
-                    <!-- Matrix B (Hidden by default) -->
                     <div class="matrix-box hidden" id="matrix-b-box">
                         <div class="matrix-header">
-                            <span class="matrix-title">Matrix B</span>
+                            <span class="matrix-title" data-lang="algMatrixB">Matrix B</span>
                             <div class="stepper alg-mat-stepper">
                                 <input type="number" id="mat-b-rows" class="alg-num-input" value="2" min="1" max="4">
                                 <span class="mat-size-cross">×</span>
@@ -419,25 +412,25 @@
                 </div>
             </div>
 
-            <!-- ================= 3. Linear Systems (AX = B) ================= -->
+            <!-- ================= 3. Linear Systems ================= -->
             <div id="alg-mode-linsys" class="alg-input-mode alg-panel hidden">
                 <div class="alg-panel-header">
-                    <label class="field-label alg-m-0">Number of Equations/Variables:</label>
+                    <label class="field-label alg-m-0" data-lang="algLinsysSize">Number of Equations/Variables:</label>
                     <input type="number" id="linsys-size" class="alg-select alg-text-center" value="2" min="2" max="5">
                 </div>
                 <div id="linsys-grid" class="linsys-grid">
-                    <!-- JS দিয়ে লিনিয়ার ইকুয়েশনের ইনপুট তৈরি হবে -->
+                    <!-- JS দিয়ে ইনপুট তৈরি হবে -->
                 </div>
             </div>
 
             <!-- ================= 4. Combinatorics ================= -->
             <div id="alg-mode-combinatorics" class="alg-input-mode alg-panel hidden">
                 <div class="alg-panel-header">
-                    <label class="field-label alg-m-0">Type:</label>
+                    <label class="field-label alg-m-0" data-lang="algCombType">Type:</label>
                     <select id="alg-comb-type" class="alg-select">
-                        <option value="ncr">Combination (nCr)</option>
-                        <option value="npr">Permutation (nPr)</option>
-                        <option value="binomial">Binomial Expansion (x+y)ⁿ</option>
+                        <option value="ncr" data-lang="algCombNcr">Combination (nCr)</option>
+                        <option value="npr" data-lang="algCombNpr">Permutation (nPr)</option>
+                        <option value="binomial" data-lang="algCombBinom">Binomial Expansion (x+y)ⁿ</option>
                     </select>
                 </div>
                 <div class="field-row" id="comb-n-r-inputs">
@@ -453,12 +446,12 @@
                 <!-- Binomial variables -->
                 <div class="field-row hidden" id="comb-binom-inputs">
                     <div class="field-item">
-                        <label class="field-label">Term 1 (a)</label>
-                        <input type="text" id="comb-a" value="x" placeholder="e.g. 2x">
+                        <label class="field-label" data-lang="algTerm1">Term 1 (a)</label>
+                        <input type="text" id="comb-a" value="x" data-lang="algTerm1Place" placeholder="e.g. 2x">
                     </div>
                     <div class="field-item">
-                        <label class="field-label">Term 2 (b)</label>
-                        <input type="text" id="comb-b" value="y" placeholder="e.g. 3y">
+                        <label class="field-label" data-lang="algTerm2">Term 2 (b)</label>
+                        <input type="text" id="comb-b" value="y" data-lang="algTerm2Place" placeholder="e.g. 3y">
                     </div>
                 </div>
             </div>
@@ -468,7 +461,7 @@
 
             <button id="algebra-solve-btn" class="primary-btn alg-mt-20">
                 <span id="algebra-solve-btn-spinner" class="spinner hidden"></span>
-                <span id="algebra-solve-btn-text">Solve</span>
+                <span id="algebra-solve-btn-text" data-lang="solveBtn">Solve</span>
             </button>
 
             <div id="algebra-result-card" class="result-card hidden">
@@ -477,16 +470,17 @@
                 <div class="result-card-extra hidden" id="algebra-result-extra"></div>
                 <div class="result-card-note hidden" id="algebra-result-note"></div>
 
-                <button type="button" class="steps-toggle hidden" id="algebra-steps-toggle"><span>Show working</span></button>
+                <button type="button" class="steps-toggle hidden" id="algebra-steps-toggle">
+                    <span data-lang="showSteps">Show working</span>
+                </button>
                 <ol class="steps-list hidden" id="algebra-steps-list"></ol>
 
                 <div class="result-card-actions hidden" id="algebra-result-actions">
-                    <button type="button" class="copy-btn" id="algebra-copy-result-btn">Copy result</button>
+                    <button type="button" class="copy-btn" id="algebra-copy-result-btn" data-lang="copyBtn">Copy result</button>
                 </div>
             </div>
-        
-
         </section>
+                             
     </main>
 
     <footer class="ff-footer">
@@ -503,6 +497,7 @@
 
     <script src="core/lang.js"></script>
     <script src="geometry/geometrylang.js"></script>
+  <script src="algebra/algebra-lang.js"></script>
     
     <script>
       window.MathJax = {

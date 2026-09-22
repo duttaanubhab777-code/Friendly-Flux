@@ -123,7 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const linsysSize = document.getElementById("linsys-size");
     const linsysGrid = document.getElementById("linsys-grid");
 
-    function buildLinsys() {
+        function buildLinsys() {
         if(!linsysSize || !linsysGrid) return;
         const size = parseInt(linsysSize.value) || 2;
         linsysGrid.innerHTML = "";
@@ -136,7 +136,8 @@ document.addEventListener("DOMContentLoaded", () => {
             wrapper.style.width = "100%";
             
             const lbl = document.createElement("span");
-            lbl.innerText = `Eq ${i}:`;
+            // ভাষা অনুযায়ী Eq বা সমীকরণ দেখাবে
+            lbl.innerText = (window.currentLang === "bn" ? `সমীকরণ ${i}:` : `Eq ${i}:`);
             lbl.style.color = "var(--text-color)";
             lbl.style.fontWeight = "bold";
             
@@ -144,13 +145,20 @@ document.addEventListener("DOMContentLoaded", () => {
             inp.type = "text";
             inp.className = "alg-select";
             inp.style.flex = "1";
-            inp.placeholder = i === 1 ? "e.g. 2x + 3y = 7" : "e.g. x - y = 1";
+            
+            // ভাষা অনুযায়ী Placeholder দেখাবে
+            if (i === 1) {
+                inp.placeholder = window.currentLang === "bn" ? "যেমন: 2x + 3y = 7" : "e.g. 2x + 3y = 7";
+            } else {
+                inp.placeholder = window.currentLang === "bn" ? "যেমন: x - y = 1" : "e.g. x - y = 1";
+            }
             
             wrapper.appendChild(lbl);
             wrapper.appendChild(inp);
             linsysGrid.appendChild(wrapper);
         }
     }
+
     if(linsysSize) linsysSize.addEventListener("input", buildLinsys);
     buildLinsys();
 
@@ -211,6 +219,11 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!window.algTranslate) return text;
         if (!text) return "";
         
+        // নতুন কন্ডিশন: ভাষা ইংরেজি থাকলে কোনো অনুবাদ হবে না, সরাসরি আসল লেখাটাই দেখাবে
+        if (window.currentLang === "en") {
+            return text;
+        }
+        
         const mathBlocks = [];
         let processed = text.replace(/(\\\(.*?\\\)|\\\[.*?\\\]|\$\$.*?\$\$)/g, (match) => {
             mathBlocks.push(match);
@@ -226,10 +239,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return processed;
     }
 
-    function showStatus(msg, isError) {
-        if(!statusDiv) return;
-        statusDiv.innerHTML = `<span style="color: ${isError ? 'var(--error-color, #ef4444)' : 'inherit'}">${msg}</span>`;
-    }
+    
 
     // =====================================================================
     // ৮. Main API Call & Render
