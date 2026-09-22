@@ -2,20 +2,22 @@
 
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:4F46E5,50:7C3AED,100:EC4899&height=220&section=header&text=Friendly%20Flux&fontSize=68&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Solve%20Physics%20%7C%20Chemistry%20%7C%20Mathematics%20%E2%80%94%20Step%20by%20Step&descAlignY=58&descSize=20" width="100%" alt="Friendly Flux banner"/>
 
-[![Typing SVG](https://readme-typing-svg.demolab.com/?font=Fira+Code&weight=600&size=22&duration=2800&pause=900&color=7C3AED&center=true&vCenter=true&multiline=true&repeat=true&width=760&height=100&lines=Symbolic+Calculus+%2B+Algebra+%2B+3D+Geometry+Engine;Forward-Chaining+Physics+%26+Chemistry+Solver;Snap+a+Photo+%E2%86%92+Auto-Read+the+Expression+(Gemini+Vision);Bilingual+%C2%B7+Light%2FDark+%C2%B7+Mobile-First+UI)](https://git.io/typing-svg)
+[![Typing SVG](https://readme-typing-svg.demolab.com/?font=Fira+Code&weight=600&size=22&duration=3000&pause=900&color=7C3AED&center=true&vCenter=true&multiline=true&repeat=true&width=760&height=100&lines=Symbolic+Calculus+%2B+Algebra+%2B+3D+Geometry;Forward-Chaining+%26+Simultaneous+Physics+Solver;Snap+a+Photo+%E2%86%92+Auto-Read+the+Expression+(Gemini);Bilingual+%C2%B7+Light%2FDark+%C2%B7+Mobile-First+UI)](https://git.io/typing-svg)
 
 <p>
-  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"/>
+  <img src="https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"/>
   <img src="https://img.shields.io/badge/Flask-3.0-000000?style=for-the-badge&logo=flask&logoColor=white" alt="Flask"/>
   <img src="https://img.shields.io/badge/SymPy-1.13-3B5526?style=for-the-badge&logo=python&logoColor=white" alt="SymPy"/>
   <img src="https://img.shields.io/badge/NumPy-013243?style=for-the-badge&logo=numpy&logoColor=white" alt="NumPy"/>
-  <img src="https://img.shields.io/badge/Google_Gemini_Vision-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white" alt="Gemini Vision"/>
+  <img src="https://img.shields.io/badge/Google_Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white" alt="Google Gemini"/>
 </p>
 <p>
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5"/>
   <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3"/>
   <img src="https://img.shields.io/badge/JavaScript-ES6-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript"/>
   <img src="https://img.shields.io/badge/Chart.js-FF6384?style=for-the-badge&logo=chartdotjs&logoColor=white" alt="Chart.js"/>
+  <img src="https://img.shields.io/badge/Plotly-3F4F75?style=for-the-badge&logo=plotly&logoColor=white" alt="Plotly"/>
+  <img src="https://img.shields.io/badge/KaTeX-31B5B1?style=for-the-badge&logo=katex&logoColor=white" alt="KaTeX"/>
   <img src="https://img.shields.io/badge/MathJax-1B4E5F?style=for-the-badge&logo=mathworks&logoColor=white" alt="MathJax"/>
 </p>
 <p>
@@ -91,7 +93,7 @@ Mathematics is the deepest module, made of four independent engines that all liv
 
 ### 🚀 Physics
 
-- A shared **hybrid forward-chaining formula engine**: give it whatever values you already know, and it automatically figures out *which* formulas apply and *in what order* to reach your target variable — showing every intermediate step. Includes an auto-deadlock breaker for simultaneous-equation cases where straightforward forward chaining stalls.
+- **Dual-Engine Architecture:** Features a **hybrid forward-chaining formula engine** for direct variables, paired with an advanced **Simultaneous / Multi-Equation Solver** specifically for Physics. If straightforward forward-chaining stalls, the engine automatically breaks deadlocks by algebraically solving multiple equations simultaneously — showing every intermediate step.
 - **Two input modes** on the Physics page: a guided **Basic** picker, and a free-form **Smart Solver** where you type in any known variables and pick a target — the engine does the rest.
 - **245 formulas** spanning Kinematics, Newton's Laws, Work-Energy-Power, Momentum & Collisions, Circular Motion, Gravitation, Rotational Motion, SHM, Waves, Elasticity & Fluids, Thermal Physics, Ray & Wave Optics, Electrostatics, Current Electricity, Magnetism & EMI, Alternating Current, and Modern Physics.
 
@@ -109,7 +111,7 @@ Mathematics is the deepest module, made of four independent engines that all liv
 - **Ambient animated canvas background** (`science-bg.js`) — a purely decorative, theme-aware particle/orbit animation layered behind every page.
 - **"Legends of Science" Hall of Fame** on the landing page, generated from `scientists.json`.
 - **Live client-side validation** (bracket balance, character allow-listing) before a request ever reaches the API, so obviously-invalid input never wastes a round trip.
-- Results rendered with **MathJax** for properly typeset mathematical notation, and **Chart.js** for graphs.
+- Results rendered with **MathJax** for properly typeset mathematical notation, and **Chart.js** / **Plotly** for graphs.
 
 ---
 
@@ -143,9 +145,9 @@ graph TD
 
 | Layer | Technology |
 |---|---|
-| **Backend** | ![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white) ![Flask](https://img.shields.io/badge/Flask-000000?style=flat-square&logo=flask&logoColor=white) ![Flask--CORS](https://img.shields.io/badge/Flask--CORS-000000?style=flat-square) ![SymPy](https://img.shields.io/badge/SymPy-3B5526?style=flat-square) ![NumPy](https://img.shields.io/badge/NumPy-013243?style=flat-square&logo=numpy&logoColor=white) |
-| **AI / OCR** | ![Gemini](https://img.shields.io/badge/Google_Gemini_Vision-8E75B2?style=flat-square&logo=googlegemini&logoColor=white) |
-| **Frontend** | ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black) ![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=flat-square&logo=chartdotjs&logoColor=white) ![MathJax](https://img.shields.io/badge/MathJax-1B4E5F?style=flat-square) ![Font Awesome](https://img.shields.io/badge/Font_Awesome-528DD7?style=flat-square&logo=fontawesome&logoColor=white) |
+| **Backend** | ![Python](https://img.shields.io/badge/Python_3.12-3776AB?style=flat-square&logo=python&logoColor=white) ![Flask](https://img.shields.io/badge/Flask-000000?style=flat-square&logo=flask&logoColor=white) ![Flask--CORS](https://img.shields.io/badge/Flask--CORS-000000?style=flat-square) ![SymPy](https://img.shields.io/badge/SymPy-3B5526?style=flat-square) ![NumPy](https://img.shields.io/badge/NumPy-013243?style=flat-square&logo=numpy&logoColor=white) |
+| **AI / OCR** | ![Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=flat-square&logo=googlegemini&logoColor=white) |
+| **Frontend** | ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black) ![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=flat-square&logo=chartdotjs&logoColor=white) ![Plotly](https://img.shields.io/badge/Plotly-3F4F75?style=flat-square&logo=plotly&logoColor=white) ![KaTeX](https://img.shields.io/badge/KaTeX-31B5B1?style=flat-square&logo=katex&logoColor=white) ![MathJax](https://img.shields.io/badge/MathJax-1B4E5F?style=flat-square) ![Font Awesome](https://img.shields.io/badge/Font_Awesome-528DD7?style=flat-square&logo=fontawesome&logoColor=white) |
 | **Deployment** | ![PythonAnywhere](https://img.shields.io/badge/PythonAnywhere-1D9FD7?style=flat-square&logo=pythonanywhere&logoColor=white) ![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-222222?style=flat-square&logo=githubpages&logoColor=white) |
 
 </div>
@@ -195,7 +197,7 @@ Friendly-Flux/
 
 ### Prerequisites
 
-- Python **3.10+**
+- Python **3.12+**
 - Any modern browser (a physical keyboard is *not* required — the UI is keypad-driven)
 - *(Optional, for Math OCR only)* A [Google Gemini API key](https://ai.google.dev/)
 
@@ -338,7 +340,9 @@ Built by **Anubhab Dutta** & **Arnab Adhikari**.
 
 ## 📜 License
 
-No license file has been published in this repository yet — until one is added, all rights are reserved by the authors. Reach out to the maintainers before reusing this code elsewhere.
+This project is licensed under the **MIT License**. You are free to use, modify, and distribute this software, as long as you include the original copyright and license notice.
+
+See the [LICENSE](LICENSE) file for more details.
 
 <div align="center">
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:EC4899,50:7C3AED,100:4F46E5&height=120&section=footer&animation=fadeIn" width="100%" alt="footer wave"/>
