@@ -2,37 +2,169 @@
     {
         "name": "Albert Einstein",
         "field": "Theoretical Physics",
+        "subject": "physics",
         "description": "Formulated the theory of relativity, revolutionizing our understanding of space, time, and gravity.",
-        "formula": "E = mc²"
-    },
-    {
-        "name": "Srinivasa Ramanujan",
-        "field": "Mathematics",
-        "description": "Made substantial contributions to mathematical analysis, number theory, and infinite series.",
-        "formula": "1 + 2 + 3 + ... = -1/12"
-    },
-    {
-        "name": "Marie Curie",
-        "field": "Physical Chemistry",
-        "description": "Conducted pioneering research on radioactivity and discovered the elements polonium and radium.",
-        "formula": "λ = ln(2) / T½"
+        "formula": "E = mc\u00b2"
     },
     {
         "name": "Sir Isaac Newton",
         "field": "Classical Mechanics",
+        "subject": "physics",
         "description": "Formulated the laws of motion and universal gravitation that dominated scientists' view of the physical universe.",
-        "formula": "F = G(m₁m₂)/r²"
+        "formula": "F = G(m\u2081m\u2082)/r\u00b2"
     },
     {
         "name": "Nikola Tesla",
         "field": "Electrical Engineering",
+        "subject": "physics",
         "description": "Designed the modern alternating current (AC) electricity supply system.",
-        "formula": "B = μ₀I / 2πr"
+        "formula": "B = \u03bc\u2080I / 2\u03c0r"
     },
     {
         "name": "Max Planck",
         "field": "Quantum Physics",
+        "subject": "physics",
         "description": "Originated quantum theory, which won him the Nobel Prize in Physics in 1918.",
-        "formula": "E = hν"
+        "formula": "E = h\u03bd"
+    },
+    {
+        "name": "Michael Faraday",
+        "field": "Electromagnetism",
+        "subject": "physics",
+        "description": "Discovered electromagnetic induction, laying the foundation for electric motors and generators.",
+        "formula": "\u03b5 = -d\u03a6/dt"
+    },
+    {
+        "name": "Niels Bohr",
+        "field": "Atomic Physics",
+        "subject": "physics",
+        "description": "Proposed the quantized model of the atom, explaining how electrons occupy fixed energy levels.",
+        "formula": "E\u2099 = -13.6/n\u00b2 eV"
+    },
+    {
+        "name": "Werner Heisenberg",
+        "field": "Quantum Mechanics",
+        "subject": "physics",
+        "description": "Formulated the uncertainty principle, a cornerstone of quantum mechanics.",
+        "formula": "\u0394x\u00b7\u0394p \u2265 \u0127/2"
+    },
+    {
+        "name": "Richard Feynman",
+        "field": "Quantum Electrodynamics",
+        "subject": "physics",
+        "description": "Simplified particle interactions with intuitive diagrams and helped build the theory of quantum electrodynamics.",
+        "formula": "\u27e8f|S|i\u27e9"
+    },
+    {
+        "name": "Galileo Galilei",
+        "field": "Astronomy & Physics",
+        "subject": "physics",
+        "description": "Championed heliocentrism and derived the laws governing falling bodies and pendulums.",
+        "formula": "s = \u00bdgt\u00b2"
+    },
+    {
+        "name": "Sir C. V. Raman",
+        "field": "Optical Physics",
+        "subject": "physics",
+        "description": "Discovered the Raman effect, showing how light changes wavelength when it scatters through a molecule.",
+        "formula": "\u0394\u03bd = 1/\u03bb\u2080 - 1/\u03bb"
+    },
+    {
+        "name": "Satyendra Nath Bose",
+        "field": "Quantum Statistics",
+        "subject": "physics",
+        "description": "Developed the statistics that describe how identical particles called bosons behave, the basis of Bose\u2013Einstein statistics.",
+        "formula": "n(\u03b5) = 1 / (e^(\u03b5/kT) \u2212 1)"
+    },
+    {
+        "name": "Ernest Rutherford",
+        "field": "Nuclear Physics",
+        "subject": "physics",
+        "description": "Discovered the atomic nucleus with his gold foil experiment, reshaping atomic theory.",
+        "formula": "N = N\u2080e^(-\u03bbt)"
+    },
+    {
+        "name": "James Clerk Maxwell",
+        "field": "Electromagnetism",
+        "subject": "physics",
+        "description": "Unified electricity, magnetism, and light into a single theory of electromagnetism.",
+        "formula": "\u2207 \u00d7 E = -\u2202B/\u2202t"
+    },
+    {
+        "name": "Marie Curie",
+        "field": "Physical Chemistry",
+        "subject": "chemistry",
+        "description": "Conducted pioneering research on radioactivity and discovered the elements polonium and radium.",
+        "formula": "\u03bb = ln(2) / T\u00bd"
+    },
+    {
+        "name": "Dmitri Mendeleev",
+        "field": "Chemistry",
+        "subject": "chemistry",
+        "description": "Created the periodic table, organizing every known element by atomic weight and recurring properties.",
+        "formula": "Properties = f(Z)"
+    },
+    {
+        "name": "Antoine Lavoisier",
+        "field": "Chemistry",
+        "subject": "chemistry",
+        "description": "Established the law of conservation of mass, laying the foundation of modern chemistry.",
+        "formula": "\u03a3 mass(reactants) = \u03a3 mass(products)"
+    },
+    {
+        "name": "John Dalton",
+        "field": "Atomic Theory",
+        "subject": "chemistry",
+        "description": "Proposed that matter is made of indivisible atoms, founding modern atomic theory.",
+        "formula": "n\u2081 : n\u2082 = small whole numbers"
+    },
+    {
+        "name": "Linus Pauling",
+        "field": "Chemical Bonding",
+        "subject": "chemistry",
+        "description": "Advanced the theory of chemical bonding and introduced the modern concept of electronegativity.",
+        "formula": "\u0394E = 23.06(\u03c7\u2090 \u2212 \u03c7\u1d47)\u00b2"
+    },
+    {
+        "name": "Srinivasa Ramanujan",
+        "field": "Mathematics",
+        "subject": "math",
+        "description": "Made substantial contributions to mathematical analysis, number theory, and infinite series.",
+        "formula": "1 + 2 + 3 + ... = -1/12"
+    },
+    {
+        "name": "Carl Friedrich Gauss",
+        "field": "Mathematics",
+        "subject": "math",
+        "description": "Contributed foundational work across number theory, statistics, and geometry, earning the title \"Prince of Mathematicians.\"",
+        "formula": "\u2211\u2096\u208c\u2081\u207f k = n(n+1)/2"
+    },
+    {
+        "name": "Leonhard Euler",
+        "field": "Mathematics",
+        "subject": "math",
+        "description": "Introduced much of modern mathematical notation and worked across nearly every branch of mathematics.",
+        "formula": "e^(i\u03c0) + 1 = 0"
+    },
+    {
+        "name": "Pythagoras",
+        "field": "Geometry",
+        "subject": "math",
+        "description": "Established the relationship between the sides of a right triangle, foundational to geometry.",
+        "formula": "a\u00b2 + b\u00b2 = c\u00b2"
+    },
+    {
+        "name": "Aryabhata",
+        "field": "Mathematics & Astronomy",
+        "subject": "math",
+        "description": "Pioneered early place-value notation, approximated \u03c0, and modeled planetary motion in ancient India.",
+        "formula": "\u03c0 \u2248 3.1416"
+    },
+    {
+        "name": "Ada Lovelace",
+        "field": "Mathematics & Computing",
+        "subject": "math",
+        "description": "Wrote the first algorithm intended for a mechanical computer, envisioning computing beyond pure calculation.",
+        "formula": "Program = Sequence of Operations"
     }
 ]
