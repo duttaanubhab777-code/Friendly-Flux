@@ -29,16 +29,25 @@ window.updateStaticTexts = function() {
 
 document.addEventListener("DOMContentLoaded", () => {
     // ---------- Theme & Language Toggle (শুধুমাত্র এখানেই থাকবে) ----------
-    document.getElementById("theme-toggle").addEventListener("click", function () {
-        const html = document.documentElement;
-        if (html.getAttribute("data-theme") === "dark") {
-            html.removeAttribute("data-theme");
-            this.innerHTML = '<i class="fa-solid fa-moon"></i>';
-        } else {
-            html.setAttribute("data-theme", "dark");
-            this.innerHTML = '<i class="fa-solid fa-sun"></i>';
-        }
-    });
+    const themeToggleBtn = document.getElementById("theme-toggle");
+
+// 👇 নতুন — লোড হওয়ার সময় আইকনটা বর্তমান থিমের সাথে মিলিয়ে নেয়
+themeToggleBtn.innerHTML = document.documentElement.getAttribute("data-theme") === "dark"
+    ? '<i class="fa-solid fa-sun"></i>'
+    : '<i class="fa-solid fa-moon"></i>';
+
+themeToggleBtn.addEventListener("click", function () {
+    const html = document.documentElement;
+    if (html.getAttribute("data-theme") === "dark") {
+        html.removeAttribute("data-theme");
+        localStorage.setItem("flux-theme", "light");   // 👈 নতুন
+        this.innerHTML = '<i class="fa-solid fa-moon"></i>';
+    } else {
+        html.setAttribute("data-theme", "dark");
+        localStorage.setItem("flux-theme", "dark");     // 👈 নতুন
+        this.innerHTML = '<i class="fa-solid fa-sun"></i>';
+    }
+});
 
     document.getElementById("lang-toggle").addEventListener("click", () => {
         window.currentLang = window.currentLang === "en" ? "bn" : "en";

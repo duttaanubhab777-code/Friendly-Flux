@@ -11,8 +11,7 @@ const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').match
     const root = document.documentElement;
     const toggleBtn = document.getElementById('theme-toggle');
     const saved = localStorage.getItem('flux-theme');
-    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const startTheme = saved || (systemPrefersDark ? 'dark' : 'light');
+    const startTheme = saved || 'dark'; // site defaults to dark until the user picks light
 
     applyTheme(startTheme);
 

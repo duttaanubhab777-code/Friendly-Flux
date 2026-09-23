@@ -18,6 +18,13 @@
     var canvas = document.createElement("canvas");
     canvas.id = "science-bg-canvas";
     canvas.setAttribute("aria-hidden", "true");
+
+  canvas.style.position = "fixed";
+canvas.style.inset = "0";
+canvas.style.zIndex = "0";
+canvas.style.pointerEvents = "none";
+
+
     document.body.insertBefore(canvas, document.body.firstChild);
     var ctx = canvas.getContext("2d");
 

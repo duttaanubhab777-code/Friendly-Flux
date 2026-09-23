@@ -4,6 +4,13 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Friendly Flux | Explore the Universe of Logic</title>
+        <script>
+            // Runs before CSS paints, so the page never flashes light before switching to dark
+            (function () {
+                var saved = localStorage.getItem('flux-theme');
+                if (saved !== 'light') document.documentElement.setAttribute('data-theme', 'dark');
+            })();
+        </script>
         <link rel="stylesheet" href="style.css" />
         <!-- FontAwesome for professional icons -->
         <link

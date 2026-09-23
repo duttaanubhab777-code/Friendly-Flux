@@ -40,6 +40,7 @@ const themeDarkBtn = document.getElementById("theme-dark-btn");
 
 function setTheme(mode) {
     const html = document.documentElement;
+  localStorage.setItem("flux-theme", mode);
     if (mode === "dark") {
         html.setAttribute("data-theme", "dark");
         themeDarkBtn.classList.add("active");
@@ -49,7 +50,9 @@ function setTheme(mode) {
         themeLightBtn.classList.add("active");
         themeDarkBtn.classList.remove("active");
     }
+  
 }
+      setTheme(localStorage.getItem("flux-theme") || "dark");
 
 if (themeLightBtn && themeDarkBtn) {
     themeLightBtn.addEventListener("click", () => setTheme("light"));

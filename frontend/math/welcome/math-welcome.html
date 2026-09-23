@@ -10,15 +10,29 @@
     <link rel="stylesheet" href="../science-bg.css">
     <link rel="stylesheet" href="math-welcome.css">
 </head>
+  
 <body data-bg-theme="math-welcome">
-    <script src="../science-bg.js"></script>
+    <script src="../../science-bg.js"></script>
 
-    <a href="../index.html" class="mw-home-link"><i class="fa-solid fa-arrow-left"></i> Friendly Flux</a>
+  <div class="mw-page">
+
+
+    <a href="../../index.html" class="mw-home-link"><i class="fa-solid fa-arrow-left"></i> Friendly Flux</a>
+
+    <!-- Orbiting ring of math glyphs — the "one big idea" behind the content -->
+    <div class="mw-orbit" aria-hidden="true">
+        <div class="mw-ring ring-1"><span><i class="fa-solid fa-square-root-variable"></i></span></div>
+        <div class="mw-ring ring-2"><span><i class="fa-solid fa-infinity"></i></span></div>
+        <div class="mw-ring ring-3"><span><i class="fa-solid fa-percent"></i></span></div>
+    </div>
 
     <main class="mw-stage">
         <div class="mw-badge"><i class="fa-solid fa-square-root-variable"></i> Mathematics</div>
 
-        <h1 class="mw-title">Welcome to the<br><span>World of Mathematics</span></h1>
+        <h1 class="mw-title">
+            <span class="line-1">Welcome to the</span><br>
+            <span class="line-2">World of Mathematics</span>
+        </h1>
 
         <p class="mw-subtitle">
             Algebra, Calculus and 3D Geometry — solved step by step,
@@ -26,13 +40,15 @@
         </p>
 
         <a href="../math.html" class="mw-enter-btn">
-            <span>Enter Now</span>
-            <i class="fa-solid fa-arrow-right"></i>
+            <span class="mw-pulse-ring" aria-hidden="true"></span>
+            <span>Launch the Expedition</span>
+            <i class="fa-solid fa-rocket"></i>
         </a>
 
         <div class="mw-symbols" aria-hidden="true">
             <span>∫</span><span>π</span><span>∑</span><span>√</span><span>∞</span><span>Δ</span>
         </div>
     </main>
+</div>
 </body>
 </html>
