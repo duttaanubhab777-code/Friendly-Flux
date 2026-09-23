@@ -43,13 +43,13 @@
 
 **Friendly Flux** is a full-stack STEM problem-solving platform that pairs a **symbolic-math Flask API** with a **lightweight, framework-free frontend**. It's built for students who want more than a plain calculator — it *shows the working*.
 
-Instead of one big monolithic solver, the backend is split into **seven independent engines**, each specialized for one domain (calculus, algebra, 3D geometry, physics/chemistry formulas, graphing, and image-based OCR), all orchestrated behind a single Flask app and consumed by a bilingual, mobile-first web UI.
+Instead of one big monolithic solver, the backend is split into **seven independent engines**, each specialized for one domain (calculus, algebra, 3D geometry, 3D-geometry graphing, physics/chemistry formulas, 1-variable graphing, and image-based OCR), all orchestrated behind a single Flask app and consumed by a mobile-first web UI — the Math / Physics / Chemistry solver pages are bilingual with a light/dark toggle; the landing page is currently English-only.
 
 > Point it at a differentiation problem, a system of linear equations, a 3D-geometry angle-between-planes question, a physics "find the unknown" problem, or a photo of a handwritten expression — Friendly Flux figures out *how* to solve it, not just *what* the answer is.
 
 <div align="center">
 
-|  | 3 | 10 | 412+ | 7 | 6,000+ |
+|  | 3 | 10 | 412 | 7 | 6,000+ |
 |:---:|:---:|:---:|:---:|:---:|:---:|
 | | **Subjects** | **API Endpoints** | **Physics + Chemistry Formulas** | **Solver Engines** | **Lines of Python** |
 
@@ -81,15 +81,15 @@ Instead of one big monolithic solver, the backend is split into **seven independ
 
 ### 📐 Mathematics
 
-Mathematics is the deepest module, made of four independent engines that all live under one **Calculus Solver** page (`math.html`) with a tabbed UI:
+Mathematics is the deepest module, made of five independent engines (six counting the 3D Graph Engine separately) that all live under one **Calculus Solver** page (`math.html`) with a tabbed UI (Calculus / 3D Geometry / Algebra):
 
 | Engine | What it does |
 |---|---|
-| **Calculus Engine** | True symbolic differentiation (1st–6th order, mixed partials like `∂²/∂x∂y`) and integration (definite & indefinite), powered by [SymPy](https://www.sympy.org/) — exact simplified results, never decimal approximations. Automatically detects non-elementary (no closed-form) integrals. |
-| **Algebra Engine** | A full symbolic algebra suite: expression simplification; linear, quadratic & polynomial equations; systems of equations (with Cramer's-rule / matrix working shown); inequalities (simple, compound, absolute-value, rational); rational/radical/exponential/logarithmic equations; complex-number arithmetic; parametric (symbolic-coefficient) equations; **matrix operations** (determinant, inverse, rank, eigenvalues, `A × B`, `Aⁿ`); and **permutations & combinations**. Every result is rendered in both plain text and LaTeX. |
-| **3D Geometry Engine** | Classic "3D Geometry" chapter problems — distance between points, section formula, direction ratios/cosines, equations of lines & planes, angle between line-line / plane-plane / line-plane, foot of perpendicular, reflection, coplanarity, and line–plane intersection — via `sympy.geometry`, with an accompanying **3D Graph Engine** that renders the same objects as interactive Plotly-style plots. |
+| **Calculus Engine** | True symbolic differentiation (1st–6th order, mixed partials like `∂²/∂x∂y`) and integration (definite & indefinite), powered by [SymPy](https://www.sympy.org/) — exact simplified results by default. Automatically detects non-elementary (no closed-form) integrals; when no elementary antiderivative exists it falls back to a clearly-labeled Numeric Quadrature value (definite integrals) or an 8-term Taylor-series approximation (indefinite integrals), so a decimal answer only ever appears when an exact one genuinely doesn't exist, and it's always flagged as an approximation. |
+| **Algebra Engine** | A full symbolic algebra suite: expression simplification; linear, quadratic & polynomial equations; systems of equations (with Cramer's-rule / matrix working shown); inequalities (simple, compound, absolute-value, rational — with sign analysis and domain restrictions shown); rational/radical/exponential/logarithmic/absolute-value equations; complex-number arithmetic; parametric (symbolic-coefficient) equations; **matrix operations** (determinant, inverse, rank, eigenvalues/eigenvectors, `A × B`, `Aⁿ`); and **permutations & combinations**. Every result is rendered in both plain text and LaTeX. |
+| **3D Geometry Engine** | Classic "3D Geometry" chapter problems — distance between points, section formula, direction ratios, equations of lines & planes (point-direction or two-point / point-normal or three-point), angle between line-line / plane-plane / line-plane, distance from a point to a plane or line, **shortest distance between two skew lines**, foot of perpendicular (onto a line or a plane), reflection of a point in a plane, coplanarity, and line–plane intersection — via `sympy.geometry`, with an accompanying **3D Graph Engine** that renders the same objects as interactive Plotly-style plots. |
 | **Graph Engine** | Numerically samples any single-variable expression (`sin(x)`, `e^(-x²)`, `1/x`, …) with `sympy.lambdify` → vectorized NumPy evaluation, so even large point counts render instantly. Falls back to a slower, reliable per-point method for the rare function that can't be vectorized. |
-| **Math OCR** | Snap a photo of a handwritten or printed expression and Friendly Flux transcribes it straight into the calculator's syntax using **Google Gemini's vision model** — no separate LaTeX-to-syntax conversion step required. |
+| **Math OCR** | On the Calculus tab, snap a photo of a handwritten or printed expression and Friendly Flux transcribes it straight into the calculator's syntax using **Google Gemini's vision model** — no separate LaTeX-to-syntax conversion step required. (Not yet wired up on the Algebra or 3D Geometry tabs.) |
 
 ### 🚀 Physics
 
@@ -105,28 +105,42 @@ Mathematics is the deepest module, made of four independent engines that all liv
 ### 🌐 Frontend Experience
 
 - **Pure HTML / CSS / vanilla JavaScript** — zero build step, zero framework, deployable as static files to any host (currently GitHub Pages).
-- **Bilingual UI** (English / বাংলা) with a single toggle, powered by a per-subject `lang.js` dictionary so new subjects can be added without touching existing translations.
-- **Light/Dark theme** with a shared custom target-select modal replacing native `<select>` dropdowns for a more app-like feel.
-- **Mobile-first design** with a categorized on-screen keypad — the entire project was written and is meant to be used from a phone, so no feature depends on a physical keyboard.
+- **Bilingual UI** (English / বাংলা) on the **Math, Physics and Chemistry solver pages**, with a single toggle powered by a per-subject `lang.js` dictionary so new subjects can be added without touching existing translations. The landing page (`index.html`) is English-only for now and has no language or theme toggle.
+- **Light/Dark theme**, on those same three solver pages, via a shared light/dark button pair (`shared.js`) plus a custom target-select modal that replaces native `<select>` dropdowns for a more app-like feel.
+- **Mobile-first design** — the entire project was written and is meant to be used from a phone. The Math page adds a categorized on-screen keypad (Basic / Trig / Inverse & Hyperbolic / Other tabs) for typing expressions; Physics and Chemistry don't need one, since their inputs are plain numeric fields.
 - **Ambient animated canvas background** (`science-bg.js`) — a purely decorative, theme-aware particle/orbit animation layered behind every page.
 - **"Legends of Science" Hall of Fame** on the landing page, generated from `scientists.json`.
 - **Live client-side validation** (bracket balance, character allow-listing) before a request ever reaches the API, so obviously-invalid input never wastes a round trip.
-- Results rendered with **MathJax** for properly typeset mathematical notation, and **Chart.js** / **Plotly** for graphs.
+- On the **Math page only**: results are typeset with **KaTeX**/**MathJax** and plotted with **Chart.js** (2D) / **Plotly** (3D), and [math.js](https://mathjs.org/) handles some client-side numeric evaluation. Physics and Chemistry results are shown as plain formatted text (formula = value, plus the solver's step list) — no math typesetting or graphing on those two pages yet.
 
 ---
 
 ## 🏗️ Architecture
 
+<!--
+  Rendered as a static image (via mermaid.ink) instead of a live ```mermaid code block.
+  The GitHub mobile app doesn't render Mermaid code blocks at all — it just shows the
+  raw text — even though github.com and GitHub Desktop do. An <img> works identically
+  everywhere. The editable source is kept below if the diagram ever needs updating.
+-->
+<p align="center">
+  <img src="https://mermaid.ink/svg/eyJjb2RlIjogImdyYXBoIFREXG4gICAgVVtcIlVzZXIncyBCcm93c2VyXCJdIC0tPnxIVE1MIC8gQ1NTIC8gSlN8IEZbXCJGcm9udGVuZCBvbiBHaXRIdWIgUGFnZXM8YnIvPmluZGV4IC4gbWF0aCAuIHBoeXNpY3MgLiBjaGVtaXN0cnlcIl1cbiAgICBGIC0tPnxmZXRjaCBKU09OIG92ZXIgQ09SU3wgQVBJW1wiRmxhc2sgQVBJIChhcHAucHkpPGJyLz5ob3N0ZWQgb24gUHl0aG9uQW55d2hlcmVcIl1cblxuICAgIEFQSSAtLT4gRkVbXCJGb3JtdWxhIEVuZ2luZTxici8-Zm9yd2FyZC1jaGFpbmluZyArIHNpbXVsdGFuZW91cyBzb2x2ZVwiXVxuICAgIEFQSSAtLT4gQ0VbXCJDYWxjdWx1cyBFbmdpbmU8YnIvPlN5bVB5IGRpZmZlcmVudGlhdGUgLyBpbnRlZ3JhdGVcIl1cbiAgICBBUEkgLS0-IEdFW1wiR3JhcGggRW5naW5lPGJyLz5OdW1QeS12ZWN0b3JpemVkIHNhbXBsaW5nXCJdXG4gICAgQVBJIC0tPiBBRVtcIkFsZ2VicmEgRW5naW5lPGJyLz5lcXVhdGlvbnMgLiBtYXRyaWNlcyAuIGNvbWJpbmF0b3JpY3NcIl1cbiAgICBBUEkgLS0-IEczW1wiM0QgR2VvbWV0cnkgRW5naW5lPGJyLz5kaXN0YW5jZXMgLiBsaW5lcyAuIHBsYW5lcyAuIGFuZ2xlc1wiXVxuICAgIEFQSSAtLT4gRzNHW1wiM0QgR3JhcGggRW5naW5lPGJyLz5QbG90bHktc3R5bGUgcGxvdCBkYXRhXCJdXG4gICAgQVBJIC0tPiBPQ1JbXCJNYXRoIE9DUjxici8-R29vZ2xlIEdlbWluaSBWaXNpb25cIl1cblxuICAgIEZFIC0tPiBQRlsoXCJwaHlzaWNzX2Zvcm11bGFzLnB5PGJyLz4yNDUgZm9ybXVsYXNcIildXG4gICAgRkUgLS0-IENGWyhcImNoZW1pc3RyeV9mb3JtdWxhcy5weTxici8-MTY3IGZvcm11bGFzXCIpXVxuXG4gICAgc3R5bGUgVSBmaWxsOiM0RjQ2RTUsY29sb3I6I2ZmZlxuICAgIHN0eWxlIEYgZmlsbDojN0MzQUVELGNvbG9yOiNmZmZcbiAgICBzdHlsZSBBUEkgZmlsbDojRUM0ODk5LGNvbG9yOiNmZmZcbiIsICJtZXJtYWlkIjogeyJ0aGVtZSI6ICJkZWZhdWx0In19?bgColor=white" alt="Friendly Flux architecture diagram" width="100%"/>
+</p>
+
+<details>
+<summary>Mermaid source (for editing the diagram)</summary>
+
 ```mermaid
 graph TD
-    U["📱 User's Browser"] -->|HTML / CSS / JS| F["Frontend — GitHub Pages<br/>index · math · physics · chemistry"]
-    F -->|fetch JSON over CORS| API["Flask API — app.py<br/>hosted on PythonAnywhere"]
+    U["User's Browser"] -->|HTML / CSS / JS| F["Frontend on GitHub Pages<br/>index · math · physics · chemistry"]
+    F -->|fetch JSON over CORS| API["Flask API (app.py)<br/>hosted on PythonAnywhere"]
 
-    API --> FE["Formula Engine<br/>forward-chaining solver"]
+    API --> FE["Formula Engine<br/>forward-chaining + simultaneous solve"]
     API --> CE["Calculus Engine<br/>SymPy differentiate / integrate"]
     API --> GE["Graph Engine<br/>NumPy-vectorized sampling"]
     API --> AE["Algebra Engine<br/>equations · matrices · combinatorics"]
-    API --> G3["3D Geometry Engine<br/>+ 3D Graph Engine"]
+    API --> G3["3D Geometry Engine<br/>distances · lines · planes · angles"]
+    API --> G3G["3D Graph Engine<br/>Plotly-style plot data"]
     API --> OCR["Math OCR<br/>Google Gemini Vision"]
 
     FE --> PF[("physics_formulas.py<br/>245 formulas")]
@@ -136,6 +150,9 @@ graph TD
     style F fill:#7C3AED,color:#fff
     style API fill:#EC4899,color:#fff
 ```
+
+> After editing, regenerate the image at [mermaid.live](https://mermaid.live) (Actions → "Copy link to view") and swap it in for the `<img src="...">` above — or paste the updated code into any mermaid-to-URL tool that targets `mermaid.ink`.
+</details>
 
 ---
 
@@ -147,7 +164,7 @@ graph TD
 |---|---|
 | **Backend** | ![Python](https://img.shields.io/badge/Python_3.12-3776AB?style=flat-square&logo=python&logoColor=white) ![Flask](https://img.shields.io/badge/Flask-000000?style=flat-square&logo=flask&logoColor=white) ![Flask--CORS](https://img.shields.io/badge/Flask--CORS-000000?style=flat-square) ![SymPy](https://img.shields.io/badge/SymPy-3B5526?style=flat-square) ![NumPy](https://img.shields.io/badge/NumPy-013243?style=flat-square&logo=numpy&logoColor=white) |
 | **AI / OCR** | ![Gemini](https://img.shields.io/badge/Google_Gemini-8E75B2?style=flat-square&logo=googlegemini&logoColor=white) |
-| **Frontend** | ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black) ![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=flat-square&logo=chartdotjs&logoColor=white) ![Plotly](https://img.shields.io/badge/Plotly-3F4F75?style=flat-square&logo=plotly&logoColor=white) ![KaTeX](https://img.shields.io/badge/KaTeX-31B5B1?style=flat-square&logo=katex&logoColor=white) ![MathJax](https://img.shields.io/badge/MathJax-1B4E5F?style=flat-square) ![Font Awesome](https://img.shields.io/badge/Font_Awesome-528DD7?style=flat-square&logo=fontawesome&logoColor=white) |
+| **Frontend** | ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white) ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=flat-square&logo=css3&logoColor=white) ![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black) ![Chart.js](https://img.shields.io/badge/Chart.js-FF6384?style=flat-square&logo=chartdotjs&logoColor=white) ![Plotly](https://img.shields.io/badge/Plotly-3F4F75?style=flat-square&logo=plotly&logoColor=white) ![KaTeX](https://img.shields.io/badge/KaTeX-31B5B1?style=flat-square&logo=katex&logoColor=white) ![MathJax](https://img.shields.io/badge/MathJax-1B4E5F?style=flat-square) ![math.js](https://img.shields.io/badge/math.js-1B5E20?style=flat-square) ![Font Awesome](https://img.shields.io/badge/Font_Awesome-528DD7?style=flat-square&logo=fontawesome&logoColor=white) |
 | **Deployment** | ![PythonAnywhere](https://img.shields.io/badge/PythonAnywhere-1D9FD7?style=flat-square&logo=pythonanywhere&logoColor=white) ![GitHub Pages](https://img.shields.io/badge/GitHub_Pages-222222?style=flat-square&logo=githubpages&logoColor=white) |
 
 </div>
@@ -198,7 +215,7 @@ Friendly-Flux/
 ### Prerequisites
 
 - Python **3.12+**
-- Any modern browser (a physical keyboard is *not* required — the UI is keypad-driven)
+- Any modern browser (a physical keyboard is *not* required — Math has an on-screen keypad, and Physics/Chemistry take plain numeric input)
 - *(Optional, for Math OCR only)* A [Google Gemini API key](https://ai.google.dev/)
 
 ### 1 · Clone the repository
@@ -340,9 +357,9 @@ Built by **Anubhab Dutta** & **Arnab Adhikari**.
 
 ## 📜 License
 
-This project is licensed under the **MIT License**. You are free to use, modify, and distribute this software, as long as you include the original copyright and license notice.
+This project is intended to be licensed under the **MIT License** — free to use, modify, and distribute, as long as the original copyright and license notice are included.
 
-See the [LICENSE](LICENSE) file for more details.
+> **Note:** there's no `LICENSE` file in the repository yet, so this isn't legally binding until one is added. Add a `LICENSE` file with the MIT text at the repo root, then this section can link to it directly.
 
 <div align="center">
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:EC4899,50:7C3AED,100:4F46E5&height=120&section=footer&animation=fadeIn" width="100%" alt="footer wave"/>
