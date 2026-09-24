@@ -456,6 +456,7 @@ const physicsFormulas = {
         formula: "F = ILB sinθ",
         tags: ["magnetic", "wire", "চৌম্বক"]
     },
+  
     "biot_wire": {
         id: "biot_wire", all_variables: ["B", "mu0", "I", "r"],
         name: { en: "B due to long wire", bn: "দীর্ঘ তারের B" },

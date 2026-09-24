@@ -4,5 +4,4 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Environment or sensitive files (যদি থাকে)
-.env
+

@@ -10,6 +10,7 @@ PHYSICS_FORMULAS = [
     "s = v*t - a*t**2/2",
     "avg_v = total_s/total_t",
     "avg_a = (v - u)/t",
+    
 
     # =========================================================
     # MECHANICS — Newton's laws & force
@@ -214,6 +215,7 @@ PHYSICS_FORMULAS = [
     "E_field = sigma/(2*epsilon0)",
     "E_field = sigma/epsilon0",
     "E_field = V/d",
+    
     "V = k*q/r",
     "V = E_field*d",
     "U = k*q1*q2/r",
