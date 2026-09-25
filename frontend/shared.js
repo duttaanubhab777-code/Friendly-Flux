@@ -25,6 +25,7 @@ const FriendlyFluxApp = (function () {
         // কাস্টম পপআপের বেসিক ইভেন্ট লিসেনার (সবার জন্য)
         const customModal = document.getElementById("custom-select-modal");
         const modalCloseBtn = document.getElementById("close-select-modal");
+        const modalBox = document.querySelector('.modal-box'); // মডেল বক্সটি সিলেক্ট করা হলো
         
         function closeGenericModal() {
             if(customModal) customModal.classList.add("hidden");
@@ -36,28 +37,27 @@ const FriendlyFluxApp = (function () {
         });
 
         const themeLightBtn = document.getElementById("theme-light-btn");
-const themeDarkBtn = document.getElementById("theme-dark-btn");
+        const themeDarkBtn = document.getElementById("theme-dark-btn");
 
-function setTheme(mode) {
-    const html = document.documentElement;
-  localStorage.setItem("flux-theme", mode);
-    if (mode === "dark") {
-        html.setAttribute("data-theme", "dark");
-        themeDarkBtn.classList.add("active");
-        themeLightBtn.classList.remove("active");
-    } else {
-        html.removeAttribute("data-theme");
-        themeLightBtn.classList.add("active");
-        themeDarkBtn.classList.remove("active");
-    }
-  
-}
-      setTheme(localStorage.getItem("flux-theme") || "dark");
+        function setTheme(mode) {
+            const html = document.documentElement;
+            localStorage.setItem("flux-theme", mode);
+            if (mode === "dark") {
+                html.setAttribute("data-theme", "dark");
+                themeDarkBtn.classList.add("active");
+                themeLightBtn.classList.remove("active");
+            } else {
+                html.removeAttribute("data-theme");
+                themeLightBtn.classList.add("active");
+                themeDarkBtn.classList.remove("active");
+            }
+        }
+        setTheme(localStorage.getItem("flux-theme") || "dark");
 
-if (themeLightBtn && themeDarkBtn) {
-    themeLightBtn.addEventListener("click", () => setTheme("light"));
-    themeDarkBtn.addEventListener("click", () => setTheme("dark"));
-}
+        if (themeLightBtn && themeDarkBtn) {
+            themeLightBtn.addEventListener("click", () => setTheme("light"));
+            themeDarkBtn.addEventListener("click", () => setTheme("dark"));
+        }
 
         const langToggle = document.getElementById("lang-toggle");
         if (langToggle) {
@@ -131,9 +131,33 @@ if (themeLightBtn && themeDarkBtn) {
                 const modalOptionsList = document.getElementById("custom-modal-options");
 
                 if (targetTrigger && customModal && modalOptionsList) {
-                    targetTrigger.addEventListener("click", () => {
+                    targetTrigger.addEventListener("click", function() {
                         modalOptionsList.innerHTML = ""; 
                         const currentValue = targetHiddenInput.value;
+
+                        // সিলেক্ট বক্সের পজিশন অনুযায়ী মডাল বক্স প্লেস করা হচ্ছে
+                        if (modalBox) {
+                            const rect = this.getBoundingClientRect();
+                            
+                            // CSS-এর ডিজাইনের উপর নির্ভর না করে সরাসরি JavaScript থেকে Fixed করা হলো
+                            modalBox.style.position = 'fixed'; 
+                            modalBox.style.margin = '0';
+                            modalBox.style.left = rect.left + 'px';
+                            modalBox.style.width = rect.width + 'px';
+                            
+                            // মোবাইল বা ছোট স্ক্রিনের নিচে পর্যাপ্ত জায়গা আছে কিনা চেক করা
+                            const spaceBelow = window.innerHeight - rect.bottom;
+                            
+                            if (spaceBelow < 260 && rect.top > 260) {
+                                // নিচে জায়গা না থাকলে ড্রপডাউনটি বোতামের উপরের দিকে খুলবে
+                                modalBox.style.top = 'auto';
+                                modalBox.style.bottom = (window.innerHeight - rect.top + 8) + 'px';
+                            } else {
+                                // নিচে জায়গা থাকলে স্বাভাবিকভাবে বোতামের নিচেই খুলবে
+                                modalBox.style.bottom = 'auto';
+                                modalBox.style.top = (rect.bottom + 8) + 'px';
+                            }
+                        }
 
                         item.all_variables.forEach((variable) => {
                             const li = document.createElement("li");
@@ -149,7 +173,8 @@ if (themeLightBtn && themeDarkBtn) {
                             `;
                             
                             // অপশনে ক্লিক করলে যা হবে
-                            li.addEventListener("click", function() {
+                            li.addEventListener("click", function(e) {
+                                e.stopPropagation(); // মডাল বন্ধ হওয়া ঠেকানো
                                 document.querySelectorAll("#custom-modal-options li").forEach(el => el.classList.remove("selected"));
                                 this.classList.add("selected");
                                 
@@ -164,12 +189,13 @@ if (themeLightBtn && themeDarkBtn) {
                                     valueInputs.innerHTML += `
                                         <div class="input-group">
                                             <label>${inputLabelStr}</label>
-                                            <input type="number" step="any" id="var-${vInput}" placeholder="${vInput}" class="custom-input">
+                                            <!-- এখানে type="number" পরিবর্তন করে type="text" করা হলো যাতে x, a, বা নেগেটিভ মান দেওয়া যায় -->
+                                            <input type="text" id="var-${vInput}" placeholder="${vInput}" class="custom-input">
                                         </div>
                                     `;
                                 });
 
-                                setTimeout(closeGenericModal, 350);
+                                setTimeout(closeGenericModal, 150);
                             });
                             
                             modalOptionsList.appendChild(li);
@@ -183,7 +209,7 @@ if (themeLightBtn && themeDarkBtn) {
             if (calcSection) {
                 calcSection.classList.remove("hidden");
                 calcSection.style.display = ""; // ট্যাব সুইচিং লেআউট বাগ প্রতিরোধ
-                calcSection.scrollIntoView({ behavior: "smooth" });
+                calcSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
             }
         }
 
@@ -212,11 +238,15 @@ if (themeLightBtn && themeDarkBtn) {
 
                 let variablesData = {};
                 let isValid = true;
+                
                 variablesToInput.forEach((variable) => {
                     const inputElem = document.getElementById(`var-${variable}`);
-                    const val = inputElem ? inputElem.value : "";
+                    const val = inputElem ? inputElem.value.trim() : "";
                     if (val === "") isValid = false;
-                    variablesData[variable] = parseFloat(val);
+                    
+                    // নম্বর হলে নম্বর হিসেবে, আর ভেরিয়েবল (x, a) বা এক্সপ্রেশন হলে স্ট্রিং হিসেবে সেভ হবে
+                    const parsedNum = Number(val);
+                    variablesData[variable] = isNaN(parsedNum) ? val : parsedNum;
                 });
 
                 if (!isValid) {

@@ -43,6 +43,13 @@ CHEMISTRY_FORMULAS = [
     "r_n = 52.9*n**2/Z",
     "v_e = 2.18e6*Z/n",
     "uncert_x*uncert_p = h/(4*pi)",
+    "l_max = n_quantum - 1",
+    "orbitals_subshell = 2*l_quantum + 1",
+    "electrons_max_shell = 2*n_quantum**2",
+    "electrons_max_subshell = 2*(2*l_quantum + 1)",
+    "mass_defect = Z*m_proton + (A_mass - Z)*m_neutron - M_nucleus",
+    "binding_energy = mass_defect*c**2",
+    "nuclear_radius = r0*A_mass**(1/3)",
 
     # =========================================================
     # GASEOUS STATE
@@ -69,6 +76,11 @@ CHEMISTRY_FORMULAS = [
     "P1 = mole_frac*P_total",
     "V_real = n*R*T/P + n*b",
     "Z_comp = P*V/(n*R*T)",
+    "b_vdw = V_critical/3",
+    "a_vdw = 3*P_critical*V_critical**2",
+    "T_critical = 8*a_vdw/(27*R*b_vdw)",
+    "P_critical = a_vdw/(27*b_vdw**2)",
+    "mean_free_path = R*T/(sqrt(2)*pi*d_molecule**2*N_A*P)",
 
     # =========================================================
     # THERMOCHEMISTRY & THERMODYNAMICS
@@ -96,6 +108,9 @@ CHEMISTRY_FORMULAS = [
     "dG0 = -2.303*R*T*log10(K)",
     "K = exp(-dG0/(R*T))",
     "efficiency = 1 - T2/T1",
+    "dS = q_rev/T",
+    "dS = n*R*log(V2/V1)",
+    "dS = n*Cp*log(T2/T1)",
 
     # =========================================================
     # CHEMICAL EQUILIBRIUM
@@ -124,6 +139,10 @@ CHEMISTRY_FORMULAS = [
     "H = Ka*HA/A_ion",
     "degree_diss = sqrt(Ka/C_acid)",
     "buffer_pH = pKa + log10(salt/acid)",
+    "log10(K2/K1) = dH_rxn*(T2 - T1)/(2.303*R*T1*T2)",
+    "Ksp_AB = S_solubility**2",
+    "Ksp_AB2 = 4*S_solubility**3",
+    "Kh_hydrolysis = K_w/Ka",
 
     # =========================================================
     # SOLUTIONS & COLLIGATIVE PROPERTIES
@@ -146,6 +165,8 @@ CHEMISTRY_FORMULAS = [
     "pi_osm = i_vanthoff*C_molar*R*T",
     "M = Kf_cryo*mass_solute*1000/(delta_Tf*mass_solvent_g)",
     "M = Kb_ebull*mass_solute*1000/(delta_Tb*mass_solvent_g)",
+    "P_gas = K_henry*mole_frac_gas",
+    "i_vanthoff = 1 + (n_particles - 1)*alpha_diss",
 
     # =========================================================
     # ELECTROCHEMISTRY
@@ -171,6 +192,9 @@ CHEMISTRY_FORMULAS = [
     "G_eq = kappa*1000/normality",
     "alpha_cond = G_molar/G_molar_inf",
     "Ka = C_molar*alpha_cond**2/(1 - alpha_cond)",
+    "cell_constant = L_len/A",
+    "kappa = G_conductance*cell_constant",
+    "lambda_m_inf = lambda_cation_inf + lambda_anion_inf",
 
     # =========================================================
     # CHEMICAL KINETICS
@@ -189,6 +213,10 @@ CHEMISTRY_FORMULAS = [
     "log10(k2/k1) = Ea*(T2 - T1)/(2.303*R*T1*T2)",
     "log(k2/k1) = Ea*(T2 - T1)/(R*T1*T2)",
     "order_rxn = log(rate2/rate1)/log(C2/C1)",
+    "C = C0 - k_rate*t",
+    "k_rate = (C0 - C)/t",
+    "k_rate = (1/t)*(1/C - 1/C0)",
+    "k_rate = P_factor*Z_collision*exp(-Ea/(R*T))",
 
     # =========================================================
     # SURFACE CHEMISTRY & MISC
@@ -196,6 +224,8 @@ CHEMISTRY_FORMULAS = [
     "x_ads/m_ads = k_freundlich*P**(1/n_ads)",
     "log(x_ads/m_ads) = log(k_freundlich) + (1/n_ads)*log(P)",
     "theta_cov = K_ads*P/(1 + K_ads*P)",
+    "rate_cat = k_cat*theta_cov",
+    "x_ads/m_ads = x_max*K_ads*P/(1 + K_ads*P)",
 
     # =========================================================
     # REDOX & EQUIVALENT CONCEPT
@@ -206,4 +236,6 @@ CHEMISTRY_FORMULAS = [
     "Mol = normality/n_factor",
     "meq = N*V",
     "meq1 = meq2",
+    "eq_wt_ox = M/electrons_lost",
+    "eq_wt_red = M/electrons_gained",
 ]

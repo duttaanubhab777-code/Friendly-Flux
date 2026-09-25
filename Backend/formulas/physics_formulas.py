@@ -233,6 +233,16 @@ PHYSICS_FORMULAS = [
     "tau_dipole = p_dipole*E_field*sin_theta",
     "U_dipole = -p_dipole*E_field*cos_theta",
     "p_dipole = q*d",
+    "E_line = lambda_linear/(2*pi*epsilon0*r)",
+    "V_dipole = k*p_dipole*cos_theta/r**2",
+    "E_axial = 2*k*p_dipole/r**3",
+    "E_equatorial = k*p_dipole/r**3",
+    "C_cylinder = 2*pi*epsilon0*L_len/log(b_outer/a_inner)",
+    "C_sphere = 4*pi*epsilon0*a_inner*b_outer/(b_outer - a_inner)",
+    "C_dielectric = k_dielectric*epsilon0*A/d",
+    "u_energy = epsilon0*E_field**2/2",
+    "F_per_area = sigma**2/(2*epsilon0)",
+    "V_common = (C1*V1 + C2*V2)/(C1 + C2)",
 
     # =========================================================
     # CURRENT ELECTRICITY
@@ -256,6 +266,15 @@ PHYSICS_FORMULAS = [
     "J = I/A",
     "J = sigma_cond*E_field",
     "rho = 1/sigma_cond",
+    "v_d = I/(n_e*e*A)",
+    "v_d = mu_mobility*E_field",
+    "sigma_cond = n_e*e*mu_mobility",
+    "E_series = n_cells*E_emf",
+    "r_series = n_cells*r_int",
+    "r_parallel = r_int/n_cells",
+    "S_shunt = I_g*G_galv/(I - I_g)",
+    "R_v = V/I_g - G_galv",
+    "E1*l2 = E2*l1",
 
     # =========================================================
     # MAGNETISM & EMI
@@ -283,6 +302,15 @@ PHYSICS_FORMULAS = [
     "r_cyclotron = m*v/(q*B)",
     "T_cyclotron = 2*pi*m/(q*B)",
     "f_cyclotron = q*B/(2*pi*m)",
+    "m_dipole = I*A",
+    "tau_mag = N_turns*I*A*B*sin_theta",
+    "B_axis = mu0*I*R**2/(2*(R**2 + x**2)**1.5)",
+    "V_hall = I*B/(n_e*e*t_thick)",
+    "L_solenoid = mu0*n_turns**2*A*len_solenoid",
+    "V_s*N_p = V_p*N_s",
+    "I_p*N_p = I_s*N_s",
+    "u_mag = B**2/(2*mu0)",
+    "k_torsion*theta = N_turns*I*A*B",
 
     # =========================================================
     # ALTERNATING CURRENT
