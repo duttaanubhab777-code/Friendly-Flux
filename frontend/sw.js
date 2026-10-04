@@ -1,5 +1,5 @@
 /* Friendly Flux - Service Worker */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const SHELL_CACHE = 'flux-shell-' + VERSION;
 const RUNTIME_CACHE = 'flux-runtime-' + VERSION;
 
@@ -46,7 +46,7 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(SHELL_CACHE).then((cache) =>
             // one failing file must not break the whole install
-            Promise.all(SHELL_FILES.map((url) => cache.add(url).catch(() => null)))
+            Promise.all(SHELL_FILES.map((url) => cache.add(new Request(url, { cache: 'reload' })).catch(() => null)))
         ).then(() => self.skipWaiting())
     );
 });
@@ -98,7 +98,24 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
-    // Everything else (css, js, fonts, icons, CDN libs): serve from cache, refresh in background
+    // Our own files (html/css/js/json): network first so users always get the latest
+    // version after a GitHub update; cache is used only when offline / server is slow.
+    if (url.origin === self.location.origin) {
+        event.respondWith(
+            fetch(req)
+                .then((res) => {
+                    if (res && res.status === 200) {
+                        const copy = res.clone();
+                        caches.open(SHELL_CACHE).then((c) => c.put(req, copy));
+                    }
+                    return res;
+                })
+                .catch(() => caches.match(req, { ignoreSearch: true }))
+        );
+        return;
+    }
+
+    // External libraries / fonts (CDN): serve from cache, refresh in background
     event.respondWith(
         caches.match(req).then((cached) => {
             const network = fetch(req)
