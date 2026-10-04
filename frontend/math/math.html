@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang ="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,10 +9,17 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+  <script>
+    (function () {
+        var saved = localStorage.getItem("flux-theme");
+        if (saved !== "light") document.documentElement.setAttribute("data-theme", "dark");
+    })();
+  </script>
 
-  <link rel="stylesheet" href="math.css">
-    <link rel="stylesheet" href="geometry3d.css">
-    <link rel="stylesheet" href="algebra.css">
+  <link rel="stylesheet" href="core/math.css">
+<link rel="stylesheet" href="geometry/geometry3d.css">
+<link rel="stylesheet" href="algebra/algebra.css">
+
     <link rel="stylesheet" href="../science-bg.css">
 
 </head>
@@ -331,30 +338,136 @@
     
         </section>
 
-        <!-- ================= Algebra Tool ================= -->
-        <div style="text-align: center; margin: 60px 0 30px 0; padding-top: 40px; border-top: 2px dashed var(--border-color, #d1d5db);">
-            <h2 style="font-family: 'Kalam', cursive; font-size: 2.2rem; color: var(--text-color);">Algebra Problem Solver</h2>
-            <p style="color: var(--text-muted);">Simplify expressions, solve equations, inequalities and systems — with full steps.</p>
-        </div>
+                   <!-- ================= Algebra Tool ================= -->
+<div class="alg-section-header" style="text-align: center; margin: 60px 0 30px 0; padding-top: 40px; border-top: 2px dashed var(--border-color, #d1d5db);">
+            <h2 class="alg-main-title" style="font-family: 'Kalam', cursive; font-size: 2.2rem; color: var(--text-color);" data-lang="algHeroTitle">Algebra Problem Solver</h2>
+            <p class="alg-subtitle" style="color: var(--text-muted);" data-lang="algHeroSub">Select a category and solve equations, matrices, systems, and more — with full steps.</p>
+</div>
+
+
+      
+        
 
         <section class="algebra-tool" id="tool-algebra">
-            <div class="example-row" id="algebra-example-row"></div>
+            
+            <!-- Category Selector -->
+            <label class="field-label" data-lang="algCategoryLabel">Problem Category</label>
+            <div class="alg-category-row" id="alg-category-row">
+                <button type="button" class="tool-tab alg-cat-btn active" data-cat="general" data-lang="algTabGeneral">Equations & Expr</button>
+                <button type="button" class="tool-tab alg-cat-btn" data-cat="matrix" data-lang="algTabMatrix">Matrices</button>
+                <button type="button" class="tool-tab alg-cat-btn" data-cat="linsys" data-lang="algTabLinsys">Linear Systems</button>
+                <button type="button" class="tool-tab alg-cat-btn" data-cat="combinatorics" data-lang="algTabComb">Combinatorics</button>
+            </div>
 
-            <label class="field-label" for="algebra-input">Write your problem here</label>
-            <textarea id="algebra-input" rows="2" placeholder="e.g. x^2-5x+6=0   or   2x+3y=7; x-y=1   or   |x-3|<5"></textarea>
+            <!-- ================= 1. General Equations & Expressions ================= -->
+            <div id="alg-mode-general" class="alg-input-mode">
+                <div class="example-row" id="algebra-example-row"></div>
+                <label class="field-label" for="algebra-input" data-lang="algInputLabel">Write your problem here</label>
+                <textarea id="algebra-input" rows="2" data-lang="algInputPlaceholder" placeholder="e.g. x^2-5x+6=0   or   |x-3|<5"></textarea>
+                
+                <div id="algebra-expr-preview" class="expr-preview alg-live-preview hidden"></div>
 
-            <div class="field-row" style="margin-top: 10px;">
-                <div class="field-item" style="max-width: 180px;">
-                    <label class="field-label" for="algebra-var-input" style="font-size:0.85rem;">Solve for (optional)</label>
-                    <input type="text" id="algebra-var-input" placeholder="auto">
+                <div class="field-row alg-var-row">
+                    <div class="field-item alg-var-item">
+                        <label class="field-label alg-var-label" for="algebra-var-input" data-lang="algVarLabel">Solve for (optional)</label>
+                        <input type="text" id="algebra-var-input" data-lang="algVarPlaceholder" placeholder="auto">
+                    </div>
                 </div>
             </div>
 
+            <!-- ================= 2. Matrices & Determinants ================= -->
+            <div id="alg-mode-matrix" class="alg-input-mode alg-panel hidden">
+                <div class="alg-panel-header">
+                    <label class="field-label alg-m-0" data-lang="algMatrixOp">Operation:</label>
+                    <select id="alg-matrix-op" class="alg-select">
+                        <option value="det" data-lang="algOpDet">Determinant</option>
+                        <option value="inv" data-lang="algOpInv">Inverse</option>
+                        <option value="transpose" data-lang="algOpTrans">Transpose</option>
+                        <option value="rank" data-lang="algOpRank">Rank</option>
+                        <option value="trace" data-lang="algOpTrace">Trace</option>
+                        <option value="eigen" data-lang="algOpEigen">Eigenvalues & Vectors</option>
+                        <option value="add" data-lang="algOpAdd">A + B</option>
+                        <option value="multiply" data-lang="algOpMul">A × B</option>
+                    </select>
+                </div>
+                
+                <div id="matrix-container-wrapper" class="matrix-container-wrapper">
+                    <div class="matrix-box" id="matrix-a-box">
+                        <div class="matrix-header">
+                            <span class="matrix-title" data-lang="algMatrixA">Matrix A</span>
+                            <div class="stepper alg-mat-stepper">
+                                <input type="number" id="mat-a-rows" class="alg-num-input" value="2" min="1" max="4">
+                                <span class="mat-size-cross">×</span>
+                                <input type="number" id="mat-a-cols" class="alg-num-input" value="2" min="1" max="4">
+                            </div>
+                        </div>
+                        <div id="mat-a-grid" class="mat-grid"></div>
+                    </div>
+
+                    <div class="matrix-box hidden" id="matrix-b-box">
+                        <div class="matrix-header">
+                            <span class="matrix-title" data-lang="algMatrixB">Matrix B</span>
+                            <div class="stepper alg-mat-stepper">
+                                <input type="number" id="mat-b-rows" class="alg-num-input" value="2" min="1" max="4">
+                                <span class="mat-size-cross">×</span>
+                                <input type="number" id="mat-b-cols" class="alg-num-input" value="2" min="1" max="4">
+                            </div>
+                        </div>
+                        <div id="mat-b-grid" class="mat-grid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= 3. Linear Systems ================= -->
+            <div id="alg-mode-linsys" class="alg-input-mode alg-panel hidden">
+                <div class="alg-panel-header">
+                    <label class="field-label alg-m-0" data-lang="algLinsysSize">Number of Equations/Variables:</label>
+                    <input type="number" id="linsys-size" class="alg-select alg-text-center" value="2" min="2" max="5">
+                </div>
+                <div id="linsys-grid" class="linsys-grid">
+                    <!-- JS দিয়ে ইনপুট তৈরি হবে -->
+                </div>
+            </div>
+
+            <!-- ================= 4. Combinatorics ================= -->
+            <div id="alg-mode-combinatorics" class="alg-input-mode alg-panel hidden">
+                <div class="alg-panel-header">
+                    <label class="field-label alg-m-0" data-lang="algCombType">Type:</label>
+                    <select id="alg-comb-type" class="alg-select">
+                        <option value="ncr" data-lang="algCombNcr">Combination (nCr)</option>
+                        <option value="npr" data-lang="algCombNpr">Permutation (nPr)</option>
+                        <option value="binomial" data-lang="algCombBinom">Binomial Expansion (x+y)ⁿ</option>
+                    </select>
+                </div>
+                <div class="field-row" id="comb-n-r-inputs">
+                    <div class="field-item">
+                        <label class="field-label">n =</label>
+                        <input type="number" id="comb-n" value="5" min="0">
+                    </div>
+                    <div class="field-item" id="comb-r-box">
+                        <label class="field-label">r =</label>
+                        <input type="number" id="comb-r" value="2" min="0">
+                    </div>
+                </div>
+                <!-- Binomial variables -->
+                <div class="field-row hidden" id="comb-binom-inputs">
+                    <div class="field-item">
+                        <label class="field-label" data-lang="algTerm1">Term 1 (a)</label>
+                        <input type="text" id="comb-a" value="x" data-lang="algTerm1Place" placeholder="e.g. 2x">
+                    </div>
+                    <div class="field-item">
+                        <label class="field-label" data-lang="algTerm2">Term 2 (b)</label>
+                        <input type="text" id="comb-b" value="y" data-lang="algTerm2Place" placeholder="e.g. 3y">
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= Global Solve Button & Result ================= -->
             <div class="live-status" id="algebra-live-status"></div>
 
-            <button id="algebra-solve-btn" class="primary-btn">
+            <button id="algebra-solve-btn" class="primary-btn alg-mt-20">
                 <span id="algebra-solve-btn-spinner" class="spinner hidden"></span>
-                <span id="algebra-solve-btn-text">Solve</span>
+                <span id="algebra-solve-btn-text" data-lang="solveBtn">Solve</span>
             </button>
 
             <div id="algebra-result-card" class="result-card hidden">
@@ -363,54 +476,67 @@
                 <div class="result-card-extra hidden" id="algebra-result-extra"></div>
                 <div class="result-card-note hidden" id="algebra-result-note"></div>
 
-                <button type="button" class="steps-toggle hidden" id="algebra-steps-toggle"><span>Show working</span></button>
+                <button type="button" class="steps-toggle hidden" id="algebra-steps-toggle">
+                    <span data-lang="showSteps">Show working</span>
+                </button>
                 <ol class="steps-list hidden" id="algebra-steps-list"></ol>
 
                 <div class="result-card-actions hidden" id="algebra-result-actions">
-                    <button type="button" class="copy-btn" id="algebra-copy-result-btn">Copy result</button>
+                    <button type="button" class="copy-btn" id="algebra-copy-result-btn" data-lang="copyBtn">Copy result</button>
                 </div>
             </div>
         </section>
+                             
     </main>
 
     <footer class="ff-footer">
         <p>&copy; 2026 Friendly Flux. Built by Anubhab Dutta &amp; Arnab Adhikari.</p>
     </footer>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 
+    <!-- KaTeX Core -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+    <!-- KaTeX Auto-render Extension (এটি ছাড়া Live Preview কাজ করবে না) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
 
-    <script src="lang.js"></script>
-  <script src="geometrylang.js"></script>
-  <script>
-  window.MathJax = {
-    tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
-    startup: { typeset: false }  // পুরো পেজ নিজে scan করবে না, আমরা যেখানে বলব শুধু সেখানেই রেন্ডার করবে
-  };
-</script>
-<script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-<script src="calculus-graph.js"></script>
+    <script src="core/lang.js"></script>
+    <script src="geometry/geometrylang.js"></script>
+  <script src="algebra/algebra-lang.js"></script>
+    
+    <script>
+      window.MathJax = {
+        tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+        startup: { typeset: false } 
+      };
+    </script>
+    <script id="MathJax-script" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+    <script src="core/calculus-graph.js"></script>
 
-    <script src="math.js?v=2"></script>
-    <script src="geometry3d.js"></script>
-    <!-- geometry3d-graph.js স্ক্রিপ্ট এখানে যোগ করা হলো -->
-    <script src="geometry3d-graph.js"></script>
-    <!-- New, independent Algebra Engine UI — talks to /api/algebra/solve only -->
-    <script src="algebra.js"></script>
+    <script src="core/math.js?v=2"></script>
+    <script src="geometry/geometry3d.js"></script>
+    <script src="geometry/geometry3d-graph.js"></script>
+    
+    <!-- বাংলা অনুবাদের ফাইলটি (এটি ছাড়া algebra.js ক্র্যাশ করবে) -->
+    <script src="algebra/algebra-lang_rules.js"></script>
+
+    <!-- Algebra Engine UI -->
+    <script src="algebra/algebra.js"></script>
 
     <script>
         // Tab buttons are a scroll shortcut — all tool sections stay visible/scrollable.
         const TOOL_SECTION_IDS = { geo: "tool-geo", algebra: "tool-algebra", calc: "tool-calc" };
         document.querySelectorAll(".tool-tab").forEach((btn) => {
-            btn.addEventListener("click", () => {
-                document.querySelectorAll(".tool-tab").forEach((b) => b.classList.remove("active"));
-                btn.classList.add("active");
-                const targetId = TOOL_SECTION_IDS[btn.dataset.tool] || "tool-calc";
-                document.getElementById(targetId).scrollIntoView({ behavior: "smooth", block: "start" });
-            });
+            if(!btn.classList.contains("alg-cat-btn")){
+                btn.addEventListener("click", () => {
+                    document.querySelectorAll(".tool-tab:not(.alg-cat-btn)").forEach((b) => b.classList.remove("active"));
+                    btn.classList.add("active");
+                    const targetId = TOOL_SECTION_IDS[btn.dataset.tool] || "tool-calc";
+                    document.getElementById(targetId).scrollIntoView({ behavior: "smooth", block: "start" });
+                });
+            }
         });
     </script>
 </body>

@@ -11,13 +11,16 @@ from flask_cors import CORS
 
 from formulas.physics_formulas import PHYSICS_FORMULAS
 from formulas.chemistry_formulas import CHEMISTRY_FORMULAS
-from formulas.formula_engine import solve_target
-from formulas.calculus_engine import solve_calculus, CalculusError
-from formulas.graph_engine import generate_graph_data
-from formulas.math_ocr import extract_expression_from_image, OcrError
-from formulas.geometry3d_engine import solve_geometry3d, Geometry3DError
-from formulas.geometry3d_graph_engine import generate_3d_plot_data, Geometry3DGraphError
-from formulas.algebra_engine import solve_algebra, AlgebraError
+from engines.formula_engine import solve_target
+from engines.calculus_engine import solve_calculus, CalculusError
+from engines.graph_engine import generate_graph_data
+from engines.math_ocr import extract_expression_from_image, OcrError
+from engines.geometry3d_engine import solve_geometry3d, Geometry3DError
+from engines.geometry3d_graph_engine import generate_3d_plot_data, Geometry3DGraphError
+
+# অ্যালজেব্রার জন্য ইম্পোর্টটি হবে এরকম (যেহেতু এটি algebra_engines সাব-ফোল্ডারে আছে):
+from engines.algebra_engines.algebra_engine import solve_algebra, AlgebraError
+
 
 app = Flask(__name__)
 

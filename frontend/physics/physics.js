@@ -77,7 +77,8 @@ function initPhysicsPage() {
 
         row.innerHTML = `
             <input type="text" class="smart-var-name custom-input" placeholder="Variable (e.g. u)" style="flex: 1;">
-            <input type="number" step="any" class="smart-var-val custom-input" placeholder="Value" style="flex: 2;">
+            <!-- type="number" পরিবর্তন করে type="text" করা হলো যাতে x, a বা নেগেটিভ মান দেওয়া যায় -->
+            <input type="text" class="smart-var-val custom-input" placeholder="Value (e.g. 10 or x)" style="flex: 2;">
             <button class="remove-var" style="background: transparent; border: none; color: #ef4444; font-size: 18px; cursor: pointer; padding: 0 10px;">✖</button>
         `;
 
@@ -92,7 +93,7 @@ function initPhysicsPage() {
     }
 
 
-        /* ==========================================================================
+    /* ==========================================================================
        VARIABLE INFO & CUSTOM SELECT POPUP LOGIC (Fully Auto-Dynamic + Search)
        ========================================================================== */
     const targetTrigger = document.getElementById("smart-target-trigger");
@@ -283,7 +284,6 @@ function initPhysicsPage() {
     }
 
 
-
     // ৪. ব্যাকএন্ডে API রিকোয়েস্ট পাঠানো 
     const btnSolveSmart = document.getElementById("btn-solve-smart");
     const resultDisplay = document.getElementById("smart-result-display");
@@ -307,9 +307,11 @@ function initPhysicsPage() {
 
             for (let i = 0; i < names.length; i++) {
                 const name = names[i].value.trim();
-                const val = vals[i].value;
+                const val = vals[i].value.trim(); // ভ্যালুর আশেপাশের স্পেস রিমুভ করা হলো
                 if (name && val !== "") {
-                    knownValues[name] = parseFloat(val);
+                    // ভ্যালুটি নম্বর হলে নম্বর হিসেবে, আর টেক্সট (যেমন x) হলে স্ট্রিং হিসেবে সেভ হবে
+                    const parsedNum = Number(val);
+                    knownValues[name] = isNaN(parsedNum) ? val : parsedNum;
                 }
             }
 

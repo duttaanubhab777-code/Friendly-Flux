@@ -217,16 +217,41 @@ a { color: var(--primary); }
 .result-box { margin-top: 22px; font-family: var(--font-mono); font-size: 1.15rem; font-weight: 600; text-align: center; min-height: 30px; color: var(--primary); }
 
 /* ---------- Target-select modal (same radius family as the calculator) ---------- */
+/* পুরনো .modal-overlay, .modal-box মুছে এইটুকু বসান */
+
 .modal-overlay {
-    position: fixed; inset: 0; background: rgba(8, 6, 15, 0.55); backdrop-filter: blur(6px);
-    display: flex; align-items: center; justify-content: center; z-index: 999; padding: 20px;
+    position: fixed; 
+    inset: 0; 
+    background: transparent; /* কালো ছায়া মুছে ফেলা হলো */
+    backdrop-filter: none;
+    display: none; /* Flex-এর বদলে none */
+    z-index: 999;
 }
+
+.modal-overlay:not(.hidden) {
+    display: block; 
+}
+
 .modal-box {
-    background: var(--card-bg); backdrop-filter: blur(18px); border: 1px solid var(--card-border);
-    border-radius: var(--radius-lg); width: 100%; max-width: 380px; max-height: 78vh;
-    box-shadow: var(--shadow), var(--glow); display: flex; flex-direction: column; overflow: hidden;
-    animation: panelIn 0.3s ease;
+    position: absolute; /* এটি না দিলে ড্রপডাউন বোতামের নিচে আসবে না */
+    background: var(--card-bg);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--primary); 
+    border-radius: 12px;
+    max-height: 250px; /* উচ্চতা কিছুটা কমানো হলো যাতে স্ক্রিনের বাইরে না যায় */
+    box-shadow: var(--shadow), var(--glow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: dropDownIn 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
+
+/* ড্রপডাউন অ্যানিমেশন */
+@keyframes dropDownIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid var(--border); }
 .modal-header h4 { font-family: var(--font-heading); font-size: 1rem; font-weight: 600; }
 .modal-options { list-style: none; overflow-y: auto; padding: 10px; }
