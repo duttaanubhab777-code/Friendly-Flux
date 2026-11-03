@@ -314,3 +314,10 @@ body {
         transform: none;
     }
 }
+
+.mw-home-link .logo-img {
+    width: 26px;
+    height: 26px;
+    object-fit: contain;
+    vertical-align: middle;
+}

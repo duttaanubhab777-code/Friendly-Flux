@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="frontend/icons/icon-512.png" width="160" alt="Friendly Flux logo"/>
+
 <img src="https://capsule-render.vercel.app/api?type=waving&color=0:4F46E5,50:7C3AED,100:EC4899&height=220&section=header&text=Friendly%20Flux&fontSize=68&fontColor=ffffff&animation=fadeIn&fontAlignY=38&desc=Solve%20Physics%20%7C%20Chemistry%20%7C%20Mathematics%20%E2%80%94%20Step%20by%20Step&descAlignY=58&descSize=20" width="100%" alt="Friendly Flux banner"/>
 
 [![Typing SVG](https://readme-typing-svg.demolab.com/?font=Fira+Code&weight=600&size=22&duration=3000&pause=900&color=7C3AED&center=true&vCenter=true&multiline=true&repeat=true&width=760&height=100&lines=Symbolic+Calculus+%2B+Algebra+%2B+3D+Geometry;Forward-Chaining+%26+Simultaneous+Physics+Solver;Snap+a+Photo+%E2%86%92+Auto-Read+the+Expression+(Gemini);Bilingual+%C2%B7+Light%2FDark+%C2%B7+Mobile-First+UI)](https://git.io/typing-svg)

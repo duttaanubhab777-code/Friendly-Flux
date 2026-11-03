@@ -290,3 +290,12 @@ a { color: var(--primary); }
 @media (prefers-reduced-motion: reduce) {
     * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
 }
+
+.logo-img {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    flex-shrink: 0;
+    -webkit-text-fill-color: initial;
+    filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.55));
+}

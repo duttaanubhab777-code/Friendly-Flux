@@ -412,3 +412,12 @@ h1, h2, h3, .logo, .tab-btn, .primary-btn, .secondary-btn, .hero p, .calc-header
     box-shadow: -8px 0 25px -4px rgba(255, 97, 210, 0.6), 
                  8px 0 25px -4px rgba(185, 140, 255, 0.6) !important;
 }
+
+.logo-img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    flex-shrink: 0;
+    -webkit-text-fill-color: initial;
+    filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.55));
+}

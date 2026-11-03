@@ -481,3 +481,11 @@ footer.ff-footer {
         transition-duration: 0.01ms !important; scroll-behavior: auto !important;
     }
 }
+.logo-img {
+    width: 46px;
+    height: 46px;
+    object-fit: contain;
+    flex-shrink: 0;
+    -webkit-text-fill-color: initial;
+    filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.55));
+}

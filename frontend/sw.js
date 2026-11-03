@@ -1,5 +1,5 @@
 /* Friendly Flux - Service Worker */
-const VERSION = 'v2';
+const VERSION = 'v3';
 const SHELL_CACHE = 'flux-shell-' + VERSION;
 const RUNTIME_CACHE = 'flux-runtime-' + VERSION;
 
@@ -11,9 +11,11 @@ const SHELL_FILES = [
     'chemistry/chemistry.js',
     'chemistry/lang.js',
     'icons/apple-touch-icon.png',
+    'icons/favicon-32.png',
     'icons/icon-192.png',
     'icons/icon-512.png',
     'icons/icon-maskable-512.png',
+    'icons/logo-mark.png',
     'index.html',
     'math/algebra/algebra-lang.js',
     'math/algebra/algebra-lang_rules.js',
